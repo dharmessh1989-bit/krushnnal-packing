@@ -344,7 +344,7 @@ function stk(){
 let _tt=null;
 function toast(msg,bg='#22c55e'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=bg;t.style.display='block';clearTimeout(_tt);_tt=setTimeout(()=>t.style.display='none',2800);}
 
-let tab='dashboard',modal=null,confirmQ=null,searchQ='',repMonth=new Date().toISOString().slice(0,7);
+let tab='dashboard',prevTab='dashboard',modal=null,confirmQ=null,searchQ='',repMonth=new Date().toISOString().slice(0,7);
 let dashMonth=new Date().toISOString().slice(0,7);
 let stkQ='';
 let stkOnlyBal=false; // Stock Value double click thay tyare true — ফক্ত balance>0
@@ -413,14 +413,23 @@ document.addEventListener('keydown',e=>{
   if(e.key==='F9'){e.preventDefault();tab='in';render();showKbHint('F9 → Maal Aavyo List');return;}
   if(e.key==='F10'){e.preventDefault();tab='out';render();showKbHint('F10 → Maal Gayo List');return;}
 
-  // ── Escape ──
+  // ── Escape: 1 vaar press = badhu j band ──
   if(e.key==='Escape'){
-    // Close product history popup first
-    const prodPopup=document.querySelector('div[style*="fixed"][style*="backdrop-filter"]');
-    if(prodPopup){prodPopup.remove();return;}
-    if(modal){modal=null;render();showKbHint('Esc → Band');return;}
-    if(confirmQ){confirmQ=null;render();return;}
+    e.preventDefault();
+    // Badha fixed popup remove karo (product history, delete modal, etc)
+    document.querySelectorAll('div[style*="position:fixed"],div[style*="position: fixed"]').forEach(el=>{
+      if(el.id==='toast'||el.id==='mob-overlay'||el.id==='mob-sidebar'||el.id==='kp-login'||el.id==='app'||el.id==='pa') return;
+      el.remove();
+    });
+    // Modal band karo
+    modal=null;
+    confirmQ=null;
+    // Tab → dashboard par pachha
+    tab='dashboard';
+    // kb-active clear
     document.querySelectorAll('.kb-active').forEach(r=>{r.classList.remove('kb-active');r.style.background='';r.style.borderLeft='';});
+    render();
+    showKbHint('Esc → Band');
     return;
   }
 

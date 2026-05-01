@@ -1828,7 +1828,7 @@ function buildModal(){
       </div>
       <div style="margin-bottom:11px;">
         <label for="md" style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.calendar} TARIKH</label>
-        <input type="date" class="inp" id="md" value="${d.date||tod()}" style="font-size:14px;" oninput="modal.data.date=this.value" autofocus>
+        <input type="date" class="inp" id="md" value="${d.date||tod()}" style="font-size:14px;" oninput="modal.data.date=this.value">
       </div>
       <div style="margin-bottom:11px;">
         <label for="prod-num-inp" style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.package} PRODUCT — Number lakhvo</label>
@@ -1937,7 +1937,7 @@ function openAdd(type){
     render();setTimeout(()=>document.getElementById('pname')?.focus(),50);return;
   }
   modal={type,mode:'add',data:{date:tod(),product:'',pes:'',rate:''}};
-  render();setTimeout(()=>document.getElementById('md')?.focus(),50);
+  render();setTimeout(()=>document.getElementById('prod-num-inp')?.focus(),60);
 }
 
 function openEdit(type,id){
@@ -1975,8 +1975,9 @@ function saveM(){
   // Turant j navi entry open karo — no delay, no click needed
   modal={type:_st,mode:'add',data:{date:_sd,product:'',pes:'',rate:'',damage:'',short:''}};
   render();
+  // Product number field par focus karo — date par nahi
   setTimeout(()=>{
-    const pf=document.getElementById('mprod')||document.getElementById('mprd')||document.querySelector('#modal-body select')||document.querySelector('#modal-body input');
+    const pf=document.getElementById('prod-num-inp');
     if(pf){pf.focus();}
   },60);
 }

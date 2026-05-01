@@ -1971,18 +1971,14 @@ function saveM(){
   }
   persist();
   const _st=modal.type, _sd=modal.data.date;
-  modal=null;
   toast('Entry save thayi!');
+  // Turant j navi entry open karo — no delay, no click needed
+  modal={type:_st,mode:'add',data:{date:_sd,product:'',pes:'',rate:'',damage:'',short:''}};
   render();
-  // Auto reopen same entry type after 1.2s
   setTimeout(()=>{
-    modal={type:_st,mode:'add',data:{date:_sd,product:'',pes:'',rate:'',damage:'',short:''}};
-    render();
-    setTimeout(()=>{
-      const pf=document.getElementById('mprod')||document.getElementById('mprd')||document.querySelector('#modal-body input');
-      if(pf){pf.focus();}
-    },80);
-  },1200);
+    const pf=document.getElementById('mprod')||document.getElementById('mprd')||document.querySelector('#modal-body select')||document.querySelector('#modal-body input');
+    if(pf){pf.focus();}
+  },60);
 }
 
 function changePhoto(){

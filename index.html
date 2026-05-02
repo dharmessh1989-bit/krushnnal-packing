@@ -297,7 +297,7 @@ function getProdRate(productName, type){
   const p=S.products.find(x=>x.name===productName);
   if(p) return p.rate||p.inRate||p.outRate||0;
   // fallback: last entry rate
-  const arr=(type==='in'?S.inData:S.outData).filter(r=>r.product===productName).sort((a,b)=>b.date.localeCompare(a.date));
+  const arr=(type==='in'?S.inData:S.outData).filter(r=>r.product===productName).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
   if(arr.length) return arr[0].rate;
   return '';
 }
@@ -832,8 +832,8 @@ function dashHTML(stock){
   const prevM=adjMonth(mk,-1),nextM=adjMonth(mk,1);
   const todayM=new Date().toISOString().slice(0,7);
   const isToday=mk===todayM;
-  const ri=[...S.inData].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
-  const ro=[...S.outData].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  const ri=[...S.inData].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,5);
+  const ro=[...S.outData].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,5);
   return `
   <div style="background:linear-gradient(135deg,#0d1520,#111827,#0d1a2e);border:1px solid var(--border2);border-radius:18px;padding:26px 30px;margin-bottom:16px;position:relative;overflow:hidden;display:flex;align-items:center;gap:22px;"><img src="${window._KPIMG||_KPIMG}" style="width:130px;height:155px;object-fit:cover;object-position:center top;border-radius:12px;border:2px solid rgba(249,115,22,0.4);box-shadow:0 0 20px rgba(249,115,22,0.25);flex-shrink:0;" /><div style="flex:1;position:relative;">
     <div style="position:absolute;right:0;top:0;bottom:0;width:220px;background:radial-gradient(ellipse at right,rgba(249,115,22,.12),transparent 70%);pointer-events:none;"></div>
@@ -920,8 +920,8 @@ function dashHTML(stock){
 }
 
 function showProdHistory(pname){
-  const inRows=[...S.inData].filter(r=>r.product===pname).sort((a,b)=>b.date.localeCompare(a.date));
-  const outRows=[...S.outData].filter(r=>r.product===pname).sort((a,b)=>b.date.localeCompare(a.date));
+  const inRows=[...S.inData].filter(r=>r.product===pname).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  const outRows=[...S.outData].filter(r=>r.product===pname).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
   const totIn=inRows.reduce((s,r)=>s+r.pes,0);
   const totOut=outRows.reduce((s,r)=>s+r.pes,0);
   const totAmtIn=inRows.reduce((s,r)=>s+r.pes*r.rate,0);
@@ -1030,7 +1030,7 @@ function setupDashProdNav(){
 
 function tbl(rows,type){
   const c=type==='in'?'var(--green)':'var(--red)';
-  const s=[...rows].sort((a,b)=>b.date.localeCompare(a.date));
+  const s=[...rows].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
   if(!s.length)return `<div style="text-align:center;padding:40px;color:var(--muted);"><div style="margin-bottom:8px;">${IC.emptyBox}</div><div><span class="kbd">${type==='in'?'F2':'F3'}</span> dabao — navi entry</div></div>`;
   const tp=s.reduce((x,r)=>x+r.pes,0);
   const tdmg=type==='out'?s.reduce((x,r)=>x+(r.damage||0),0):0;
@@ -1346,7 +1346,7 @@ function repSearchKey(e,key,ddid,sid){
 }
 
 function getRepRows(f,type){
-  let rows=[...(type==='in'?S.inData:S.outData)].sort((a,b)=>a.date.localeCompare(b.date));
+  let rows=[...(type==='in'?S.inData:S.outData)].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
   if(f.d) rows=rows.filter(r=>r.date===f.d);
   else if(f.m) rows=rows.filter(r=>r.date.startsWith(f.m));
   if(f.p) rows=rows.filter(r=>r.product===f.p);

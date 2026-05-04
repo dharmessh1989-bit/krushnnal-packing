@@ -67,42 +67,61 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;fon
   body{overflow:auto!important;height:auto!important;min-height:100vh;}
   /* Sidebar hidden by default on mobile */
   .desk-sidebar{display:none!important;}
-  /* Main content full width, full height */
+  /* Main content full width */
   .main-wrap{height:100vh!important;overflow:hidden!important;}
   /* Top header compact */
   .top-header{padding:10px 14px!important;}
   .top-header-title{font-size:15px!important;}
   .top-header-date{display:none!important;}
   /* Content padding — extra bottom for bottom nav */
-  .content-area{padding:12px 10px 80px!important;}
+  .content-area{padding:10px 8px 85px!important;}
   /* Tables scroll horizontally */
   .card{overflow-x:auto!important;}
   table{font-size:12px!important;min-width:480px;}
-  th,td{padding:6px 8px!important;font-size:12px!important;}
+  th,td{padding:7px 8px!important;font-size:12px!important;}
   /* Stats cards 2 column */
-  .dash-stats{grid-template-columns:1fr 1fr!important;}
-  /* Modal full screen */
-  .mo-box{padding:18px 14px!important;max-width:100%!important;margin:0!important;border-radius:16px 16px 0 0!important;}
+  .dash-stats{grid-template-columns:1fr 1fr!important;gap:8px!important;}
+  /* Stats card compact */
+  .sc{padding:11px 12px!important;}
+  .sc .mn{font-size:16px!important;}
+  /* Modal full screen bottom sheet */
+  .mo-box{padding:20px 16px!important;max-width:100%!important;margin:0!important;border-radius:20px 20px 0 0!important;max-height:92vh!important;overflow-y:auto!important;}
   .mo-bg{padding:0!important;align-items:flex-end!important;}
   /* Buttons compact */
-  .btn-or{padding:8px 12px!important;font-size:13px!important;}
+  .btn-or{padding:9px 13px!important;font-size:13px!important;}
   .btn-or .kbd{display:none!important;}
   /* Filter bar wrap */
-  .fbar-wrap{flex-wrap:wrap!important;}
+  .fbar-wrap{flex-wrap:wrap!important;gap:6px!important;}
+  .fbar-wrap .inp{font-size:15px!important;}
   /* Bottom nav bar */
   #mob-nav{display:flex!important;}
   /* Hide keyboard shortcuts on mobile */
   #kb-panel{display:none!important;}
   /* Report side by side → stacked */
   .rep-grid{grid-template-columns:1fr!important;}
-  /* sc cards */
-  .sc{padding:12px 14px!important;}
   /* Mobile menu button show */
   #mob-menu-btn{display:inline-flex!important;}
   /* Bigger touch targets */
-  .bsm{min-width:40px!important;min-height:40px!important;padding:8px 10px!important;}
+  .bsm{min-width:42px!important;min-height:42px!important;padding:8px 10px!important;}
+  /* Input zoom fix - prevent iOS zoom */
   .inp{font-size:16px!important;padding:12px 13px!important;}
   select.inp{font-size:16px!important;}
+  /* Better mob nav */
+  #mob-nav{height:62px!important;padding:4px 4px 8px!important;box-shadow:0 -2px 12px rgba(0,0,0,.4)!important;}
+  #mob-nav button{flex:1!important;border-radius:10px!important;padding:4px 2px!important;transition:background .15s,color .15s!important;}
+  #mob-nav button:active{background:rgba(249,115,22,.15)!important;}
+  /* Mobile sidebar overlay smooth */
+  #mob-sidebar{border-radius:0 16px 16px 0!important;width:80vw!important;max-width:280px!important;}
+  /* Dashboard header area */
+  .dash-header-img{width:60px!important;height:60px!important;}
+  /* Amount text size */
+  [style*="font-size:28px"]{font-size:20px!important;}
+  [style*="font-size:26px"]{font-size:18px!important;}
+  [style*="font-size:24px"]{font-size:17px!important;}
+  /* Tag smaller */
+  .tag{font-size:10px!important;padding:2px 7px!important;}
+  /* Month nav compact */
+  [style*="display:flex;align-items:center;justify-content:space-between"]{flex-wrap:wrap!important;gap:6px!important;}
 }
 @media(min-width:701px){
   #mob-nav{display:none!important;}
@@ -714,21 +733,22 @@ function render(){
     </div>
   </div>
   <!-- Mobile Bottom Nav -->
-  <div id="mob-nav" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:100;padding:4px 0 6px;">
+  <div id="mob-nav" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:100;padding:4px 0 8px;box-shadow:0 -2px 16px rgba(0,0,0,.5);">
     <div style="display:flex;justify-content:space-around;align-items:center;">
       ${[
         {id:'dashboard',l:'Home',i:'🏠'},
         {id:'in',l:'Aavyo',i:'📥'},
         {id:'out',l:'Gayo',i:'📤'},
         {id:'stock',l:'Stock',i:'📦'},
-        {id:'search',l:'Search',i:'🔍'},
-      ].map(n=>`<button onclick="tab='${n.id}';render()" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 8px;border-radius:8px;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
-        <span style="font-size:20px;line-height:1;">${n.i}</span>
-        <span style="font-size:9px;font-weight:700;">${n.l}</span>
+        {id:'report',l:'Report',i:'📊'},
+      ].map(n=>`<button onclick="tab='${n.id}';render()" style="background:${tab===n.id?'rgba(249,115,22,0.12)':'none'};border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;position:relative;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
+        ${tab===n.id?`<span style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--orange);border-radius:0 0 4px 4px;"></span>`:''}
+        <span style="font-size:21px;line-height:1;">${n.i}</span>
+        <span style="font-size:9px;font-weight:800;letter-spacing:.3px;">${n.l}</span>
       </button>`).join('')}
-      <button onclick="openMobSidebar()" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 8px;border-radius:8px;color:var(--muted);">
-        <span style="font-size:20px;line-height:1;">☰</span>
-        <span style="font-size:9px;font-weight:700;">Menu</span>
+      <button onclick="openMobSidebar()" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;color:var(--muted);">
+        <span style="font-size:21px;line-height:1;">☰</span>
+        <span style="font-size:9px;font-weight:800;letter-spacing:.3px;">Menu</span>
       </button>
     </div>
   </div>

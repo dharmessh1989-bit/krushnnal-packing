@@ -364,6 +364,30 @@ let _tt=null;
 function toast(msg,bg='#22c55e'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=bg;t.style.display='block';clearTimeout(_tt);_tt=setTimeout(()=>t.style.display='none',2800);}
 
 let tab='dashboard',prevTab='dashboard',modal=null,confirmQ=null,searchQ='',repMonth=new Date().toISOString().slice(0,7);
+
+// ── Browser Back Button Fix ──
+function navTo(newTab){
+  if(newTab===tab)return;
+  history.pushState({tab:newTab},'',location.pathname+'#'+newTab);
+  tab=newTab;
+  modal=null;
+  render();
+}
+window.addEventListener('popstate',function(e){
+  if(e.state&&e.state.tab){
+    tab=e.state.tab;
+    modal=null;
+    render();
+  } else {
+    tab='dashboard';
+    modal=null;
+    render();
+  }
+});
+// Initial state push
+window.addEventListener('load',function(){
+  history.replaceState({tab:'dashboard'},'',location.pathname+'#dashboard');
+});
 let dashMonth=new Date().toISOString().slice(0,7);
 let stkQ='';
 let stkOnlyBal=false; // Stock Value double click thay tyare true — ফক্ত balance>0
@@ -424,13 +448,13 @@ document.addEventListener('keydown',e=>{
   if(e.key==='F1'){e.preventDefault();openAdd('product');showKbHint('F1 → Navo Product');return;}
   if(e.key==='F2'){e.preventDefault();openAdd('in');showKbHint('F2 → Maal Aavyo Entry');return;}
   if(e.key==='F3'){e.preventDefault();openAdd('out');showKbHint('F3 → Maal Gayo Entry');return;}
-  if(e.key==='F4'){e.preventDefault();tab='report';render();showKbHint('F4 → Report');return;}
-  if(e.key==='F5'){e.preventDefault();tab='dashboard';render();showKbHint('F5 → Dashboard');return;}
-  if(e.key==='F6'){e.preventDefault();tab='stock';render();showKbHint('F6 → Stock');return;}
-  if(e.key==='F7'){e.preventDefault();tab='search';render();setTimeout(()=>{const s=document.getElementById('main-search');if(s){s.focus();s.select&&s.select();}},80);showKbHint('F7 → Search');return;}
-  if(e.key==='F8'){e.preventDefault();tab='products';render();showKbHint('F8 → Products');return;}
-  if(e.key==='F9'){e.preventDefault();tab='in';render();showKbHint('F9 → Maal Aavyo List');return;}
-  if(e.key==='F10'){e.preventDefault();tab='out';render();showKbHint('F10 → Maal Gayo List');return;}
+  if(e.key==='F4'){e.preventDefault();navTo('report');showKbHint('F4 → Report');return;}
+  if(e.key==='F5'){e.preventDefault();navTo('dashboard');showKbHint('F5 → Dashboard');return;}
+  if(e.key==='F6'){e.preventDefault();navTo('stock');showKbHint('F6 → Stock');return;}
+  if(e.key==='F7'){e.preventDefault();navTo('search');setTimeout(()=>{const s=document.getElementById('main-search');if(s){s.focus();s.select&&s.select();}},80);showKbHint('F7 → Search');return;}
+  if(e.key==='F8'){e.preventDefault();navTo('products');showKbHint('F8 → Products');return;}
+  if(e.key==='F9'){e.preventDefault();navTo('in');showKbHint('F9 → Maal Aavyo List');return;}
+  if(e.key==='F10'){e.preventDefault();navTo('out');showKbHint('F10 → Maal Gayo List');return;}
 
   // ── Escape: 1 vaar press = badhu j band ──
   if(e.key==='Escape'){
@@ -459,11 +483,11 @@ document.addEventListener('keydown',e=>{
   // ── Ctrl shortcuts ──
   if(e.ctrlKey&&!e.altKey){
     if(e.key==='p'||e.key==='P'){e.preventDefault();if(tab==='report'&&typeof printRep==='function')printRep('both');showKbHint('Ctrl+P → Print Report');return;}
-    if(e.key==='f'||e.key==='F'){e.preventDefault();tab='search';render();setTimeout(()=>{const s=document.getElementById('main-search');if(s){s.focus();s.select&&s.select();}},80);showKbHint('Ctrl+F → Search');return;}
+    if(e.key==='f'||e.key==='F'){e.preventDefault();navTo('search');setTimeout(()=>{const s=document.getElementById('main-search');if(s){s.focus();s.select&&s.select();}},80);showKbHint('Ctrl+F → Search');return;}
     if(e.key==='n'||e.key==='N'){e.preventDefault();if(tab==='in')openAdd('in');else if(tab==='out')openAdd('out');else if(tab==='products')openAdd('product');else openAdd('in');showKbHint('Ctrl+N → Navi Entry');return;}
     if(e.key==='e'||e.key==='E'){e.preventDefault();const sel=document.querySelector('.kb-active');if(sel){const eb=sel.querySelector('[aria-label^="Edit"]');if(eb)eb.click();}showKbHint('Ctrl+E → Edit');return;}
     if(e.key==='d'||e.key==='D'){e.preventDefault();const sel=document.querySelector('.kb-active');if(sel){const db=sel.querySelector('[aria-label^="Delete"]');if(db)db.click();}showKbHint('Ctrl+D → Delete');return;}
-    if(e.key==='Home'){e.preventDefault();tab='dashboard';render();showKbHint('Ctrl+Home → Dashboard');return;}
+    if(e.key==='Home'){e.preventDefault();navTo('dashboard');showKbHint('Ctrl+Home → Dashboard');return;}
     return;
   }
 
@@ -633,7 +657,7 @@ function render(){
       </div>
     </div>
     <nav style="flex:1;padding:8px 7px;display:flex;flex-direction:column;gap:2px;">
-      ${NAV.map(n=>`<button class="nb${tab===n.id?' act':''}" onclick="tab='${n.id}';render();closeMobSidebar()" aria-label="${n.l}">
+      ${NAV.map(n=>`<button class="nb${tab===n.id?' act':''}" onclick="navTo('${n.id}');closeMobSidebar()" aria-label="${n.l}">
         <span class="ic">${n.i}</span>
         <span style="flex:1;">${n.l}</span>
         ${n.id==='stock'&&lowN?`<span style="background:var(--gold);color:#000;border-radius:10px;font-size:10px;font-weight:900;padding:1px 6px;">${lowN}</span>`:''}
@@ -664,7 +688,7 @@ function render(){
         </div>
       </div>
       <nav style="flex:1;padding:8px 7px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;" aria-label="Main navigation">
-        ${NAV.map(n=>`<button class="nb${tab===n.id?' act':''}" onclick="tab='${n.id}';render()" aria-label="${n.l}"${tab===n.id?' aria-current="page"':''}>
+        ${NAV.map(n=>`<button class="nb${tab===n.id?' act':''}" onclick="navTo('${n.id}')" aria-label="${n.l}"${tab===n.id?' aria-current="page"':''}>
           <span class="ic">${n.i}</span>
           <span style="flex:1;">${n.l}</span><span class="kbd">${n.k}</span>
           ${n.id==='stock'&&lowN?`<span style="background:var(--gold);color:#000;border-radius:10px;font-size:10px;font-weight:900;padding:1px 6px;">${lowN}</span>`:''}
@@ -741,7 +765,7 @@ function render(){
         {id:'out',l:'Gayo',i:'📤'},
         {id:'stock',l:'Stock',i:'📦'},
         {id:'report',l:'Report',i:'📊'},
-      ].map(n=>`<button onclick="tab='${n.id}';render()" style="background:${tab===n.id?'rgba(249,115,22,0.12)':'none'};border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;position:relative;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
+      ].map(n=>`<button onclick="navTo('${n.id}')" style="background:${tab===n.id?'rgba(249,115,22,0.12)':'none'};border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;position:relative;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
         ${tab===n.id?`<span style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--orange);border-radius:0 0 4px 4px;"></span>`:''}
         <span style="font-size:21px;line-height:1;">${n.i}</span>
         <span style="font-size:9px;font-weight:800;letter-spacing:.3px;">${n.l}</span>
@@ -863,7 +887,7 @@ function dashHTML(stock){
     <div style="font-size:13px;color:var(--muted2);">Packing & Stock Management  ·  Dharmessh Bhai</div>
     <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
       ${[['F2',IC.inbox+' Maal In','var(--green)','in'],['F3',IC.outbox+' Maal Out','var(--red)','out'],['F4',IC.chart+' Report','var(--blue)',''],['F1',IC.folder+' Product','var(--orange)','product']].map(([k,l,c,t])=>`
-      <div onclick="${t?`openAdd('${t}')`:`tab='report';render()`}" style="display:flex;align-items:center;gap:5px;background:${c}18;border:1px solid ${c}33;border-radius:8px;padding:5px 10px;cursor:pointer;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+      <div onclick="${t?`openAdd('${t}')`:`navTo('report')`}" style="display:flex;align-items:center;gap:5px;background:${c}18;border:1px solid ${c}33;border-radius:8px;padding:5px 10px;cursor:pointer;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
         <span class="kbd" style="background:${c}22;border-color:${c}44;color:${c};">${k}</span>
         <span style="font-size:12px;color:${c};font-weight:700;">${l}</span>
       </div>`).join('')}
@@ -907,7 +931,7 @@ function dashHTML(stock){
     <div class="card">
       <div style="padding:11px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
         <span style="font-weight:800;font-size:13px;display:flex;align-items:center;gap:5px;">${IC.package} Product Stock</span>
-        <button onclick="tab='stock';render()" style="background:none;border:1px solid var(--border2);color:var(--muted);border-radius:7px;padding:4px 10px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:3px;">Full ${IC.arrowRight}</button>
+        <button onclick="navTo('stock')" style="background:none;border:1px solid var(--border2);color:var(--muted);border-radius:7px;padding:4px 10px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:3px;">Full ${IC.arrowRight}</button>
       </div>
       <table><thead><tr style="background:var(--surface);">
         <th style="text-align:left;color:var(--muted);">Product</th>

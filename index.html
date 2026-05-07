@@ -64,6 +64,14 @@ select.inp{appearance:none;cursor:pointer;background-image:url("data:image/svg+x
 .card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);}
 .sc{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-md);padding:18px 20px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:var(--shadow-sm);}
 .sc:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+@keyframes kp-shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes kp-pulse-ring{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+.kp-stat-card{border-radius:18px;padding:20px 20px 18px;position:relative;overflow:hidden;cursor:pointer;transition:transform .22s ease,box-shadow .22s ease;min-height:126px;display:flex;flex-direction:column;justify-content:space-between;}
+.kp-stat-card::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.07),transparent);animation:kp-shimmer 3.5s ease-in-out infinite;pointer-events:none;}
+.kp-stat-card:hover{transform:translateY(-5px);}
+.kp-stat-icon{position:absolute;top:16px;right:16px;width:54px;height:54px;border-radius:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.kp-stat-num{font-size:23px;font-weight:900;color:#fff;line-height:1;margin-bottom:6px;letter-spacing:-.5px;}
+.kp-stat-pill{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;}
 .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 .kbd{display:inline-block;background:#1e2a40;border:1px solid #3b4f70;color:#93c5fd;border-radius:5px;padding:1px 6px;font-size:11px;font-weight:700;font-family:'Courier New',monospace;}
 .mo-bg{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);}
@@ -88,7 +96,7 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;fon
   .top-header{padding:10px 14px!important;}
   .top-header-title{font-size:15px!important;}
   .top-header-date{display:none!important;}
-  /* Content padding — extra bottom for bottom nav */
+  /* Content padding â€” extra bottom for bottom nav */
   .content-area{padding:10px 8px 85px!important;}
   /* Tables scroll horizontally */
   .card{overflow-x:auto!important;}
@@ -112,7 +120,7 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;fon
   #mob-nav{display:flex!important;}
   /* Hide keyboard shortcuts on mobile */
   #kb-panel{display:none!important;}
-  /* Report side by side → stacked */
+  /* Report side by side â†’ stacked */
   .rep-grid{grid-template-columns:1fr!important;}
   /* Mobile menu button show */
   #mob-menu-btn{display:inline-flex!important;}
@@ -155,7 +163,7 @@ var _KPIMG="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGB
 // Load custom photo
 (function(){const s=localStorage.getItem('_KP_CUSTOM_IMG');if(s){window._KPIMG=s;}else{window._KPIMG=_KPIMG;}})();
 
-// ═══ SVG ICON LIBRARY (Lucide-style, 18x18, stroke-width 2) ═══
+// â•â•â• SVG ICON LIBRARY (Lucide-style, 18x18, stroke-width 2) â•â•â•
 const IC={
   home:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   inbox:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,
@@ -237,7 +245,7 @@ function closeMobSidebar(){
   if(o){o.style.display='none';}
 }
 
-// ═══ FIREBASE REALTIME DATABASE SYNC ═══
+// â•â•â• FIREBASE REALTIME DATABASE SYNC â•â•â•
 const FB_URL='https://krushnnal-packing-default-rtdb.asia-southeast1.firebasedatabase.app/data.json';
 let fbSyncTimeout=null;
 
@@ -273,13 +281,13 @@ async function fbPull(){
     if(res.ok){
       const d=await res.json();
       if(d&&d.inData&&d.outData){
-        // Data same chhe to render NAHI karvo — screen jump nahi
+        // Data same chhe to render NAHI karvo â€” screen jump nahi
         const newJson=JSON.stringify(d);
         const curJson=JSON.stringify(S);
         if(newJson!==curJson){
           S=d;
           try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
-          // Modal open hoy to render nahi — sirf data update
+          // Modal open hoy to render nahi â€” sirf data update
           if(!modal){
             render();
           }
@@ -300,9 +308,9 @@ let _lastBadgeState='';
 function updateSyncBadge(state){
   _lastBadgeState=state;
   const map={
-    syncing:{bg:'#1e3a5f',color:'#93c5fd',text:'⟳ Syncing...'},
-    synced: {bg:'#0f2218',color:'#4ade80',text:'✓ Cloud Synced'},
-    offline:{bg:'#2a0a0a',color:'#f87171',text:'✗ Offline'},
+    syncing:{bg:'#1e3a5f',color:'#93c5fd',text:'âŸ³ Syncing...'},
+    synced: {bg:'#0f2218',color:'#4ade80',text:'âœ“ Cloud Synced'},
+    offline:{bg:'#2a0a0a',color:'#f87171',text:'âœ— Offline'},
   };
   const s=map[state]||map.offline;
   ['sync-badge','sync-badge-mob'].forEach(id=>{
@@ -326,7 +334,7 @@ setTimeout(async()=>{ await fbPull(); },500);
 // Daro 30 second e pull karo
 setInterval(()=>{ fbPull(); },30000);
 
-// Product rate lookup — product object thi rate laavo
+// Product rate lookup â€” product object thi rate laavo
 function getProdRate(productName, type){
   const p=S.products.find(x=>x.name===productName);
   if(p) return p.rate||p.inRate||p.outRate||0;
@@ -381,15 +389,15 @@ function toast(msg,bg='#22c55e'){const t=document.getElementById('toast');t.text
 let tab='dashboard',prevTab='dashboard',modal=null,confirmQ=null,searchQ='',repMonth=new Date().toISOString().slice(0,7);
 let dashMonth=new Date().toISOString().slice(0,7);
 let stkQ='';
-let stkOnlyBal=false; // Stock Value double click thay tyare true — ফক্ত balance>0
+let stkOnlyBal=false; // Stock Value double click thay tyare true â€” à¦«à¦•à§à¦¤ balance>0
 let inF={p:'',m:'',q:''},outF={p:'',m:'',q:''};
 let repInF={p:'',m:repMonth,d:'',q:''},repOutF={p:'',m:repMonth,d:'',q:''};
 let searchIdx=-1;
 
 // Keyboard shortcuts
-// ══════════════════════════════════════════════════════
-// PROFESSIONAL KEYBOARD SYSTEM — Tally/ERP Style v10
-// ══════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// PROFESSIONAL KEYBOARD SYSTEM â€” Tally/ERP Style v10
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let kbToastT=null;
 let kbOpen=false; // shortcuts panel default: minimized
 
@@ -435,19 +443,19 @@ document.addEventListener('keydown',e=>{
   const tag=document.activeElement.tagName;
   const typing=tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA';
 
-  // ── F-Keys: always work globally ──
-  if(e.key==='F1'){e.preventDefault();openAdd('product');showKbHint('F1 → Navo Product');return;}
-  if(e.key==='F2'){e.preventDefault();openAdd('in');showKbHint('F2 → Maal Aavyo Entry');return;}
-  if(e.key==='F3'){e.preventDefault();openAdd('out');showKbHint('F3 → Maal Gayo Entry');return;}
-  if(e.key==='F4'){e.preventDefault();tab='report';render();showKbHint('F4 → Report');return;}
-  if(e.key==='F5'){e.preventDefault();tab='dashboard';render();showKbHint('F5 → Dashboard');return;}
-  if(e.key==='F6'){e.preventDefault();tab='stock';render();showKbHint('F6 → Stock');return;}
-  if(e.key==='F7'){e.preventDefault();tab='search';render();setTimeout(()=>{const s=document.getElementById('main-search');if(s){s.focus();s.select&&s.select();}},80);showKbHint('F7 → Search');return;}
-  if(e.key==='F8'){e.preventDefault();tab='products';render();showKbHint('F8 → Products');return;}
-  if(e.key==='F9'){e.preventDefault();tab='in';render();showKbHint('F9 → Maal Aavyo List');return;}
-  if(e.key==='F10'){e.preventDefault();tab='out';render();showKbHint('F10 → Maal Gayo List');return;}
+  // â”€â”€ F-Keys: always work globally â”€â”€
+  if(e.key==='F1'){e.preventDefault();openAdd('product');showKbHint('F1 â†’ Navo Product');return;}
+  if(e.key==='F2'){e.preventDefault();openAdd('in');showKbHint('F2 â†’ Maal Aavyo Entry');return;}
+  if(e.key==='F3'){e.preventDefault();openAdd('out');showKbHint('F3 â†’ Maal Gayo Entry');return;}
+  if(e.key==='F4'){e.preventDefault();tab='report';render();showKbHint('F4 â†’ Report');return;}
+  if(e.key==='F5'){e.preventDefault();tab='dashboard';render();showKbHint('F5 â†’ Dashboard');return;}
+  if(e.key==='F6'){e.preventDefault();tab='stock';render();showKbHint('F6 â†’ Stock');return;}
+  if(e.key==='F7'){e.preventDefault();tab='search';render();setTimeout(()=>{const s=document.getElementById('main-search');if(s){s.focus();s.select&&s.select();}},80);showKbHint('F7 â†’ Search');return;}
+  if(e.key==='F8'){e.preventDefault();tab='products';render();showKbHint('F8 â†’ Products');return;}
+  if(e.key==='F9'){e.preventDefault();tab='in';render();showKbHint('F9 â†’ Maal Aavyo List');return;}
+  if(e.key==='F10'){e.preventDefault();tab='out';render();showKbHint('F10 â†’ Maal Gayo List');return;}
 
-  // ── Escape: 1 vaar press = badhu j band ──
+  // â”€â”€ Escape: 1 vaar press = badhu j band â”€â”€
   if(e.key==='Escape'){
     e.preventDefault();
     // Badha fixed popup remove karo (product history, delete modal, etc)
@@ -458,39 +466,39 @@ document.addEventListener('keydown',e=>{
     // Modal band karo
     modal=null;
     confirmQ=null;
-    // Tab → dashboard par pachha
+    // Tab â†’ dashboard par pachha
     tab='dashboard';
     // kb-active clear
     document.querySelectorAll('.kb-active').forEach(r=>{r.classList.remove('kb-active');r.style.background='';r.style.borderLeft='';});
     render();
-    showKbHint('Esc → Band');
+    showKbHint('Esc â†’ Band');
     return;
   }
 
-  // ── Confirm dialog: Enter=Ha, N=Na ──
+  // â”€â”€ Confirm dialog: Enter=Ha, N=Na â”€â”€
   if(e.key==='Enter'&&confirmQ){e.preventDefault();confirmQ.onYes();return;}
   if((e.key==='n'||e.key==='N')&&confirmQ&&!typing){e.preventDefault();confirmQ=null;render();return;}
 
-  // ── Ctrl shortcuts ──
+  // â”€â”€ Ctrl shortcuts â”€â”€
   if(e.ctrlKey&&!e.altKey){
-    if(e.key==='p'||e.key==='P'){e.preventDefault();if(tab==='report'&&typeof printRep==='function')printRep('both');showKbHint('Ctrl+P → Print Report');return;}
-    if(e.key==='f'||e.key==='F'){e.preventDefault();tab='search';render();setTimeout(()=>{const s=document.getElementById('main-search');if(s){s.focus();s.select&&s.select();}},80);showKbHint('Ctrl+F → Search');return;}
-    if(e.key==='n'||e.key==='N'){e.preventDefault();if(tab==='in')openAdd('in');else if(tab==='out')openAdd('out');else if(tab==='products')openAdd('product');else openAdd('in');showKbHint('Ctrl+N → Navi Entry');return;}
-    if(e.key==='e'||e.key==='E'){e.preventDefault();const sel=document.querySelector('.kb-active');if(sel){const eb=sel.querySelector('[aria-label^="Edit"]');if(eb)eb.click();}showKbHint('Ctrl+E → Edit');return;}
-    if(e.key==='d'||e.key==='D'){e.preventDefault();const sel=document.querySelector('.kb-active');if(sel){const db=sel.querySelector('[aria-label^="Delete"]');if(db)db.click();}showKbHint('Ctrl+D → Delete');return;}
-    if(e.key==='Home'){e.preventDefault();tab='dashboard';render();showKbHint('Ctrl+Home → Dashboard');return;}
+    if(e.key==='p'||e.key==='P'){e.preventDefault();if(tab==='report'&&typeof printRep==='function')printRep('both');showKbHint('Ctrl+P â†’ Print Report');return;}
+    if(e.key==='f'||e.key==='F'){e.preventDefault();tab='search';render();setTimeout(()=>{const s=document.getElementById('main-search');if(s){s.focus();s.select&&s.select();}},80);showKbHint('Ctrl+F â†’ Search');return;}
+    if(e.key==='n'||e.key==='N'){e.preventDefault();if(tab==='in')openAdd('in');else if(tab==='out')openAdd('out');else if(tab==='products')openAdd('product');else openAdd('in');showKbHint('Ctrl+N â†’ Navi Entry');return;}
+    if(e.key==='e'||e.key==='E'){e.preventDefault();const sel=document.querySelector('.kb-active');if(sel){const eb=sel.querySelector('[aria-label^="Edit"]');if(eb)eb.click();}showKbHint('Ctrl+E â†’ Edit');return;}
+    if(e.key==='d'||e.key==='D'){e.preventDefault();const sel=document.querySelector('.kb-active');if(sel){const db=sel.querySelector('[aria-label^="Delete"]');if(db)db.click();}showKbHint('Ctrl+D â†’ Delete');return;}
+    if(e.key==='Home'){e.preventDefault();tab='dashboard';render();showKbHint('Ctrl+Home â†’ Dashboard');return;}
     return;
   }
 
-  // ── Alt+Arrow = tab switch ──
+  // â”€â”€ Alt+Arrow = tab switch â”€â”€
   if(e.altKey){
     const tabs=['dashboard','in','out','stock','report','search','products'];
-    if(e.key==='ArrowLeft'){e.preventDefault();const i=tabs.indexOf(tab);if(i>0){tab=tabs[i-1];render();showKbHint('Alt+← → Agalu Tab');}return;}
-    if(e.key==='ArrowRight'){e.preventDefault();const i=tabs.indexOf(tab);if(i<tabs.length-1){tab=tabs[i+1];render();showKbHint('Alt+→ → Pachlu Tab');}return;}
+    if(e.key==='ArrowLeft'){e.preventDefault();const i=tabs.indexOf(tab);if(i>0){tab=tabs[i-1];render();showKbHint('Alt+â† â†’ Agalu Tab');}return;}
+    if(e.key==='ArrowRight'){e.preventDefault();const i=tabs.indexOf(tab);if(i<tabs.length-1){tab=tabs[i+1];render();showKbHint('Alt+â†’ â†’ Pachlu Tab');}return;}
     return;
   }
 
-  // ── Modal Enter = field-by-field navigation ──
+  // â”€â”€ Modal Enter = field-by-field navigation â”€â”€
   if(e.key==='Enter'&&modal&&!e.shiftKey&&tag!=='BUTTON'){
     e.preventDefault();
     if(modal.type==='product'){
@@ -519,7 +527,7 @@ document.addEventListener('keydown',e=>{
     saveM();return;
   }
 
-  // ── Tab inside modal = forward/back field navigation ──
+  // â”€â”€ Tab inside modal = forward/back field navigation â”€â”€
   if(e.key==='Tab'&&modal){
     e.preventDefault();
     const ac=document.activeElement;
@@ -535,7 +543,7 @@ document.addEventListener('keydown',e=>{
     return;
   }
 
-  // ── Arrow key row navigation ──
+  // â”€â”€ Arrow key row navigation â”€â”€
   if((e.key==='ArrowDown'||e.key==='ArrowUp')&&!modal&&!typing){
     e.preventDefault();
     // Active kb-row ni same table ma j navigate karo
@@ -555,7 +563,7 @@ document.addEventListener('keydown',e=>{
     return;
   }
 
-  // ── Home/End = first/last row ──
+  // â”€â”€ Home/End = first/last row â”€â”€
   if((e.key==='Home'||e.key==='End')&&!modal&&!typing){
     e.preventDefault();
     const active=document.querySelector('.kb-active');
@@ -570,7 +578,7 @@ document.addEventListener('keydown',e=>{
     return;
   }
 
-  // ── PageDown/PageUp = 10 rows jump ──
+  // â”€â”€ PageDown/PageUp = 10 rows jump â”€â”€
   if((e.key==='PageDown'||e.key==='PageUp')&&!modal&&!typing){
     e.preventDefault();
     const active=document.querySelector('.kb-active');
@@ -588,22 +596,22 @@ document.addEventListener('keydown',e=>{
     return;
   }
 
-  // ── Enter on highlighted row = Edit ──
+  // â”€â”€ Enter on highlighted row = Edit â”€â”€
   if(e.key==='Enter'&&!modal&&!confirmQ){
     const sel=document.querySelector('.kb-active');
     if(sel){e.preventDefault();const eb=sel.querySelector('[aria-label^="Edit"]');if(eb)eb.click();return;}
   }
 
-  // ── Delete key = delete highlighted row ──
+  // â”€â”€ Delete key = delete highlighted row â”€â”€
   if(e.key==='Delete'&&!modal&&!confirmQ&&!typing){
     const sel=document.querySelector('.kb-active');
     if(sel){e.preventDefault();const db=sel.querySelector('[aria-label^="Delete"]');if(db)db.click();return;}
   }
 
-  // ── Number keys for tab (when not typing) ──
+  // â”€â”€ Number keys for tab (when not typing) â”€â”€
   if(typing)return;
   const m={'1':'dashboard','2':'in','3':'out','4':'stock','5':'report','6':'search','7':'products'};
-  if(m[e.key]){tab=m[e.key];render();showKbHint(e.key+' → Tab switch');}
+  if(m[e.key]){tab=m[e.key];render();showKbHint(e.key+' â†’ Tab switch');}
 });
 
 function render(){
@@ -634,22 +642,22 @@ function render(){
   <div id="mob-sidebar" style="display:none;position:fixed;left:0;top:0;bottom:0;width:260px;z-index:200;background:var(--surface);border-right:1px solid var(--border);flex-direction:column;transform:translateX(-100%);transition:transform .25s ease;overflow-y:auto;">
     <div style="padding:10px 12px 8px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#1a0a14,var(--surface));flex-shrink:0;">
       <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:4px;">
-        <button onclick="closeMobSidebar()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;">✕</button>
+        <button onclick="closeMobSidebar()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;">âœ•</button>
       </div>
       <svg viewBox="0 0 680 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:100px;display:block;">
         <defs>
           <linearGradient id="mob-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/></linearGradient>
           <linearGradient id="mob-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f97316" stop-opacity="0"/><stop offset="30%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="70%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></linearGradient>
         </defs>
-        <text x="340" y="18" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#f97316" letter-spacing="3">॥ SHREE GANESHAY NAMAH ॥</text>
+        <text x="340" y="18" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#f97316" letter-spacing="3">à¥¥ SHREE GANESHAY NAMAH à¥¥</text>
         <rect x="40" y="26" width="600" height="1" fill="url(#mob-al)"/>
         <!-- Star particles -->
-        <text x="28" y="42" font-size="9" fill="#f97316" class="kp-star1">✦</text>
-        <text x="128" y="44" font-size="8" fill="#fbbf24" class="kp-star2">★</text>
-        <text x="22" y="110" font-size="7" fill="#f97316" class="kp-star3">✦</text>
-        <text x="126" y="118" font-size="8" fill="#fbbf24" class="kp-star4">✦</text>
-        <text x="76" y="34" font-size="7" fill="#fed7aa" class="kp-star5">★</text>
-        <text x="86" y="130" font-size="8" fill="#f97316" class="kp-star6">✦</text>
+        <text x="28" y="42" font-size="9" fill="#f97316" class="kp-star1">âœ¦</text>
+        <text x="128" y="44" font-size="8" fill="#fbbf24" class="kp-star2">â˜…</text>
+        <text x="22" y="110" font-size="7" fill="#f97316" class="kp-star3">âœ¦</text>
+        <text x="126" y="118" font-size="8" fill="#fbbf24" class="kp-star4">âœ¦</text>
+        <text x="76" y="34" font-size="7" fill="#fed7aa" class="kp-star5">â˜…</text>
+        <text x="86" y="130" font-size="8" fill="#f97316" class="kp-star6">âœ¦</text>
         <!-- Sirf KP badge animated -->
         <g class="kp-badge-group">
           <rect x="40" y="40" width="82" height="82" rx="17" fill="url(#mob-kp)"/>
@@ -659,7 +667,7 @@ function render(){
         <!-- Still text -->
         <text x="136" y="68" font-family="Inter,sans-serif" font-weight="900" font-size="34" fill="#f8fafc" letter-spacing="-1">KRUSHNNAL</text>
         <text x="136" y="104" font-family="Inter,sans-serif" font-weight="900" font-size="32" fill="#f97316" letter-spacing="-1">PACKING</text>
-        <text x="137" y="126" font-family="Inter,sans-serif" font-size="12" font-weight="400" fill="#8b9dc3" letter-spacing="1">Dharmessh Bhai · Stock Mgmt</text>
+        <text x="137" y="126" font-family="Inter,sans-serif" font-size="12" font-weight="400" fill="#8b9dc3" letter-spacing="1">Dharmessh Bhai Â· Stock Mgmt</text>
       </svg>
     </div>
     <nav style="flex:1;padding:8px 7px;display:flex;flex-direction:column;gap:2px;">
@@ -670,13 +678,13 @@ function render(){
       </button>`).join('')}
     </nav>
     <div style="padding:7px 8px;border-top:1px solid var(--border);">
-      <div style="margin-bottom:5px;"><div id="sync-badge-mob" style="width:100%;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;text-align:center;background:#1e3a5f;color:#93c5fd;">⟳ Connecting...</div></div>
-      <button onclick="sheetPull()" style="width:100%;padding:6px 10px;background:#1a1f35;color:#818cf8;border:1px solid #4f46e533;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:4px;display:flex;align-items:center;gap:6px;">↓ Refresh (Cloud)</button>
+      <div style="margin-bottom:5px;"><div id="sync-badge-mob" style="width:100%;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;text-align:center;background:#1e3a5f;color:#93c5fd;">âŸ³ Connecting...</div></div>
+      <button onclick="sheetPull()" style="width:100%;padding:6px 10px;background:#1a1f35;color:#818cf8;border:1px solid #4f46e533;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:4px;display:flex;align-items:center;gap:6px;">â†“ Refresh (Cloud)</button>
       <button onclick="exportData()" style="width:100%;padding:6px 10px;background:#1a2a40;border:1px solid #2563eb33;color:#60a5fa;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.download} Download Backup</button>
       <button onclick="importData()" style="width:100%;padding:6px 10px;background:#152218;border:1px solid #16a34a33;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.upload} Restore Backup</button>
       <button onclick="openDelModal()" style="width:100%;padding:6px 10px;background:#2a0a0a;border:1px solid #ef444433;color:#f87171;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.trash} Purano Data Delete</button>
-      <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#1a1a2e;border:1px solid #f9731633;color:#f97316;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🔐 Password Change</button>
-    <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
+      <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#1a1a2e;border:1px solid #f9731633;color:#f97316;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">ðŸ” Password Change</button>
+    <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">ðŸ–¼ï¸ Photo Change</button>
     </div>
   </div>
   <div class="main-wrap" style="display:flex;height:100vh;overflow:hidden;">
@@ -689,15 +697,15 @@ function render(){
             <linearGradient id="sb-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f97316" stop-opacity="0"/><stop offset="30%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="70%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></linearGradient>
           </defs>
           <rect x="0" y="0" width="680" height="340" rx="0" fill="url(#sb-bg)"/>
-          <text x="340" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#f97316" letter-spacing="4">॥ SHREE GANESHAY NAMAH ॥</text>
+          <text x="340" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#f97316" letter-spacing="4">à¥¥ SHREE GANESHAY NAMAH à¥¥</text>
           <rect x="40" y="36" width="600" height="1" fill="url(#sb-al)"/>
           <!-- Star particles -->
-          <text x="30" y="52" font-size="11" fill="#f97316" class="kp-star1">✦</text>
-          <text x="158" y="58" font-size="9" fill="#fbbf24" class="kp-star2">★</text>
-          <text x="22" y="145" font-size="8" fill="#f97316" class="kp-star3">✦</text>
-          <text x="160" y="155" font-size="10" fill="#fbbf24" class="kp-star4">✦</text>
-          <text x="90" y="44" font-size="8" fill="#fed7aa" class="kp-star5">★</text>
-          <text x="108" y="172" font-size="9" fill="#f97316" class="kp-star6">✦</text>
+          <text x="30" y="52" font-size="11" fill="#f97316" class="kp-star1">âœ¦</text>
+          <text x="158" y="58" font-size="9" fill="#fbbf24" class="kp-star2">â˜…</text>
+          <text x="22" y="145" font-size="8" fill="#f97316" class="kp-star3">âœ¦</text>
+          <text x="160" y="155" font-size="10" fill="#fbbf24" class="kp-star4">âœ¦</text>
+          <text x="90" y="44" font-size="8" fill="#fed7aa" class="kp-star5">â˜…</text>
+          <text x="108" y="172" font-size="9" fill="#f97316" class="kp-star6">âœ¦</text>
           <!-- KP badge animated -->
           <g class="kp-badge-group">
             <rect x="44" y="54" width="108" height="108" rx="22" fill="url(#sb-kp)"/>
@@ -708,7 +716,7 @@ function render(){
           <text x="168" y="94" font-family="Inter,sans-serif" font-weight="900" font-size="46" fill="#f8fafc" letter-spacing="-2">KRUSHNNAL</text>
           <text x="168" y="142" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#f97316" letter-spacing="-1">PACKING</text>
           <rect x="168" y="158" width="450" height="1.5" fill="url(#sb-al)" opacity="0.6"/>
-          <text x="170" y="178" font-family="Inter,sans-serif" font-size="13" font-weight="400" fill="#8b9dc3" letter-spacing="1">Dharmessh Bhai · Stock Mgmt</text>
+          <text x="170" y="178" font-family="Inter,sans-serif" font-size="13" font-weight="400" fill="#8b9dc3" letter-spacing="1">Dharmessh Bhai Â· Stock Mgmt</text>
         </svg>
       </div>
       <nav style="flex:1;padding:8px 7px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;" aria-label="Main navigation">
@@ -719,12 +727,12 @@ function render(){
         </button>`).join('')}
       </nav>
       <div id="kb-panel" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#0a0e18;overflow:hidden;transition:all .25s ease;">
-        <!-- Header — always visible, click to toggle -->
+        <!-- Header â€” always visible, click to toggle -->
         <div onclick="toggleKbPanel()" style="padding:8px 10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onmouseover="this.style.background='#111827'" onmouseout="this.style.background='transparent'">
           <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.8px;display:flex;align-items:center;gap:4px;">${IC.keyboard} KEYBOARD SHORTCUTS</div>
-          <span id="kb-chevron" style="font-size:10px;color:var(--muted);transition:transform .25s;">▲</span>
+          <span id="kb-chevron" style="font-size:10px;color:var(--muted);transition:transform .25s;">â–²</span>
         </div>
-        <!-- Hint bar — always visible -->
+        <!-- Hint bar â€” always visible -->
         <div id="kb-hint" style="font-size:10px;color:var(--orange);font-weight:700;padding:0 10px;min-height:0;opacity:0;transition:opacity .3s,transform .3s;transform:translateY(4px);letter-spacing:.3px;"></div>
         <!-- Expandable body -->
         <div id="kb-body" style="overflow:hidden;max-height:0;transition:max-height .3s ease,padding .3s ease;padding:0 10px;">
@@ -734,36 +742,36 @@ function render(){
               ['F3','Maal Gayo'],['F4','Report'],
               ['F5','Dashboard'],['F6','Stock'],
               ['F7','Search'],['F8','Products'],
-              ['↑↓','Row Select'],['Enter','Edit Row'],
+              ['â†‘â†“','Row Select'],['Enter','Edit Row'],
               ['Del','Delete Row'],['Esc','Band/Clear'],
               ['PgDn','10 Jump'],['Home','Pehli Row'],
               ['Ctrl+N','Navi Entry'],['Ctrl+E','Edit'],
               ['Ctrl+D','Delete'],['Ctrl+P','Print'],
-              ['Ctrl+F','Search'],['Alt+←→','Tab Badlo'],
+              ['Ctrl+F','Search'],['Alt+â†â†’','Tab Badlo'],
             ].map(([k,l])=>`
             <div style="display:flex;align-items:center;gap:3px;padding:1px 0;"><span class="kbd" style="font-size:9px;padding:1px 4px;min-width:28px;text-align:center;">${k}</span><span style="font-size:9px;color:var(--muted2);line-height:1.2;">${l}</span></div>`).join('')}
           </div>
         </div>
       </div>
       <div style="padding:7px 8px;border-top:1px solid var(--border);flex-shrink:0;">
-        <div style="margin-bottom:5px;"><div id="sync-badge" style="width:100%;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;text-align:center;background:#1e3a5f;color:#93c5fd;">⟳ Connecting...</div></div>
-        <button onclick="sheetPull()" style="width:100%;padding:6px 10px;background:#1a1f35;color:#818cf8;border:1px solid #4f46e533;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:5px;" onmouseover="this.style.background='#1e2540'" onmouseout="this.style.background='#1a1f35'">↓ Refresh (Cloud)</button>
+        <div style="margin-bottom:5px;"><div id="sync-badge" style="width:100%;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;text-align:center;background:#1e3a5f;color:#93c5fd;">âŸ³ Connecting...</div></div>
+        <button onclick="sheetPull()" style="width:100%;padding:6px 10px;background:#1a1f35;color:#818cf8;border:1px solid #4f46e533;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:5px;" onmouseover="this.style.background='#1e2540'" onmouseout="this.style.background='#1a1f35'">â†“ Refresh (Cloud)</button>
         <div style="font-size:9.5px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.save} BACKUP</div>
         <button onclick="exportData()" style="width:100%;padding:6px 10px;background:#1a2a40;border:1px solid #2563eb33;color:#60a5fa;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;margin-bottom:3px;display:flex;align-items:center;gap:6px;min-height:30px;" onmouseover="this.style.background='#1e3252'" onmouseout="this.style.background='#1a2a40'" aria-label="Download Backup">${IC.download} Download Backup</button>
         <button onclick="importData()" style="width:100%;padding:6px 10px;background:#152218;border:1px solid #16a34a33;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:3px;" onmouseover="this.style.background='#1a2c1e'" onmouseout="this.style.background='#152218'" aria-label="Restore Backup">${IC.upload} Restore Backup</button>
         <button onclick="openDelModal()" style="width:100%;padding:6px 10px;background:#2a0a0a;border:1px solid #ef444433;color:#f87171;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:3px;" onmouseover="this.style.background='#3a0d0d'" onmouseout="this.style.background='#2a0a0a'" aria-label="Delete old data">${IC.trash} Purano Data Delete</button>
-        <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#1a1a2e;border:1px solid #f9731633;color:#f97316;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;" onmouseover="this.style.background='#2a1a1e'" onmouseout="this.style.background='#1a1a2e'">🔐 Password Change</button>
-    <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
+        <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#1a1a2e;border:1px solid #f9731633;color:#f97316;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;" onmouseover="this.style.background='#2a1a1e'" onmouseout="this.style.background='#1a1a2e'">ðŸ” Password Change</button>
+    <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">ðŸ–¼ï¸ Photo Change</button>
       </div>
       <div style="padding:6px 12px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);flex-shrink:0;">
-        <div style="font-weight:800;color:var(--orange);font-size:10px;">Dharmessh Bhai · Krushnnal Packing</div>
-        <div style="color:var(--border2);">© 2026 • Fully Offline</div>
+        <div style="font-weight:800;color:var(--orange);font-size:10px;">Dharmessh Bhai Â· Krushnnal Packing</div>
+        <div style="color:var(--border2);">Â© 2026 â€¢ Fully Offline</div>
       </div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
       <div class="top-header" style="background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
         <div style="display:flex;align-items:center;gap:10px;">
-          <button id="mob-menu-btn" onclick="openMobSidebar()" style="display:none;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:18px;flex-shrink:0;align-items:center;justify-content:center;">☰</button>
+          <button id="mob-menu-btn" onclick="openMobSidebar()" style="display:none;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:18px;flex-shrink:0;align-items:center;justify-content:center;">â˜°</button>
           <div>
             <div class="top-header-title" style="font-size:18px;font-weight:800;">${cur.i} ${cur.l}</div>
             <div class="top-header-date" style="font-size:11px;color:var(--muted);margin-top:1px;">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
@@ -784,18 +792,18 @@ function render(){
   <div id="mob-nav" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:100;padding:4px 0 8px;box-shadow:0 -2px 16px rgba(0,0,0,.5);">
     <div style="display:flex;justify-content:space-around;align-items:center;">
       ${[
-        {id:'dashboard',l:'Home',i:'🏠'},
-        {id:'in',l:'Aavyo',i:'📥'},
-        {id:'out',l:'Gayo',i:'📤'},
-        {id:'stock',l:'Stock',i:'📦'},
-        {id:'report',l:'Report',i:'📊'},
+        {id:'dashboard',l:'Home',i:'ðŸ '},
+        {id:'in',l:'Aavyo',i:'ðŸ“¥'},
+        {id:'out',l:'Gayo',i:'ðŸ“¤'},
+        {id:'stock',l:'Stock',i:'ðŸ“¦'},
+        {id:'report',l:'Report',i:'ðŸ“Š'},
       ].map(n=>`<button onclick="tab='${n.id}';render()" style="background:${tab===n.id?'rgba(249,115,22,0.12)':'none'};border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;position:relative;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
         ${tab===n.id?`<span style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--orange);border-radius:0 0 4px 4px;"></span>`:''}
         <span style="font-size:21px;line-height:1;">${n.i}</span>
         <span style="font-size:9px;font-weight:800;letter-spacing:.3px;">${n.l}</span>
       </button>`).join('')}
       <button onclick="openMobSidebar()" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;color:var(--muted);">
-        <span style="font-size:21px;line-height:1;">☰</span>
+        <span style="font-size:21px;line-height:1;">â˜°</span>
         <span style="font-size:9px;font-weight:800;letter-spacing:.3px;">Menu</span>
       </button>
     </div>
@@ -815,9 +823,9 @@ function render(){
     else if(repOutF.q&&!repInF.q){if(ro){ro.focus();ro.setSelectionRange(ro.value.length,ro.value.length);}}
   }
   applyKbPanel();
-  // Modal open hoy tyare — render pachhi same input focus karo
+  // Modal open hoy tyare â€” render pachhi same input focus karo
   if(modal){
-    // Active element id save karyu chhe upar — restore karo
+    // Active element id save karyu chhe upar â€” restore karo
     requestAnimationFrame(()=>{
       const ca=document.getElementById('content-area')||document.querySelector('.content-area');
       if(ca&&_sc>0)ca.scrollTop=_sc;
@@ -874,7 +882,7 @@ function body(stock){
   if(tab==='products')return prodHTML(stock);return '';
 }
 
-function sc(l,v,s,color,icon,gotoTab,extraAction){return `<div class="sc" style="border-left:3px solid ${color};${gotoTab?'cursor:pointer;':''}" ${gotoTab?`ondblclick="${extraAction||''}tab='${gotoTab}';render();showKbHint('${l} → Detail')" title="Double click → Detail joao"`:''}><div style="position:absolute;right:13px;top:13px;opacity:.08;color:${color};">${icon}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:3px;">${l}</div><div style="font-size:21px;font-weight:900;color:${color};line-height:1;margin-bottom:2px;">${v}</div>${s?`<div style="font-size:11px;color:var(--muted2);">${s}</div>`:''}</div>`;}
+function sc(l,v,s,color,icon,gotoTab,extraAction){return `<div class="sc" style="border-left:3px solid ${color};${gotoTab?'cursor:pointer;':''}" ${gotoTab?`ondblclick="${extraAction||''}tab='${gotoTab}';render();showKbHint('${l} â†’ Detail')" title="Double click â†’ Detail joao"`:''}><div style="position:absolute;right:13px;top:13px;opacity:.08;color:${color};">${icon}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:3px;">${l}</div><div style="font-size:21px;font-weight:900;color:${color};line-height:1;margin-bottom:2px;">${v}</div>${s?`<div style="font-size:11px;color:var(--muted2);">${s}</div>`:''}</div>`;}
 
 function dashHTML(stock){
   const tiA=S.inData.reduce((s,r)=>s+r.pes*r.rate,0);
@@ -903,7 +911,7 @@ function dashHTML(stock){
   const ri=[...S.inData].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,5);
   const ro=[...S.outData].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,5);
   return `
-  <div style="background:linear-gradient(135deg,#0d1520,#111827,#0d1a2e);border:1px solid var(--border2);border-radius:18px;padding:26px 30px;margin-bottom:16px;position:relative;overflow:hidden;display:flex;align-items:center;gap:22px;"><img src="${window._KPIMG||_KPIMG}" style="width:130px;height:155px;object-fit:cover;object-position:center top;border-radius:12px;border:2px solid rgba(249,115,22,0.4);box-shadow:0 0 20px rgba(249,115,22,0.25);flex-shrink:0;" /><div style="flex:1;position:relative;">
+  <div style="background:linear-gradient(135deg,#0d1520,#111827,#0d1a2e);border:1px solid var(--border2);border-radius:18px;padding:26px 30px;margin-bottom:16px;position:relative;overflow:hidden;display:flex;align-items:center;gap:22px;"><img src="${window._KPIMG||_KPIMG}" style="width:165px;height:195px;object-fit:cover;object-position:center top;border-radius:12px;border:2px solid rgba(249,115,22,0.4);box-shadow:0 0 20px rgba(249,115,22,0.25);flex-shrink:0;" /><div style="flex:1;position:relative;">
     <div style="position:absolute;right:0;top:0;bottom:0;width:220px;background:radial-gradient(ellipse at right,rgba(249,115,22,.12),transparent 70%);pointer-events:none;"></div>
     <div style="position:absolute;right:24px;top:50%;transform:translateY(-50%);opacity:.05;pointer-events:none;color:var(--orange);"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
     <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:160px;display:block;margin-bottom:4px;">
@@ -911,26 +919,26 @@ function dashHTML(stock){
         <linearGradient id="db-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/></linearGradient>
         <linearGradient id="db-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f97316" stop-opacity="0"/><stop offset="30%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="70%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></linearGradient>
       </defs>
-      <text x="340" y="22" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#f97316" letter-spacing="5">॥ SHREE GANESHAY NAMAH ॥</text>
+      <text x="340" y="22" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#f97316" letter-spacing="5">à¥¥ SHREE GANESHAY NAMAH à¥¥</text>
       <rect x="20" y="30" width="640" height="1" fill="url(#db-al)"/>
       <!-- Star particles -->
-      <text x="8" y="50" font-size="12" fill="#f97316" class="kp-star1">✦</text>
-      <text x="140" y="52" font-size="10" fill="#fbbf24" class="kp-star2">★</text>
-      <text x="4" y="148" font-size="9" fill="#f97316" class="kp-star3">✦</text>
-      <text x="142" y="158" font-size="11" fill="#fbbf24" class="kp-star4">✦</text>
-      <text x="72" y="38" font-size="9" fill="#fed7aa" class="kp-star5">★</text>
-      <text x="90" y="172" font-size="10" fill="#f97316" class="kp-star6">✦</text>
+      <text x="8" y="50" font-size="12" fill="#f97316" class="kp-star1">âœ¦</text>
+      <text x="140" y="52" font-size="10" fill="#fbbf24" class="kp-star2">â˜…</text>
+      <text x="4" y="148" font-size="9" fill="#f97316" class="kp-star3">âœ¦</text>
+      <text x="142" y="158" font-size="11" fill="#fbbf24" class="kp-star4">âœ¦</text>
+      <text x="72" y="38" font-size="9" fill="#fed7aa" class="kp-star5">â˜…</text>
+      <text x="90" y="172" font-size="10" fill="#f97316" class="kp-star6">âœ¦</text>
       <!-- Sirf KP badge animated -->
       <g class="kp-badge-group">
-        <rect x="22" y="46" width="88" height="88" rx="18" fill="url(#db-kp)"/>
-        <rect x="22" y="46" width="88" height="88" rx="18" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>
-        <text x="66" y="108" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="48" fill="#ffffff" letter-spacing="-2">KP</text>
+        <rect x="22" y="52" width="68" height="68" rx="14" fill="url(#db-kp)"/>
+        <rect x="22" y="52" width="68" height="68" rx="14" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>
+        <text x="56" y="101" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="36" fill="#ffffff" letter-spacing="-2">KP</text>
       </g>
       <!-- Still text -->
       <text x="124" y="82" font-family="Inter,sans-serif" font-weight="900" font-size="38" fill="#f8fafc" letter-spacing="-1">KRUSHNNAL</text>
       <text x="124" y="122" font-family="Inter,sans-serif" font-weight="900" font-size="36" fill="#f97316" letter-spacing="-1">PACKING</text>
       <rect x="124" y="136" width="510" height="1.5" fill="url(#db-al)" opacity="0.6"/>
-      <text x="126" y="154" font-family="Inter,sans-serif" font-size="13" font-weight="400" fill="#8b9dc3" letter-spacing="1">Packing &amp; Stock Management  ·  Dharmessh Bhai</text>
+      <text x="126" y="154" font-family="Inter,sans-serif" font-size="13" font-weight="400" fill="#8b9dc3" letter-spacing="1">Packing &amp; Stock Management  Â·  Dharmessh Bhai</text>
     </svg>
     <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
       ${[['F2',IC.inbox+' Maal In','var(--green)','in'],['F3',IC.outbox+' Maal Out','var(--red)','out'],['F4',IC.chart+' Report','var(--blue)',''],['F1',IC.folder+' Product','var(--orange)','product']].map(([k,l,c,t])=>`
@@ -957,7 +965,7 @@ function dashHTML(stock){
       </div>
       <!-- Right: Monthly stats -->
       <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
-        ${[['AAVYO',mIn,'var(--green)',mInP+' pcs · '+mInCnt+' entries'],['GAYO',mOut,'var(--red)',mOutP+' pcs · '+mOutCnt+' entries']].map(([l,v,c,sub])=>
+        ${[['AAVYO',mIn,'var(--green)',mInP+' pcs Â· '+mInCnt+' entries'],['GAYO',mOut,'var(--red)',mOutP+' pcs Â· '+mOutCnt+' entries']].map(([l,v,c,sub])=>
           `<div style="text-align:center;">
             <div style="font-size:10px;color:${c};font-weight:700;margin-bottom:1px;">${l}</div>
             <div style="font-size:18px;font-weight:900;color:${c};" class="mn">${inr(v)}</div>
@@ -968,11 +976,56 @@ function dashHTML(stock){
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:13px;">
-    ${sc('Kul Aavyo',inr(tiA),num(tiP)+' pcs','var(--green)',`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,'in')}
-    ${sc('Kul Gayo',inr(toA),num(toP)+' pcs','var(--red)',`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="12" y1="2" x2="12" y2="9"/><polyline points="9 6 12 9 15 6"/></svg>`,'out')}
-    ${sc('Stock Value',inr(totalBalAmt),num(totalBalPcs)+' pcs','var(--blue)',`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,'stock','stkOnlyBal=true;')}
-    ${sc('Products',S.products.length+' items','','var(--orange)',`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,'products')}
+  <div class="dash-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:13px;">
+
+    <!-- BOX 1: Kul Aavyo â€” Green, LEFT border, green tint bg -->
+    <div class="sc" style="background:linear-gradient(135deg,#0c1e12,var(--card));border:1px solid #22c55e33;border-left:3px solid var(--green);cursor:pointer;"
+      ondblclick="tab='in';render();showKbHint('Kul Aavyo â†’ Detail')" title="Double click â†’ Detail joao">
+      <div style="position:absolute;right:12px;top:12px;opacity:.15;color:var(--green);">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),transparent);border-radius:12px 12px 0 0;opacity:.5;"></div>
+      <div style="font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:3px;">Kul Aavyo</div>
+      <div style="font-size:21px;font-weight:900;color:var(--green);line-height:1;margin-bottom:2px;" class="mn">${inr(tiA)}</div>
+      <div style="font-size:11px;color:var(--muted2);">${num(tiP)} pcs</div>
+    </div>
+
+    <!-- BOX 2: Kul Gayo â€” Red, TOP border, red tint bg -->
+    <div class="sc" style="background:linear-gradient(135deg,#1e0c0c,var(--card));border:1px solid #f8717133;border-top:3px solid var(--red);border-left:none;cursor:pointer;"
+      ondblclick="tab='out';render();showKbHint('Kul Gayo â†’ Detail')" title="Double click â†’ Detail joao">
+      <div style="position:absolute;right:12px;top:12px;opacity:.15;color:var(--red);">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="12" y1="2" x2="12" y2="9"/><polyline points="9 6 12 9 15 6"/></svg>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);border-radius:0 0 12px 12px;opacity:.4;"></div>
+      <div style="font-size:10px;color:var(--red);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:3px;">Kul Gayo</div>
+      <div style="font-size:21px;font-weight:900;color:var(--red);line-height:1;margin-bottom:2px;" class="mn">${inr(toA)}</div>
+      <div style="font-size:11px;color:var(--muted2);">${num(toP)} pcs</div>
+    </div>
+
+    <!-- BOX 3: Stock Value â€” Blue, RIGHT border, blue tint bg -->
+    <div class="sc" style="background:linear-gradient(135deg,#0c1220,var(--card));border:1px solid #60a5fa33;border-right:3px solid var(--blue);border-left:none;cursor:pointer;"
+      ondblclick="stkOnlyBal=true;tab='stock';render();showKbHint('Stock â†’ Detail')" title="Double click â†’ Detail joao">
+      <div style="position:absolute;right:12px;top:12px;opacity:.15;color:var(--blue);">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      <div style="position:absolute;top:0;right:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--blue),transparent);border-radius:0 12px 12px 0;opacity:.5;"></div>
+      <div style="font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:3px;">Stock Value</div>
+      <div style="font-size:21px;font-weight:900;color:var(--blue);line-height:1;margin-bottom:2px;" class="mn">${inr(totalBalAmt)}</div>
+      <div style="font-size:11px;color:var(--muted2);">${num(totalBalPcs)} pcs</div>
+    </div>
+
+    <!-- BOX 4: Products â€” Orange, BOTTOM border, orange tint bg -->
+    <div class="sc" style="background:linear-gradient(135deg,#1a0e04,var(--card));border:1px solid #f9731633;border-bottom:3px solid var(--orange);border-left:none;cursor:pointer;"
+      ondblclick="tab='products';render();showKbHint('Products â†’ Detail')" title="Double click â†’ Detail joao">
+      <div style="position:absolute;right:12px;top:12px;opacity:.15;color:var(--orange);">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div style="position:absolute;top:0;left:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--orange),transparent);border-radius:12px 0 0 12px;opacity:.5;"></div>
+      <div style="font-size:10px;color:var(--orange);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:3px;">Products</div>
+      <div style="font-size:21px;font-weight:900;color:var(--orange);line-height:1;margin-bottom:2px;" class="mn">${S.products.length} items</div>
+      <div style="font-size:11px;color:var(--muted2);"> </div>
+    </div>
+
   </div>
   <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;">
     <div class="card">
@@ -987,7 +1040,7 @@ function dashHTML(stock){
         <th style="text-align:right;color:var(--blue);">Baaqi</th>
         <th style="text-align:center;color:var(--muted);">Status</th>
       </tr></thead>
-      <tbody>${stock.map((r,i)=>`<tr class="rr sr-row dash-prod-row" tabindex="0" data-product="${r.product.replace(/"/g,'&quot;')}" style="background:var(--card);cursor:pointer;" title="Double click ya Enter → History"
+      <tbody>${stock.map((r,i)=>`<tr class="rr sr-row dash-prod-row" tabindex="0" data-product="${r.product.replace(/"/g,'&quot;')}" style="background:var(--card);cursor:pointer;" title="Double click ya Enter â†’ History"
         ondblclick="showProdHistory('${r.product.replace(/'/g,"\\'")}')"
         onkeydown="if(event.key==='Enter'){showProdHistory('${r.product.replace(/'/g,"\\'")}');}">
         <td style="font-weight:700;font-size:12px;">${r.product}</td>
@@ -1002,7 +1055,7 @@ function dashHTML(stock){
         const data=type==='in'?ri:ro,c=type==='in'?'var(--green)':'var(--red)',lbl=type==='in'?IC.inbox+' Taajaa Aavyo':IC.outbox+' Taajaa Gayo';
         return `<div class="card" style="flex:1;"><div style="padding:10px 13px;border-bottom:1px solid var(--border);font-weight:800;color:${c};font-size:12px;">${lbl}</div>
         ${data.map(r=>`<div class="rr" style="padding:7px 13px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-          <div><div style="font-weight:700;font-size:12px;">${r.product}</div><div style="font-size:10px;color:var(--muted);">${fd(r.date)} · ${num(r.pes)} pcs</div></div>
+          <div><div style="font-weight:700;font-size:12px;">${r.product}</div><div style="font-size:10px;color:var(--muted);">${fd(r.date)} Â· ${num(r.pes)} pcs</div></div>
           <div style="font-weight:800;color:${c};font-size:12px;" class="mn">${inr(r.pes*r.rate)}</div>
         </div>`).join('')}</div>`;
       }).join('')}
@@ -1026,20 +1079,20 @@ function showProdHistory(pname){
     <!-- Header -->
     <div style="padding:16px 20px;border-bottom:1px solid #232f45;display:flex;justify-content:space-between;align-items:center;background:#101520;">
       <div>
-        <div style="font-size:16px;font-weight:900;color:#f1f5f9;">📦 ${pname}</div>
+        <div style="font-size:16px;font-weight:900;color:#f1f5f9;">ðŸ“¦ ${pname}</div>
         <div style="font-size:11px;color:#8b9dc3;margin-top:2px;">Product Full History</div>
       </div>
-      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:#1a2035;border:1px solid #232f45;border-radius:8px;color:#8b9dc3;cursor:pointer;padding:6px 12px;font-size:13px;">✕ બંધ</button>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:#1a2035;border:1px solid #232f45;border-radius:8px;color:#8b9dc3;cursor:pointer;padding:6px 12px;font-size:13px;">âœ• àª¬àª‚àª§</button>
     </div>
     <!-- Summary -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px;border-bottom:1px solid #232f45;">
       <div style="background:#0f2218;border:1px solid #22c55e33;border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:10px;color:#4ade80;font-weight:700;">કુલ AAVYO</div>
+        <div style="font-size:10px;color:#4ade80;font-weight:700;">àª•à«àª² AAVYO</div>
         <div style="font-size:18px;font-weight:900;color:#34d399;">${num(totIn)}</div>
         <div style="font-size:10px;color:#4ade80;">${inr(totAmtIn)}</div>
       </div>
       <div style="background:#1f0a0a;border:1px solid #ef444433;border-radius:10px;padding:10px;text-align:center;">
-        <div style="font-size:10px;color:#f87171;font-weight:700;">કુલ GAYO</div>
+        <div style="font-size:10px;color:#f87171;font-weight:700;">àª•à«àª² GAYO</div>
         <div style="font-size:18px;font-weight:900;color:#f87171;">${num(totOut)}</div>
         <div style="font-size:10px;color:#f87171;">${inr(totAmtOut)}</div>
       </div>
@@ -1051,14 +1104,14 @@ function showProdHistory(pname){
       <div style="background:#0a0f18;border:1px solid #a78bfa33;border-radius:10px;padding:10px;text-align:center;">
         <div style="font-size:10px;color:#a78bfa;font-weight:700;">ENTRIES</div>
         <div style="font-size:18px;font-weight:900;color:#a78bfa;">${inRows.length+outRows.length}</div>
-        <div style="font-size:10px;color:#8b9dc3;">${inRows.length} in · ${outRows.length} out</div>
+        <div style="font-size:10px;color:#8b9dc3;">${inRows.length} in Â· ${outRows.length} out</div>
       </div>
     </div>
     <!-- Tables -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 20px;overflow-y:auto;flex:1;">
       <!-- IN -->
       <div>
-        <div style="font-size:12px;font-weight:800;color:#34d399;margin-bottom:8px;">✅ Maal Aavyo (${inRows.length})</div>
+        <div style="font-size:12px;font-weight:800;color:#34d399;margin-bottom:8px;">âœ… Maal Aavyo (${inRows.length})</div>
         ${inRows.length?`<table style="width:100%;border-collapse:collapse;font-size:12px;">
           <thead><tr style="background:#0f2218;">
             <th style="padding:6px 8px;text-align:left;color:#4ade80;">#</th>
@@ -1074,11 +1127,11 @@ function showProdHistory(pname){
             <td style="padding:5px 8px;text-align:right;color:#8b9dc3;">${inr(r.rate)}</td>
             <td style="padding:5px 8px;text-align:right;color:#34d399;font-weight:800;">${inr(r.pes*r.rate)}</td>
           </tr>`).join('')}</tbody>
-        </table>`:'<div style="text-align:center;padding:20px;color:#8b9dc3;">કોઈ entry નથી</div>'}
+        </table>`:'<div style="text-align:center;padding:20px;color:#8b9dc3;">àª•à«‹àªˆ entry àª¨àª¥à«€</div>'}
       </div>
       <!-- OUT -->
       <div>
-        <div style="font-size:12px;font-weight:800;color:#f87171;margin-bottom:8px;">📤 Maal Gayo (${outRows.length})</div>
+        <div style="font-size:12px;font-weight:800;color:#f87171;margin-bottom:8px;">ðŸ“¤ Maal Gayo (${outRows.length})</div>
         ${outRows.length?`<table style="width:100%;border-collapse:collapse;font-size:12px;">
           <thead><tr style="background:#1f0a0a;">
             <th style="padding:6px 8px;text-align:left;color:#f87171;">#</th>
@@ -1094,7 +1147,7 @@ function showProdHistory(pname){
             <td style="padding:5px 8px;text-align:right;color:#fbbf24;">${(r.damage||0)>0?num(r.damage):'-'}</td>
             <td style="padding:5px 8px;text-align:right;color:#f87171;font-weight:800;">${inr(r.pes*r.rate)}</td>
           </tr>`).join('')}</tbody>
-        </table>`:'<div style="text-align:center;padding:20px;color:#8b9dc3;">કોઈ entry નથી</div>'}
+        </table>`:'<div style="text-align:center;padding:20px;color:#8b9dc3;">àª•à«‹àªˆ entry àª¨àª¥à«€</div>'}
       </div>
     </div>
   </div>`;
@@ -1122,7 +1175,7 @@ function setupDashProdNav(){
 function tbl(rows,type){
   const c=type==='in'?'var(--green)':'var(--red)';
   const s=[...rows].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
-  if(!s.length)return `<div style="text-align:center;padding:40px;color:var(--muted);"><div style="margin-bottom:8px;">${IC.emptyBox}</div><div><span class="kbd">${type==='in'?'F2':'F3'}</span> dabao — navi entry</div></div>`;
+  if(!s.length)return `<div style="text-align:center;padding:40px;color:var(--muted);"><div style="margin-bottom:8px;">${IC.emptyBox}</div><div><span class="kbd">${type==='in'?'F2':'F3'}</span> dabao â€” navi entry</div></div>`;
   const tp=s.reduce((x,r)=>x+r.pes,0);
   const tdmg=type==='out'?s.reduce((x,r)=>x+(r.damage||0),0):0;
   const tshrt=type==='out'?s.reduce((x,r)=>x+(r.short||0),0):0;
@@ -1147,14 +1200,14 @@ function tbl(rows,type){
       <td style="color:var(--muted2);font-size:12px;" class="mn">${fd(r.date)}</td>
       <td style="font-weight:700;font-size:13px;">${r.product}</td>
       <td style="text-align:right;color:${c};font-weight:700;font-size:13px;" class="mn">${num(r.pes)}</td>
-      ${type==='out'?`<td style="text-align:right;color:var(--gold);font-weight:600;font-size:12px;" class="mn">${(r.damage||0)>0?'⚠️ '+num(r.damage):'-'}</td><td style="text-align:right;color:var(--purple);font-weight:600;font-size:12px;" class="mn">${(r.short||0)>0?'📉 '+num(r.short):'-'}</td><td style="text-align:right;color:var(--blue);font-weight:700;font-size:12px;" class="mn">${num(net)}</td>`:''}
+      ${type==='out'?`<td style="text-align:right;color:var(--gold);font-weight:600;font-size:12px;" class="mn">${(r.damage||0)>0?'âš ï¸ '+num(r.damage):'-'}</td><td style="text-align:right;color:var(--purple);font-weight:600;font-size:12px;" class="mn">${(r.short||0)>0?'ðŸ“‰ '+num(r.short):'-'}</td><td style="text-align:right;color:var(--blue);font-weight:700;font-size:12px;" class="mn">${num(net)}</td>`:''}
       <td style="text-align:right;color:var(--muted2);font-size:12px;" class="mn">${inr(r.rate)}</td>
       <td style="text-align:right;font-weight:800;color:${c};font-size:13px;" class="mn">${inr(amt)}</td>
       <td style="padding:6px 4px;"><button class="bsm" onclick="openEdit('${type}',${r.id})" style="background:#1d4ed818;border:1px solid #1d4ed844;color:#60a5fa;" aria-label="Edit entry ${r.product}">${IC.edit}</button></td>
       <td style="padding:6px 4px;"><button class="bsm" onclick="askDel('${type}',${r.id})" style="background:#7f1d1d18;border:1px solid #7f1d1d44;color:#f87171;" aria-label="Delete entry ${r.product}">${IC.trash}</button></td>
     </tr>`;}).join('')}</tbody>
     <tfoot><tr style="background:${c}15;border-top:2px solid ${c}40;">
-      <td colspan="3" style="padding:10px 12px;font-weight:900;color:${c};font-size:13px;">KUL — ${s.length}</td>
+      <td colspan="3" style="padding:10px 12px;font-weight:900;color:${c};font-size:13px;">KUL â€” ${s.length}</td>
       <td style="text-align:right;font-weight:900;color:${c};font-size:14px;padding:10px 12px;" class="mn">${num(tp)}</td>
       ${type==='out'?`<td style="text-align:right;font-weight:900;color:var(--gold);font-size:13px;padding:10px 12px;" class="mn">${num(tdmg)}</td><td style="text-align:right;font-weight:900;color:var(--purple);font-size:13px;padding:10px 12px;" class="mn">${num(tshrt)}</td><td style="text-align:right;font-weight:900;color:var(--blue);font-size:14px;padding:10px 12px;" class="mn">${num(tp+tdmg+tshrt)}</td>`:''}
       <td></td>
@@ -1179,7 +1232,7 @@ function fBar(f,type){
       ${f.q?`<button onclick="${type}F.q='';render()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;">${IC.x}</button>`:''}
     </div>
     <select class="inp" style="width:auto;min-width:185px;font-size:12px;" onchange="${type}F.p=this.value;render()">
-      <option value="">— Badhaj Products —</option>
+      <option value="">â€” Badhaj Products â€”</option>
       ${S.products.map(p=>`<option value="${p.name}" ${f.p===p.name?'selected':''}>${p.name}</option>`).join('')}
     </select>
     <input type="month" class="inp" style="width:auto;" value="${f.m}" onchange="${type}F.m=this.value;render()">
@@ -1206,12 +1259,12 @@ function stockHTML(stock){
   return `
   <!-- Search bar -->
   <div style="position:relative;margin-bottom:13px;">
-    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.6;">🔍</span>
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.6;">ðŸ”</span>
     <input id="stk-si" class="inp" style="padding-left:42px;font-size:14px;border:1.5px solid ${stkQ?'var(--orange)':'var(--border2)'};"
       value="${stkQ.replace(/"/g,'&quot;')}" placeholder="Product naam thi search karo..."
       oninput="stkQ=this.value;stkOnlyBal=false;render()" autocomplete="off">
-    ${stkQ?`<button onclick="stkQ='';stkOnlyBal=false;render()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;">✕</button>`:''}
-    ${stkOnlyBal?`<button onclick="stkOnlyBal=false;render()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:#1e3a5f;border:1px solid #2563eb44;color:#60a5fa;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:700;">✕ Stock Only</button>`:''}
+    ${stkQ?`<button onclick="stkQ='';stkOnlyBal=false;render()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;">âœ•</button>`:''}
+    ${stkOnlyBal?`<button onclick="stkOnlyBal=false;render()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:#1e3a5f;border:1px solid #2563eb44;color:#60a5fa;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:700;">âœ• Stock Only</button>`:''}
   </div>
 
   <div class="dash-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:13px;">
@@ -1232,7 +1285,7 @@ function stockHTML(stock){
       <td style="text-align:right;color:#f87171aa;" class="mn">${inr(r.outAmt)}</td>
       <td style="text-align:right;font-weight:900;font-size:15px;color:${r.balPes>100?'var(--green)':r.balPes>0?'var(--gold)':'var(--red)'};" class="mn">${num(r.balPes)}</td>
       <td style="text-align:center;"><span class="tag" style="background:${r.balPes>100?'#14532d':r.balPes>0?'#713f12':'#7f1d1d'};color:${r.balPes>100?'#4ade80':r.balPes>0?'#fbbf24':'#f87171'};">${r.balPes>100?IC.checkCircle+' OK':r.balPes>0?IC.alertCircle+' Aacho':IC.xCircle+' Khatam'}</span></td>
-    </tr>`).join(''):`<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted);">😕 "${stkQ}" maate koi product nathi</td></tr>`}</tbody>
+    </tr>`).join(''):`<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted);">ðŸ˜• "${stkQ}" maate koi product nathi</td></tr>`}</tbody>
     <tfoot><tr style="background:#1a2240;border-top:2px solid var(--blue)44;">
       <td style="padding:10px 12px;font-weight:900;color:var(--blue);font-size:13px;">KUL${stkQ?` (${filtered.length}/${stock.length})`:' TOTAL'}</td>
       <td style="text-align:right;font-weight:900;color:var(--green);padding:10px 12px;" class="mn">${num(ti)}</td>
@@ -1273,7 +1326,7 @@ function repDtbl(rows,type){
       <td style="text-align:right;font-weight:900;color:${c};font-size:13px;" class="mn">${inr(amt)}</td>
     </tr>`;}).join('')}</tbody>
     <tfoot><tr style="background:${c}20;border-top:2px solid ${c}50;">
-      <td colspan="3" style="padding:9px 12px;font-weight:900;color:${c};font-size:13px;">KUL — ${rows.length}</td>
+      <td colspan="3" style="padding:9px 12px;font-weight:900;color:${c};font-size:13px;">KUL â€” ${rows.length}</td>
       <td style="text-align:right;font-weight:900;color:${c};padding:9px 12px;font-size:13px;" class="mn">${num(tp)}</td>
       ${type==='out'?`<td style="text-align:right;font-weight:900;color:#fbbf24;padding:9px 12px;" class="mn">${num(tdmg)}</td><td style="text-align:right;font-weight:900;color:#a78bfa;padding:9px 12px;" class="mn">${num(tshrt)}</td><td style="text-align:right;font-weight:900;color:#60a5fa;padding:9px 12px;" class="mn">${num(tp+tdmg+tshrt)}</td>`:''}
       <td></td>
@@ -1288,7 +1341,7 @@ function repFilterBar(f,type){
   const c=type==='in'?'var(--green)':'var(--red)';
   const lbl=type==='in'?IC.inbox+' Maal Aavyo':IC.outbox+' Maal Gayo';
   return `<div style="background:${type==='in'?'#0f2218':'#1f0a0a'};border:1.5px solid ${type==='in'?'#22c55e33':'#ef444433'};border-radius:11px;padding:11px 14px;margin-bottom:8px;">
-    <div style="font-size:11px;font-weight:700;color:${c};margin-bottom:7px;">${lbl} — Filter</div>
+    <div style="font-size:11px;font-weight:700;color:${c};margin-bottom:7px;">${lbl} â€” Filter</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <div style="position:relative;flex:1;min-width:160px;">
         <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;">${IC.search}</span>
@@ -1299,7 +1352,7 @@ function repFilterBar(f,type){
         ${f.q?`<button onclick="${key}.q='';render()" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;">${IC.x}</button>`:''}
       </div>
       <select class="inp" style="width:auto;min-width:150px;font-size:12px;" onchange="${key}.p=this.value;render()">
-        <option value="">— Badhaj Products —</option>
+        <option value="">â€” Badhaj Products â€”</option>
         ${S.products.map(p=>`<option value="${p.name}" ${f.p===p.name?'selected':''}>${p.name}</option>`).join('')}
       </select>
       <input type="month" class="inp" style="width:130px;" value="${f.m}" onchange="${key}.m=this.value;${key}.d='';render()" title="Month">
@@ -1458,7 +1511,7 @@ function reportHTML(){
     <div>
       ${repFilterBar(repInF,'in')}
       <div style="background:#0f2218;border:1.5px solid #22c55e33;border-radius:12px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;">
-        <div><div style="font-size:10px;color:var(--green);font-weight:700;margin-bottom:1px;display:flex;align-items:center;gap:4px;">${IC.inbox} MAAL AAVYO — ${inR.length} entries</div><div style="font-size:20px;font-weight:900;color:var(--green);" class="mn">${num(tiP)} pcs</div></div>
+        <div><div style="font-size:10px;color:var(--green);font-weight:700;margin-bottom:1px;display:flex;align-items:center;gap:4px;">${IC.inbox} MAAL AAVYO â€” ${inR.length} entries</div><div style="font-size:20px;font-weight:900;color:var(--green);" class="mn">${num(tiP)} pcs</div></div>
         <div style="font-size:16px;font-weight:900;color:var(--green);" class="mn">${inr(tiA)}</div>
       </div>
     </div>
@@ -1466,20 +1519,20 @@ function reportHTML(){
       ${repFilterBar(repOutF,'out')}
       <div style="background:#1f0a0a;border:1.5px solid #ef444433;border-radius:12px;padding:11px 16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div><div style="font-size:10px;color:var(--red);font-weight:700;margin-bottom:1px;display:flex;align-items:center;gap:4px;">${IC.outbox} MAAL GAYO — ${outR.length} entries</div><div style="font-size:20px;font-weight:900;color:var(--red);" class="mn">${num(toP)} pcs</div></div>
+          <div><div style="font-size:10px;color:var(--red);font-weight:700;margin-bottom:1px;display:flex;align-items:center;gap:4px;">${IC.outbox} MAAL GAYO â€” ${outR.length} entries</div><div style="font-size:20px;font-weight:900;color:var(--red);" class="mn">${num(toP)} pcs</div></div>
           <div style="font-size:16px;font-weight:900;color:var(--red);" class="mn">${inr(toA)}</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
           <div style="background:#fbbf2415;border:1px solid #fbbf2433;border-radius:7px;padding:6px 9px;text-align:center;">
-            <div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:2px;">⚠️ DAMAGE</div>
+            <div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:2px;">âš ï¸ DAMAGE</div>
             <div style="font-size:15px;font-weight:900;color:var(--gold);" class="mn">${num(toDmg)}</div>
           </div>
           <div style="background:#a78bfa15;border:1px solid #a78bfa33;border-radius:7px;padding:6px 9px;text-align:center;">
-            <div style="font-size:9px;color:var(--purple);font-weight:700;margin-bottom:2px;">📉 SHORT</div>
+            <div style="font-size:9px;color:var(--purple);font-weight:700;margin-bottom:2px;">ðŸ“‰ SHORT</div>
             <div style="font-size:15px;font-weight:900;color:var(--purple);" class="mn">${num(toShrt)}</div>
           </div>
           <div style="background:#60a5fa15;border:1px solid #60a5fa33;border-radius:7px;padding:6px 9px;text-align:center;">
-            <div style="font-size:9px;color:var(--blue);font-weight:700;margin-bottom:2px;">✅ NET</div>
+            <div style="font-size:9px;color:var(--blue);font-weight:700;margin-bottom:2px;">âœ… NET</div>
             <div style="font-size:15px;font-weight:900;color:var(--blue);" class="mn">${num(toNet)}</div>
           </div>
         </div>
@@ -1563,8 +1616,8 @@ function searchHTML(stock){
         ${srchMonth?`<span style="font-size:11px;color:var(--muted);">(${countInMonth(srchMonth,'both')} entries)</span>`:''}
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
-        ${srchMonth?`<button onclick="event.stopPropagation();srchMonth='';srchCalOpen=false;render()" style="background:#7f1d1d33;border:1px solid #ef444444;color:#f87171;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;font-weight:700;">✕ Clear</button>`:''}
-        <span style="color:var(--muted);font-size:11px;">${srchCalOpen?'▲':'▼'}</span>
+        ${srchMonth?`<button onclick="event.stopPropagation();srchMonth='';srchCalOpen=false;render()" style="background:#7f1d1d33;border:1px solid #ef444444;color:#f87171;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;font-weight:700;">âœ• Clear</button>`:''}
+        <span style="color:var(--muted);font-size:11px;">${srchCalOpen?'â–²':'â–¼'}</span>
       </div>
     </div>
     ${srchCalOpen?`
@@ -1622,7 +1675,7 @@ function searchHTML(stock){
 
   <!-- Results -->
   ${!hasFilter?`<div style="text-align:center;padding:48px;color:var(--muted);">${IC.searchLg}<div style="font-size:16px;font-weight:700;margin-bottom:4px;margin-top:10px;">Search Karo</div><div style="font-size:13px;">Product naam lakhvo ya mahino select karo</div></div>`:''}
-  ${hasFilter&&srchMonth&&!q?`<div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:10px;padding:8px 12px;background:rgba(249,115,22,0.08);border-radius:8px;border:1px solid rgba(249,115,22,0.2);">📅 ${fMonthFull(srchMonth)} — ${inR.length+outR.length} total entries</div>`:''}
+  ${hasFilter&&srchMonth&&!q?`<div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:10px;padding:8px 12px;background:rgba(249,115,22,0.08);border-radius:8px;border:1px solid rgba(249,115,22,0.2);">ðŸ“… ${fMonthFull(srchMonth)} â€” ${inR.length+outR.length} total entries</div>`:''}
   ${hasFilter?sR.map(s=>`<div class="card" style="border-color:var(--orange)33;border-width:2px;padding:13px 15px;margin-bottom:11px;">
     <div style="font-size:14px;font-weight:900;color:var(--orange);margin-bottom:8px;display:flex;align-items:center;gap:6px;">${IC.package} ${s.product}</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
@@ -1633,12 +1686,12 @@ function searchHTML(stock){
       </div>`).join('')}
     </div>
   </div>`).join(''):''}
-  ${hasFilter&&inR.length?`<div class="card" style="margin-bottom:10px;"><div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:800;color:var(--green);font-size:13px;display:flex;align-items:center;gap:5px;">${IC.inbox} Maal Aavyo — ${inR.length} entries</div>${tbl(inR,'in')}</div>`:''}
-  ${hasFilter&&outR.length?`<div class="card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:800;color:var(--red);font-size:13px;display:flex;align-items:center;gap:5px;">${IC.outbox} Maal Gayo — ${outR.length} entries</div>${tbl(outR,'out')}</div>`:''}
-  ${noResults?`<div style="text-align:center;padding:30px;color:var(--muted);font-size:14px;">${IC.sad}<div style="margin-top:7px;">${srchMonth?fMonthFull(srchMonth)+' maa':'"'+searchQ+'"'} — koi result nathi</div></div>`:''}`;
+  ${hasFilter&&inR.length?`<div class="card" style="margin-bottom:10px;"><div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:800;color:var(--green);font-size:13px;display:flex;align-items:center;gap:5px;">${IC.inbox} Maal Aavyo â€” ${inR.length} entries</div>${tbl(inR,'in')}</div>`:''}
+  ${hasFilter&&outR.length?`<div class="card"><div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:800;color:var(--red);font-size:13px;display:flex;align-items:center;gap:5px;">${IC.outbox} Maal Gayo â€” ${outR.length} entries</div>${tbl(outR,'out')}</div>`:''}
+  ${noResults?`<div style="text-align:center;padding:30px;color:var(--muted);font-size:14px;">${IC.sad}<div style="margin-top:7px;">${srchMonth?fMonthFull(srchMonth)+' maa':'"'+searchQ+'"'} â€” koi result nathi</div></div>`:''}`;
 }
 
-// Products tab — list view
+// Products tab â€” list view
 let prodQ='';
 function prodHTML(stock){
   const totIn=stock.reduce((s,r)=>s+r.inPes,0);
@@ -1656,7 +1709,7 @@ function prodHTML(stock){
     <input id="prod-si" class="inp" style="padding-left:42px;font-size:14px;border:1.5px solid ${prodQ?'var(--orange)':'var(--border2)'};"
       value="${prodQ}" placeholder="Product naam ya number search karo..."
       oninput="prodQ=this.value;render()" autocomplete="off">
-    ${prodQ?`<button onclick="prodQ='';render()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;">✕</button>`:''}
+    ${prodQ?`<button onclick="prodQ='';render()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;">âœ•</button>`:''}
   </div>
   <div class="card"><table>
     <thead><tr style="background:var(--surface);border-bottom:2px solid var(--orange)33;">
@@ -1690,7 +1743,7 @@ function prodHTML(stock){
       </tr>`;
     }).join('')}</tbody>
     <tfoot><tr style="background:var(--orange)15;border-top:2px solid var(--orange)33;">
-      <td colspan="2" style="padding:10px 12px;font-weight:700;color:var(--orange);">KUL — ${fp.length}${prodQ?' ('+S.products.length+' total)':''} products</td>
+      <td colspan="2" style="padding:10px 12px;font-weight:700;color:var(--orange);">KUL â€” ${fp.length}${prodQ?' ('+S.products.length+' total)':''} products</td>
       <td></td>
       <td style="text-align:right;font-weight:700;color:var(--green);padding:10px 12px;" class="mn">${num(totIn)}</td>
       <td style="text-align:right;font-weight:700;color:var(--red);padding:10px 12px;" class="mn">${num(totOut)}</td>
@@ -1700,14 +1753,14 @@ function prodHTML(stock){
   </table></div>`;
 }
 
-// ═══ PRINT FUNCTIONS ═══
+// â•â•â• PRINT FUNCTIONS â•â•â•
 function pHdr(title,pd){
   return `<div style="border-bottom:3px double #c2410c;padding-bottom:13px;margin-bottom:16px;display:flex;align-items:center;gap:12px;"><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #c2410c;flex-shrink:0;" /><div style="flex:1;text-align:center;">
-    <div style="font-size:15px;font-weight:900;color:#c2410c;letter-spacing:3px;margin-bottom:6px;">॥ ॐ શ્રી ગણેશાય નમઃ ॥</div>
+    <div style="font-size:15px;font-weight:900;color:#c2410c;letter-spacing:3px;margin-bottom:6px;">à¥¥ à¥ àª¶à«àª°à«€ àª—àª£à«‡àª¶àª¾àª¯ àª¨àª®àªƒ à¥¥</div>
     <div style="font-size:24px;font-weight:900;color:#000;letter-spacing:.5px;margin-bottom:3px;">KRUSHNNAL PACKING VENDOR</div>
-    <div style="font-size:12px;color:#444;line-height:1.8;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop,<br>Udhana, Surat - 394210 &nbsp;·&nbsp; Mo : 9724589469</div>
+    <div style="font-size:12px;color:#444;line-height:1.8;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop,<br>Udhana, Surat - 394210 &nbsp;Â·&nbsp; Mo : 9724589469</div>
     <div style="margin-top:8px;display:inline-block;background:#fff3e0;border:1px solid #f97316;border-radius:7px;padding:4px 14px;">
-      <span style="font-size:12px;color:#c2410c;font-weight:700;">${title} &nbsp;·&nbsp; Date : ${pd}</span>
+      <span style="font-size:12px;color:#c2410c;font-weight:700;">${title} &nbsp;Â·&nbsp; Date : ${pd}</span>
     </div>
   </div><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #c2410c;flex-shrink:0;" /></div>`;
 }
@@ -1741,7 +1794,7 @@ function ptbl(rows,color,bg,type){
       <td style="padding:6px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
     </tr>`;}).join('')}</tbody>
     <tfoot><tr style="background:${color};color:#fff;">
-      <td colspan="3" style="padding:7px 8px;font-weight:900;font-size:12px;">KUL — ${rows.length}</td>
+      <td colspan="3" style="padding:7px 8px;font-weight:900;font-size:12px;">KUL â€” ${rows.length}</td>
       <td style="padding:7px 8px;text-align:right;font-weight:900;font-size:13px;font-family:'Courier New',monospace;">${num(tp)}</td>
       ${type==='out'?`<td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-size:13px;font-family:'Courier New',monospace;">${num(tp+tdmg+tshrt)}</td>`:''}
       <td></td>
@@ -1756,12 +1809,12 @@ function printRep(type){
   const outR=getRepRows(repOutF,'out');
   const tiP=inR.reduce((s,r)=>s+r.pes,0),tiA=inR.reduce((s,r)=>s+r.pes*r.rate,0);
   const toP=outR.reduce((s,r)=>s+r.pes,0),toA=outR.reduce((s,r)=>s+r.pes*r.rate,0);
-  function inLabel(f){let l=[];if(f.m){const p=f.m.split('-');l.push(MONTHS[parseInt(p[1])]+' '+p[0]);}if(f.p)l.push(f.p);return l.length?l.join(' · '):'All';}
+  function inLabel(f){let l=[];if(f.m){const p=f.m.split('-');l.push(MONTHS[parseInt(p[1])]+' '+p[0]);}if(f.p)l.push(f.p);return l.length?l.join(' Â· '):'All';}
   const pd=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
   let title='';
-  if(type==='in') title='📥 Maal Aavyo Report ('+inLabel(repInF)+')';
-  else if(type==='out') title='📤 Maal Gayo Report ('+inLabel(repOutF)+')';
-  else title='📊 Report (IN: '+inLabel(repInF)+' | OUT: '+inLabel(repOutF)+')';
+  if(type==='in') title='ðŸ“¥ Maal Aavyo Report ('+inLabel(repInF)+')';
+  else if(type==='out') title='ðŸ“¤ Maal Gayo Report ('+inLabel(repOutF)+')';
+  else title='ðŸ“Š Report (IN: '+inLabel(repInF)+' | OUT: '+inLabel(repOutF)+')';
   let body='';
   if(type==='in'||type==='both'){
     body+=`<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:13px;">
@@ -1771,7 +1824,7 @@ function printRep(type){
         <div style="text-align:right;"><div style="font-size:10px;color:#555;">Amount</div><div style="font-size:16px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(tiA)}</div><div style="font-size:10px;color:#888;">${inR.length} entries</div></div>
       </div>
     </div>
-    <div style="font-size:12px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — Detail</div>
+    <div style="font-size:12px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">ðŸ“¥ MAAL AAVYO â€” Detail</div>
     <div style="margin-bottom:15px;">${ptbl(inR,'#15803d','#f0fdf4','in')}</div>`;
   }
   if(type==='both'){
@@ -1790,21 +1843,21 @@ function printRep(type){
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;border-top:1px solid #fca5a5;padding-top:8px;">
           <div style="background:#fff8e1;border:1px solid #f59e0b;border-radius:6px;padding:7px;text-align:center;">
-            <div style="font-size:9px;color:#b45309;font-weight:800;margin-bottom:2px;">⚠️ DAMAGE</div>
+            <div style="font-size:9px;color:#b45309;font-weight:800;margin-bottom:2px;">âš ï¸ DAMAGE</div>
             <div style="font-size:16px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
           </div>
           <div style="background:#f5f3ff;border:1px solid #7c3aed;border-radius:6px;padding:7px;text-align:center;">
-            <div style="font-size:9px;color:#7c3aed;font-weight:800;margin-bottom:2px;">📉 SHORT</div>
+            <div style="font-size:9px;color:#7c3aed;font-weight:800;margin-bottom:2px;">ðŸ“‰ SHORT</div>
             <div style="font-size:16px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
           </div>
           <div style="background:#eff6ff;border:1px solid #2563eb;border-radius:6px;padding:7px;text-align:center;">
-            <div style="font-size:9px;color:#1d4ed8;font-weight:800;margin-bottom:2px;">✅ NET PIECE</div>
+            <div style="font-size:9px;color:#1d4ed8;font-weight:800;margin-bottom:2px;">âœ… NET PIECE</div>
             <div style="font-size:16px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(toNet)}</div>
           </div>
         </div>
       </div>
     </div>
-    <div style="font-size:12px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — Detail</div>
+    <div style="font-size:12px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">ðŸ“¤ MAAL GAYO â€” Detail</div>
     <div style="margin-bottom:15px;">${ptbl(outR,'#b91c1c','#fef2f2','out')}</div>`;
   }
   document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;">
@@ -1812,7 +1865,7 @@ function printRep(type){
     ${body}
     <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;">
       <div style="font-size:11px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 Â· Mo: 9724589469</div>
       <div style="font-size:9px;color:#bbb;margin-top:1px;">Print Date: ${pd}</div>
     </div>
   </div>`;
@@ -1826,7 +1879,7 @@ function printStock(){
   const tiA=stock.reduce((s,r)=>s+r.inAmt,0),toA=stock.reduce((s,r)=>s+r.outAmt,0);
   const pd=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
   document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;">
-    ${pHdr('📦 STOCK REGISTER',pd)}
+    ${pHdr('ðŸ“¦ STOCK REGISTER',pd)}
     <div class="dash-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
       <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:#f0fdf4;text-align:center;">
         <div style="font-size:10px;color:#15803d;font-weight:800;margin-bottom:3px;">KUL AAVYO</div>
@@ -1877,7 +1930,7 @@ function printStock(){
     </table>
     <div style="border-top:2px solid #6d28d9;padding-top:9px;text-align:center;margin-top:12px;">
       <div style="font-size:11px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 Â· Mo: 9724589469</div>
       <div style="font-size:9px;color:#bbb;margin-top:1px;">Stock Print Date: ${pd}</div>
     </div>
   </div>`;
@@ -1885,7 +1938,7 @@ function printStock(){
   setTimeout(()=>{window.print();document.getElementById('pa').style.display='none';},200);
 }
 
-// ═══ MODAL ═══
+// â•â•â• MODAL â•â•â•
 function buildModal(){
   if(modal.type==='product'||modal.type==='product-rate'){
     const d=modal.data,isRate=modal.type==='product-rate';
@@ -1894,7 +1947,7 @@ function buildModal(){
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div>
             <div id="modal-title" style="font-size:16px;font-weight:900;color:var(--orange);display:flex;align-items:center;gap:6px;">${isRate?IC.edit+' Product Edit':IC.plus+' Navo Product'} <span class="kbd">F1</span></div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Name→Enter→Rate→Enter=Save · Esc=Band</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Nameâ†’Enterâ†’Rateâ†’Enter=Save Â· Esc=Band</div>
           </div>
           <button onclick="modal=null;render()" style="background:var(--border);border:1px solid var(--border2);color:var(--muted);cursor:pointer;border-radius:7px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;" aria-label="Close modal">${IC.x}</button>
         </div>
@@ -1905,7 +1958,7 @@ function buildModal(){
         <div style="margin-bottom:16px;">
           <label for="pinr" style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.rupee} RATE (Rs.)</label>
           <input type="text" class="inp" inputmode="decimal" pattern="[0-9.]*" id="pinr" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="0.00" step="0.01" value="${d.rate||''}" style="font-size:22px;font-weight:900;border-color:var(--gold)55;background:#1a1200;color:var(--gold);" oninput="modal.data.rate=this.value" ${isRate?'autofocus':''}>
-          <div style="font-size:11px;color:var(--muted);margin-top:5px;">Aa rate — <span style="color:var(--green);font-weight:700;">${IC.inbox} Maal Aavyo</span> ane <span style="color:var(--red);font-weight:700;">${IC.outbox} Maal Gayo</span> — banne ma auto-fill thase</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:5px;">Aa rate â€” <span style="color:var(--green);font-weight:700;">${IC.inbox} Maal Aavyo</span> ane <span style="color:var(--red);font-weight:700;">${IC.outbox} Maal Gayo</span> â€” banne ma auto-fill thase</div>
         </div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-or" onclick="${isRate?'saveRate()':'saveProd()'}" style="flex:1;padding:11px;font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px;">${IC.check} Save (Enter)</button>
@@ -1922,7 +1975,7 @@ function buildModal(){
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <div>
           <div id="entry-modal-title" style="font-size:16px;font-weight:900;color:${c};display:flex;align-items:center;gap:6px;">${modal.mode==='add'?IC.plus+` Navi Entry <span class="kbd">${fk}</span>`:IC.edit+' Entry Edit'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:1px;">${type==='in'?'Maal Aavyo':'Maal Gayo'} · Date→Enter→Product→Enter→Piece→Enter=Save · Esc=Band</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:1px;">${type==='in'?'Maal Aavyo':'Maal Gayo'} Â· Dateâ†’Enterâ†’Productâ†’Enterâ†’Pieceâ†’Enter=Save Â· Esc=Band</div>
         </div>
         <button onclick="modal=null;render()" style="background:var(--border);border:1px solid var(--border2);color:var(--muted);cursor:pointer;border-radius:7px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;" aria-label="Close modal">${IC.x}</button>
       </div>
@@ -1931,7 +1984,7 @@ function buildModal(){
         <input type="date" class="inp" id="md" value="${d.date||tod()}" style="font-size:14px;" oninput="modal.data.date=this.value">
       </div>
       <div style="margin-bottom:11px;">
-        <label for="prod-num-inp" style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.package} PRODUCT — Number lakhvo</label>
+        <label for="prod-num-inp" style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.package} PRODUCT â€” Number lakhvo</label>
         <div style="position:relative;">
           <input type="text" class="inp" id="prod-num-inp" placeholder="Number type karo (dakhla: 371)" 
             style="font-size:15px;font-weight:700;letter-spacing:1px;"
@@ -1949,19 +2002,19 @@ function buildModal(){
           <input type="text" class="inp" inputmode="numeric" pattern="[0-9]*" id="mpe" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="0" value="${d.pes||''}" style="font-size:16px;font-weight:700;" oninput="modal.data.pes=this.value;updAmt();updNet()">
         </div>
         <div>
-          <label for="mra" style="font-size:10px;color:${type==='out'?'var(--red)':'var(--green)'};font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.rupee} RATE (Rs.) — Auto-fill</label>
+          <label for="mra" style="font-size:10px;color:${type==='out'?'var(--red)':'var(--green)'};font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.rupee} RATE (Rs.) â€” Auto-fill</label>
           <input type="text" class="inp" inputmode="decimal" pattern="[0-9.]*" id="mra" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="0.00" step="0.01" value="${d.rate||''}" style="font-size:16px;font-weight:700;" oninput="modal.data.rate=this.value;updAmt()">
-          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Product rate apomep aave · badlavi shakay</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Product rate apomep aave Â· badlavi shakay</div>
         </div>
       </div>
       ${type==='out'?`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:10px;">
         <div>
-          <label for="mdmg" style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:4px;display:block;">⚠️ DAMAGE (Piece)</label>
+          <label for="mdmg" style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:4px;display:block;">âš ï¸ DAMAGE (Piece)</label>
           <input type="text" class="inp" inputmode="numeric" pattern="[0-9]*" id="mdmg" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="0" min="0" value="${d.damage||0}" style="font-size:15px;font-weight:700;border-color:#fbbf2466;" oninput="modal.data.damage=this.value;updNet()">
         </div>
         <div>
-          <label for="mshrt" style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:4px;display:block;">📉 SHORT (Piece)</label>
+          <label for="mshrt" style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:4px;display:block;">ðŸ“‰ SHORT (Piece)</label>
           <input type="text" class="inp" inputmode="numeric" pattern="[0-9]*" id="mshrt" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="0" min="0" value="${d.short||0}" style="font-size:15px;font-weight:700;border-color:#a78bfa66;" oninput="modal.data.short=this.value;updNet()">
         </div>
       </div>
@@ -2005,7 +2058,7 @@ function buildConfirm(){
   </div>`;
 }
 
-// ═══ ACTIONS ═══
+// â•â•â• ACTIONS â•â•â•
 function updAmt(){
   const p=Number(document.getElementById('mpe')?.value||0),r=Number(document.getElementById('mra')?.value||0);
   const el=document.getElementById('mamt');if(el)el.textContent=inr(p*r);
@@ -2072,10 +2125,10 @@ function saveM(){
   persist();
   const _st=modal.type, _sd=modal.data.date;
   toast('Entry save thayi!');
-  // Turant j navi entry open karo — no delay, no click needed
+  // Turant j navi entry open karo â€” no delay, no click needed
   modal={type:_st,mode:'add',data:{date:_sd,product:'',pes:'',rate:'',damage:'',short:''}};
   render();
-  // Product number field par focus karo — date par nahi
+  // Product number field par focus karo â€” date par nahi
   setTimeout(()=>{
     const pf=document.getElementById('prod-num-inp');
     if(pf){pf.focus();}
@@ -2094,7 +2147,7 @@ function changePhoto(){
       const b64=ev.target.result;
       window._KPIMG=b64;
       localStorage.setItem('_KP_CUSTOM_IMG',b64);
-      toast('Photo save thay chhe... ⏳','#fbbf24');
+      toast('Photo save thay chhe... â³','#fbbf24');
       try{
         // Save to Firebase
         const PHOTO_URL=FB_URL.replace('/data.json','/photo.json');
@@ -2104,7 +2157,7 @@ function changePhoto(){
           body:JSON.stringify(b64)
         });
         render();
-        toast('✅ Photo badhe change thayi!','#34d399');
+        toast('âœ… Photo badhe change thayi!','#34d399');
       }catch(err){
         render();
         toast('Photo local change thayi!','#fbbf24');
@@ -2179,7 +2232,7 @@ function saveRate(){
     S.inData=S.inData.map(row=>row.product===oldName?{...row,product:newName}:row);
     S.outData=S.outData.map(row=>row.product===oldName?{...row,product:newName}:row);
   }
-  persist();modal=null;toast('Product save thayun! ✓');render();
+  persist();modal=null;toast('Product save thayun! âœ“');render();
 }
 
 function askDel(type,id){
@@ -2197,7 +2250,7 @@ function askDelProd(name){
   render();
 }
 
-// ═══ MONTH-WISE DELETE FEATURE ═══
+// â•â•â• MONTH-WISE DELETE FEATURE â•â•â•
 let delModal=false;
 let delSelMonth='',delSelType='both',delMode='quick';
 let delCalYear=new Date().getFullYear();
@@ -2285,7 +2338,7 @@ function renderDelModal(){
           const isSel=delSelMonth===key;
           return `<div onclick="${hasData?`delSelMonth='${key}';renderDelModal()`:'return'}" style="padding:8px 4px;border:2px solid ${isSel?'#ef4444aa':hasData?'var(--border2)':'#1a1a2a'};border-radius:9px;cursor:${hasData?'pointer':'default'};text-align:center;background:${isSel?'rgba(239,68,68,0.2)':hasData?'var(--card)':'#0a0d14'};transition:all .15s;" ${hasData?`onmouseover="if(!${isSel})this.style.background='rgba(239,68,68,0.1)'" onmouseout="if(!${isSel})this.style.background='var(--card)'"`:''}">
             <div style="font-size:13px;font-weight:800;color:${isSel?'#f87171':hasData?'var(--text)':'#2a2a3a'};">${mn}</div>
-            ${hasData?`<div style="font-size:9px;color:${isSel?'#fca5a5':'var(--muted)'};margin-top:2px;">${inC+outC}</div>`:`<div style="font-size:9px;color:#2a2a3a;margin-top:2px;">—</div>`}
+            ${hasData?`<div style="font-size:9px;color:${isSel?'#fca5a5':'var(--muted)'};margin-top:2px;">${inC+outC}</div>`:`<div style="font-size:9px;color:#2a2a3a;margin-top:2px;">â€”</div>`}
           </div>`;
         }).join('')}
       </div>
@@ -2303,26 +2356,26 @@ function renderDelModal(){
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             Purano Data Delete Karo
           </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Juno data saaf karo — Aajnu data safe rahe</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Juno data saaf karo â€” Aajnu data safe rahe</div>
         </div>
-        <button onclick="closeDelModal()" style="background:var(--border);border:1px solid var(--border2);color:var(--muted);cursor:pointer;border-radius:7px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+        <button onclick="closeDelModal()" style="background:var(--border);border:1px solid var(--border2);color:var(--muted);cursor:pointer;border-radius:7px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">âœ•</button>
       </div>
 
       <!-- Mode Toggle -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
         <div onclick="delMode='quick';delSelMonth='';renderDelModal()" style="padding:9px 12px;border:2px solid ${delMode==='quick'?'#f9731688':'var(--border2)'};border-radius:9px;cursor:pointer;text-align:center;background:${delMode==='quick'?'rgba(249,115,22,0.12)':'var(--surface)'};">
-          <div style="font-size:13px;font-weight:800;color:${delMode==='quick'?'var(--orange)':'var(--muted)'};">⚡ Jaldi Delete</div>
+          <div style="font-size:13px;font-weight:800;color:${delMode==='quick'?'var(--orange)':'var(--muted)'};">âš¡ Jaldi Delete</div>
           <div style="font-size:10px;color:var(--muted);margin-top:1px;">3 / 6 / 12 mahina junu</div>
         </div>
         <div onclick="delMode='manual';delSelMonth='';renderDelModal()" style="padding:9px 12px;border:2px solid ${delMode==='manual'?'#60a5fa88':'var(--border2)'};border-radius:9px;cursor:pointer;text-align:center;background:${delMode==='manual'?'rgba(96,165,250,0.12)':'var(--surface)'};">
-          <div style="font-size:13px;font-weight:800;color:${delMode==='manual'?'var(--blue)':'var(--muted)'};">📅 Mahino Pasand</div>
+          <div style="font-size:13px;font-weight:800;color:${delMode==='manual'?'var(--blue)':'var(--muted)'};">ðŸ“… Mahino Pasand</div>
           <div style="font-size:10px;color:var(--muted);margin-top:1px;">Calendar thi select karo</div>
         </div>
       </div>
 
       ${delMode==='quick'?`
-      <!-- ── QUICK MODE ── -->
-      <div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:8px;letter-spacing:.8px;">⏳ KETLA MAHINA JUNO DATA DELETE KARVO CHE?</div>
+      <!-- â”€â”€ QUICK MODE â”€â”€ -->
+      <div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:8px;letter-spacing:.8px;">â³ KETLA MAHINA JUNO DATA DELETE KARVO CHE?</div>
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
         ${[
           [3,cut3,cnt3,'#fbbf24','3 Mahina Juno'],
@@ -2349,25 +2402,25 @@ function renderDelModal(){
         const tot=inC+outC;
         return tot>0
           ?`<div style="background:#450a0a;border:1.5px solid #ef444433;border-radius:9px;padding:11px 14px;margin-bottom:12px;">
-              <div style="font-size:12px;font-weight:700;color:#f87171;">⚠️ ${fMonthSh(cut)} thi pehla na ${tot} entries delete thase</div>
+              <div style="font-size:12px;font-weight:700;color:#f87171;">âš ï¸ ${fMonthSh(cut)} thi pehla na ${tot} entries delete thase</div>
               <div style="font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:14px;"><span style="color:var(--green);">IN: ${inC}</span><span style="color:var(--red);">OUT: ${outC}</span></div>
               <div style="font-size:11px;color:#f87171aa;margin-top:3px;">Undone nahi thay! Pehla backup lo.</div>
             </div>`
-          :`<div style="background:#0f2218;border:1.5px solid #22c55e33;border-radius:9px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#4ade80;font-weight:700;">✅ Aa period maa koi data nathi</div>`;
+          :`<div style="background:#0f2218;border:1.5px solid #22c55e33;border-radius:9px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#4ade80;font-weight:700;">âœ… Aa period maa koi data nathi</div>`;
       })()}
       <div style="display:flex;gap:8px;">
-        <button onclick="confirmDelOlder()" style="flex:1;padding:11px;background:#7f1d1d;color:#f87171;border:1px solid #ef444455;border-radius:9px;cursor:pointer;font-weight:800;font-size:13px;">🗑️ Delete Karo</button>
+        <button onclick="confirmDelOlder()" style="flex:1;padding:11px;background:#7f1d1d;color:#f87171;border:1px solid #ef444455;border-radius:9px;cursor:pointer;font-weight:800;font-size:13px;">ðŸ—‘ï¸ Delete Karo</button>
         <button onclick="closeDelModal()" style="padding:11px 18px;background:var(--border);color:var(--muted);border:1px solid var(--border2);border-radius:9px;cursor:pointer;font-weight:700;font-size:13px;">Cancel</button>
       </div>`:''}
       `:`
-      <!-- ── MANUAL MODE — Calendar Picker ── -->
-      <div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:8px;letter-spacing:.8px;">📅 MAHINO CALENDAR MATHI SELECT KARO</div>
+      <!-- â”€â”€ MANUAL MODE â€” Calendar Picker â”€â”€ -->
+      <div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:8px;letter-spacing:.8px;">ðŸ“… MAHINO CALENDAR MATHI SELECT KARO</div>
       ${calGrid()}
 
       ${delSelMonth&&!delSelMonth.startsWith('__')?`
       <!-- Type Select -->
       <div style="margin-bottom:12px;">
-        <div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:7px;letter-spacing:.8px;">🗑️ SHU DELETE KARVU CHE?</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:7px;letter-spacing:.8px;">ðŸ—‘ï¸ SHU DELETE KARVU CHE?</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;">
           ${[['both','Badhu','IN+OUT','#60a5fa'],['in','Maal Aavyo','Faqt IN','#34d399'],['out','Maal Gayo','Faqt OUT','#f87171']].map(([val,lbl,sub,c])=>`
           <div onclick="delSelType='${val}';renderDelModal()" style="padding:10px;border:2px solid ${delSelType===val?c+'88':'var(--border2)'};border-radius:9px;cursor:pointer;text-align:center;background:${delSelType===val?c+'18':'var(--surface)'};">
@@ -2379,13 +2432,13 @@ function renderDelModal(){
       <!-- Preview -->
       <div style="background:${previewCount>0?'#450a0a':'#0f2218'};border:1.5px solid ${previewCount>0?'#ef444433':'#22c55e33'};border-radius:9px;padding:11px 14px;margin-bottom:12px;">
         <div style="font-size:12px;font-weight:700;color:${previewCount>0?'#f87171':'#4ade80'};">
-          ${previewCount>0?`⚠️ ${fMonth(delSelMonth)} — ${previewCount} entries delete thase`:'✅ Aa mahine maa koi entry nathi'}
+          ${previewCount>0?`âš ï¸ ${fMonth(delSelMonth)} â€” ${previewCount} entries delete thase`:'âœ… Aa mahine maa koi entry nathi'}
         </div>
         ${previewCount>0?`<div style="font-size:11px;color:#f87171aa;margin-top:3px;">Undone nahi thay! Pehla backup lo.</div>`:''}
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="confirmDelMonth()" ${previewCount===0?'disabled':''} style="flex:1;padding:11px;background:${previewCount===0?'#1a1a1a':'#7f1d1d'};color:${previewCount===0?'#555':'#f87171'};border:1px solid ${previewCount===0?'#333':'#ef444455'};border-radius:9px;cursor:${previewCount===0?'not-allowed':'pointer'};font-weight:800;font-size:13px;">
-          🗑️ Delete Karo (${previewCount})
+          ðŸ—‘ï¸ Delete Karo (${previewCount})
         </button>
         <button onclick="closeDelModal()" style="padding:11px 18px;background:var(--border);color:var(--muted);border:1px solid var(--border2);border-radius:9px;cursor:pointer;font-weight:700;font-size:13px;">Cancel</button>
       </div>
@@ -2414,7 +2467,7 @@ function confirmDelOlder(){
   const tot=inC+outC;
   if(tot===0){toast('Koi data nathi delete karva!','#f97316');return;}
   confirmQ={
-    msg:`${n} mahina juno (${fMonthF(cut)} thi pehla) — ${tot} entries delete karvu chhe?`,
+    msg:`${n} mahina juno (${fMonthF(cut)} thi pehla) â€” ${tot} entries delete karvu chhe?`,
     onYes:()=>{
       S.inData=S.inData.filter(r=>r.date.slice(0,7)>=cut);
       S.outData=S.outData.filter(r=>r.date.slice(0,7)>=cut);
@@ -2435,12 +2488,12 @@ function confirmDelMonth(){
   const outC=S.outData.filter(r=>r.date.startsWith(delSelMonth)).length;
   let totalToDelete=delSelType==='both'?inC+outC:delSelType==='in'?inC:outC;
   confirmQ={
-    msg:`${fMonth} — ${totalToDelete} entries delete karvu chhe? (${delSelType==='both'?'IN+OUT':delSelType==='in'?'Faqt IN':'Faqt OUT'})`,
+    msg:`${fMonth} â€” ${totalToDelete} entries delete karvu chhe? (${delSelType==='both'?'IN+OUT':delSelType==='in'?'Faqt IN':'Faqt OUT'})`,
     onYes:()=>{
       if(delSelType==='in'||delSelType==='both') S.inData=S.inData.filter(r=>!r.date.startsWith(delSelMonth));
       if(delSelType==='out'||delSelType==='both') S.outData=S.outData.filter(r=>!r.date.startsWith(delSelMonth));
       persist();confirmQ=null;closeDelModal();
-      toast(`${fMonth} — ${totalToDelete} entries delete thayi!`,'#ef4444');render();
+      toast(`${fMonth} â€” ${totalToDelete} entries delete thayi!`,'#ef4444');render();
     }
   };
   closeDelModal();render();
@@ -2448,7 +2501,7 @@ function confirmDelMonth(){
 
 render();
 
-// ── Product dropdown with Arrow key navigation ──
+// â”€â”€ Product dropdown with Arrow key navigation â”€â”€
 let ddIdx=-1;
 
 function prodNumSearch(val){
@@ -2567,7 +2620,7 @@ function kpShowLogin(){
 
   var html='';
 
-  // ── LEFT SIDE — Branding (hidden on mobile) ──
+  // â”€â”€ LEFT SIDE â€” Branding (hidden on mobile) â”€â”€
   html+='<div id="kp-brand" style="flex:1;background:url('+(window._KPIMG||_KPIMG)+') center center/contain no-repeat #0a0f1e;display:flex;flex-direction:column;justify-content:center;padding:60px 56px;position:relative;overflow:hidden;">';
   html+='<div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);pointer-events:none;"></div>';
   // Background decorative circles
@@ -2581,12 +2634,12 @@ function kpShowLogin(){
   html+='<linearGradient id="lg-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/></linearGradient>';
   html+='<linearGradient id="lg-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f97316" stop-opacity="0"/><stop offset="30%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="70%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></linearGradient>';
   html+='</defs>';
-  html+='<text x="340" y="30" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#f97316" letter-spacing="5" opacity="0.9">॥  SHREE  GANESHAY  NAMAH  ॥</text>';
+  html+='<text x="340" y="30" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#f97316" letter-spacing="5" opacity="0.9">à¥¥  SHREE  GANESHAY  NAMAH  à¥¥</text>';
   html+='<rect x="40" y="40" width="600" height="1" fill="url(#lg-al)"/>';
-  html+='<text x="28" y="58" font-size="10" fill="#f97316" class="kp-star1">✦</text>';
-  html+='<text x="130" y="54" font-size="8" fill="#fbbf24" class="kp-star2">★</text>';
-  html+='<text x="24" y="158" font-size="8" fill="#f97316" class="kp-star3">✦</text>';
-  html+='<text x="132" y="168" font-size="9" fill="#fbbf24" class="kp-star4">✦</text>';
+  html+='<text x="28" y="58" font-size="10" fill="#f97316" class="kp-star1">âœ¦</text>';
+  html+='<text x="130" y="54" font-size="8" fill="#fbbf24" class="kp-star2">â˜…</text>';
+  html+='<text x="24" y="158" font-size="8" fill="#f97316" class="kp-star3">âœ¦</text>';
+  html+='<text x="132" y="168" font-size="9" fill="#fbbf24" class="kp-star4">âœ¦</text>';
   html+='<g class="kp-badge-group">';
   html+='<rect x="44" y="60" width="110" height="110" rx="22" fill="url(#lg-kp)"/>';
   html+='<rect x="44" y="60" width="110" height="110" rx="22" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>';
@@ -2600,9 +2653,9 @@ function kpShowLogin(){
 
   // Feature list
   var features=[
-    ['📦','Maal Aavyo & Maal Gayo','Entry ane tracking'],
-    ['📊','Stock & Report','Real-time stock value'],
-    ['🔍','Search & Filter','Turat product malshe'],
+    ['ðŸ“¦','Maal Aavyo & Maal Gayo','Entry ane tracking'],
+    ['ðŸ“Š','Stock & Report','Real-time stock value'],
+    ['ðŸ”','Search & Filter','Turat product malshe'],
   ];
   features.forEach(function(f){
     html+='<div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;">';
@@ -2611,10 +2664,10 @@ function kpShowLogin(){
     html+='</div>';
   });
 
-  html+='<div style="position:absolute;bottom:24px;left:56px;font-size:11px;color:#2a3550;">© 2026 Krushnnal Packing Vendor · Dharmessh Bhai</div>';
+  html+='<div style="position:absolute;bottom:24px;left:56px;font-size:11px;color:#2a3550;">Â© 2026 Krushnnal Packing Vendor Â· Dharmessh Bhai</div>';
   html+='</div>';
 
-  // ── RIGHT SIDE — Login Form ──
+  // â”€â”€ RIGHT SIDE â€” Login Form â”€â”€
   html+='<div style="width:480px;max-width:100%;background:#ffffff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 48px;">';
   html+='<style>@media(max-width:700px){#kp-brand{display:none!important;}#kp-login>div:last-child{width:100%!important;padding:32px 20px!important;}}</style>';
   html+='<div style="width:100%;max-width:360px;">';
@@ -2636,7 +2689,7 @@ function kpShowLogin(){
   // PIN label
   html+='<div style="font-size:13px;font-weight:700;color:#374151;margin-bottom:10px;">4 Digit PIN</div>';
 
-  // PIN dots — styled like input fields
+  // PIN dots â€” styled like input fields
   html+='<div style="display:flex;gap:10px;margin-bottom:8px;">';
   for(var i=0;i<4;i++){
     html+='<div id="kpd'+i+'" style="flex:1;height:58px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ff6b2b;transition:all .15s;"></div>';
@@ -2658,9 +2711,9 @@ function kpShowLogin(){
   html+='</div>';
 
   // Sign In button
-  html+='<button onclick="if(kpVal.length===4)kpCheck()" style="width:100%;padding:16px;background:linear-gradient(135deg,#ff6b2b,#e8511a);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(255,107,43,.35);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 22px rgba(255,107,43,.45)\'" onmouseout="this.style.transform=\'none\';this.style.boxShadow=\'0 4px 16px rgba(255,107,43,.35)\'">→ Sign In</button>';
+  html+='<button onclick="if(kpVal.length===4)kpCheck()" style="width:100%;padding:16px;background:linear-gradient(135deg,#ff6b2b,#e8511a);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(255,107,43,.35);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 22px rgba(255,107,43,.45)\'" onmouseout="this.style.transform=\'none\';this.style.boxShadow=\'0 4px 16px rgba(255,107,43,.35)\'">â†’ Sign In</button>';
 
-  html+='<div style="text-align:center;margin-top:20px;font-size:12px;color:#94a3b8;">Krushnnal Packing Vendor · v2026</div>';
+  html+='<div style="text-align:center;margin-top:20px;font-size:12px;color:#94a3b8;">Krushnnal Packing Vendor Â· v2026</div>';
   html+='</div></div>';
 
   d.innerHTML=html;
@@ -2692,7 +2745,7 @@ function kpUpd(){
   for(var i=0;i<4;i++){
     var d=document.getElementById('kpd'+i);
     if(!d) return;
-    d.textContent=i<kpVal.length?'●':'';
+    d.textContent=i<kpVal.length?'â—':'';
     d.style.borderColor=i<kpVal.length?'#ff6b2b':'#e2e8f0';
     d.style.background=i<kpVal.length?'#fff7f3':'#f8fafc';
     d.style.color='#ff6b2b';
@@ -2710,7 +2763,7 @@ function kpCheck(){
     render();
   } else {
     var e=document.getElementById('kp-err');
-    if(e) e.textContent='❌ Galat password! Fari try karo.';
+    if(e) e.textContent='âŒ Galat password! Fari try karo.';
     kpVal='';
     kpUpd();
   }
@@ -2754,7 +2807,7 @@ function kpnUpd(){
   for(var i=0;i<4;i++){
     var d=document.getElementById('kpnd'+i);
     if(!d) return;
-    d.textContent=i<kpNVal.length?'●':'';
+    d.textContent=i<kpNVal.length?'â—':'';
     d.style.borderColor=i<kpNVal.length?'#f97316':'#232f45';
   }
 }

@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Krushnnal Packing Vendor</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23be185d'/%3E%3Cstop offset='50%25' stop-color='%23831843'/%3E%3Cstop offset='100%25' stop-color='%23500724'/%3E%3C/linearGradient%3E%3ClinearGradient id='tg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f9a8d4'/%3E%3Cstop offset='100%25' stop-color='%23fde68a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23bg)'/%3E%3Crect x='2' y='2' width='60' height='60' rx='13' fill='none' stroke='%23f472b6' stroke-width='1.5' opacity='0.5'/%3E%3Ctext x='32' y='38' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-weight='900' font-size='26' fill='url(%23tg)' letter-spacing='-1'%3EKP%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='50%25' stop-color='%230369a1'/%3E%3Cstop offset='100%25' stop-color='%231e3a5f'/%3E%3C/linearGradient%3E%3ClinearGradient id='tg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%237dd3fc'/%3E%3Cstop offset='100%25' stop-color='%23bae6fd'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23bg)'/%3E%3Crect x='2' y='2' width='60' height='60' rx='13' fill='none' stroke='%2338bdf8' stroke-width='1.5' opacity='0.5'/%3E%3Ctext x='32' y='38' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-weight='900' font-size='26' fill='url(%23tg)' letter-spacing='-1'%3EKP%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#07090f;--surface:#0d1117;--card:#121620;--border:#1c2333;--border2:#232f45;
-  --orange:#f97316;--orange2:#c2410c;
+  --bg:#020a18;--surface:#060d1a;--card:#0a1628;--border:#0e1f3a;--border2:#122040;
+  --orange:#38bdf8;--orange2:#0ea5e9;
   --green:#34d399;--red:#f87171;--blue:#60a5fa;--gold:#fbbf24;--purple:#a78bfa;
   --text:#f1f5f9;--muted:#8b9dc3;--muted2:#a8b8d8;
   --shadow-sm:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
@@ -22,14 +22,14 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',Tahoma,sans-serif;overflow:hidden;height:100vh;font-size:15px;font-weight:400;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:#2a3550;border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:#3b4f70;}
-*{scrollbar-width:thin;scrollbar-color:#2a3550 var(--surface);}
+::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.25);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:rgba(56,189,248,0.4);}
+*{scrollbar-width:thin;scrollbar-color:rgba(56,189,248,0.25) var(--surface);}
 input,select,button{font-family:inherit;}
 input[type=date]::-webkit-calendar-picker-indicator,input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.7;cursor:pointer;}input[type=month]::-webkit-calendar-picker-indicator:hover{opacity:1;}
 input[type=number]::-webkit-inner-spin-button{opacity:.3;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes kpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
-@keyframes kpBadgeGlow{0%,100%{filter:drop-shadow(0 0 4px rgba(249,115,22,0.5))}50%{filter:drop-shadow(0 0 24px rgba(249,115,22,1)) drop-shadow(0 0 44px rgba(249,115,22,0.6))}}
+@keyframes kpBadgeGlow{0%,100%{filter:drop-shadow(0 0 4px rgba(56,189,248,0.5))}50%{filter:drop-shadow(0 0 24px rgba(56,189,248,1)) drop-shadow(0 0 44px rgba(56,189,248,0.6))}}
 @keyframes starFloat1{0%,100%{transform:translate(0,0) scale(1);opacity:0.9}50%{transform:translate(-6px,-16px) scale(1.4);opacity:1}}
 @keyframes starFloat2{0%,100%{transform:translate(0,0) scale(1);opacity:0.7}50%{transform:translate(10px,-20px) scale(1.6);opacity:1}}
 @keyframes starFloat3{0%,100%{transform:translate(0,0) scale(1);opacity:0.6}50%{transform:translate(-12px,-10px) scale(1.2);opacity:1}}
@@ -50,22 +50,22 @@ button:focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 .ic{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;flex-shrink:0;}
 .nb{transition:var(--transition);width:100%;display:flex;align-items:center;gap:10px;padding:11px 13px;background:transparent;border:none;color:var(--muted);border-radius:var(--radius-sm);cursor:pointer;text-align:left;font-size:13px;font-weight:600;min-height:42px;}
-.nb:hover{background:#161d2e;color:var(--text);}
-.nb.act{background:linear-gradient(135deg,var(--orange2),var(--orange));color:#fff;box-shadow:0 4px 14px rgba(249,115,22,.35);}
-.rr{transition:background .15s ease;}.rr:hover{background:#151c2e!important;}.kb-active{background:rgba(249,115,22,0.18)!important;border-left:3px solid #f97316!important;outline:none!important;}
+.nb:hover{background:#091525;color:var(--text);}
+.nb.act{background:linear-gradient(135deg,#0284c7,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(56,189,248,.5);}
+.rr{transition:background .15s ease;}.rr:hover{background:#07101e!important;}.kb-active{background:rgba(56,189,248,0.18)!important;border-left:3px solid #38bdf8!important;outline:none!important;}
 .btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;border:none;border-radius:var(--radius-sm);transition:var(--transition);font-size:14px;}
-.btn-or{background:linear-gradient(135deg,var(--orange2),var(--orange));color:#fff;padding:9px 16px;box-shadow:0 2px 8px rgba(249,115,22,.25);}
-.btn-or:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(249,115,22,.4);}
+.btn-or{background:linear-gradient(135deg,#0284c7,#38bdf8);color:#fff;padding:9px 16px;box-shadow:0 2px 8px rgba(56,189,248,.35);}
+.btn-or:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(56,189,248,.55);}
 .bsm{padding:7px 12px;font-size:12px;border-radius:var(--radius-sm);cursor:pointer;font-weight:700;border:none;transition:var(--transition);display:inline-flex;align-items:center;gap:4px;min-width:36px;min-height:36px;justify-content:center;}
 .bsm:hover{transform:scale(1.06);}
 .inp{width:100%;background:#0d1117;border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px 13px;color:var(--text);font-size:14px;outline:none;transition:border .2s,box-shadow .2s;}
-.inp:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(249,115,22,.15);}
+.inp:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(56,189,248,.15);}
 select.inp{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%238b9dc3' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:28px;}
 .card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);}
 .sc{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-md);padding:18px 20px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:var(--shadow-sm);}
 .sc:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
 .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
-.kbd{display:inline-block;background:#1e2a40;border:1px solid #3b4f70;color:#93c5fd;border-radius:5px;padding:1px 6px;font-size:11px;font-weight:700;font-family:'Courier New',monospace;}
+.kbd{display:inline-block;background:#1e2a40;border:1px solid rgba(56,189,248,0.4);color:#93c5fd;border-radius:5px;padding:1px 6px;font-size:11px;font-weight:700;font-family:'Courier New',monospace;}
 .mo-bg{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);}
 .mo-box{background:var(--card);border-radius:var(--radius-lg);padding:28px;width:100%;max-width:500px;box-shadow:var(--shadow-lg);}
 table{width:100%;border-collapse:collapse;font-size:14px;}
@@ -124,7 +124,7 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;fon
   /* Better mob nav */
   #mob-nav{height:62px!important;padding:4px 4px 8px!important;box-shadow:0 -2px 12px rgba(0,0,0,.4)!important;}
   #mob-nav button{flex:1!important;border-radius:10px!important;padding:4px 2px!important;transition:background .15s,color .15s!important;}
-  #mob-nav button:active{background:rgba(249,115,22,.15)!important;}
+  #mob-nav button:active{background:rgba(56,189,248,.15)!important;}
   /* Mobile sidebar overlay smooth */
   #mob-sidebar{border-radius:0 16px 16px 0!important;width:80vw!important;max-width:280px!important;}
   /* Dashboard header area */
@@ -148,24 +148,24 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;fon
 /* ===== PREMIUM PROFESSIONAL REDESIGN ===== */
 
 :root{
-  --premium-bg:#0a0f1a;
+  --premium-bg:#020a18;
   --premium-card:rgba(18,24,38,.88);
   --premium-border:rgba(255,255,255,.08);
-  --premium-glow:rgba(249,115,22,.22);
+  --premium-glow:rgba(56,189,248,.22);
 }
 
 /* Smooth premium background */
 body{
   background:
-    radial-gradient(circle at top right, rgba(249,115,22,.10), transparent 28%),
-    radial-gradient(circle at bottom left, rgba(96,165,250,.08), transparent 30%),
-    linear-gradient(135deg,#070b14,#0f1726 45%,#0b101b);
+    radial-gradient(circle at top right, rgba(56,189,248,.10), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(99,102,241,.10), transparent 30%),
+    linear-gradient(135deg,#020a18,#060d1a 45%,#0a1628);
   overflow-x:hidden;
 }
 
 /* Glass sidebar */
 .desk-sidebar{
-  background:rgba(10,14,22,.72)!important;
+  background:rgba(2,10,24,.82)!important;
   backdrop-filter:blur(18px);
   border-right:1px solid rgba(255,255,255,.06);
   box-shadow:0 0 30px rgba(0,0,0,.35);
@@ -176,8 +176,8 @@ body{
 .sc{
   background:linear-gradient(
     180deg,
-    rgba(21,28,44,.92),
-    rgba(13,18,30,.88)
+    rgba(8,18,38,.92),
+    rgba(5,12,26,.88)
   )!important;
   border:1px solid rgba(255,255,255,.07)!important;
   backdrop-filter:blur(12px);
@@ -191,11 +191,11 @@ body{
 .card:hover,
 .sc:hover{
   transform:translateY(-4px);
-  border-color:rgba(249,115,22,.45)!important;
+  border-color:rgba(56,189,248,.45)!important;
   box-shadow:
     0 14px 38px rgba(0,0,0,.35),
-    0 0 0 1px rgba(249,115,22,.16),
-    0 0 25px rgba(249,115,22,.14);
+    0 0 0 1px rgba(56,189,248,.16),
+    0 0 25px rgba(56,189,248,.14);
 }
 
 /* Premium nav buttons */
@@ -206,21 +206,21 @@ body{
 
 .nb:hover{
   background:rgba(255,255,255,.05)!important;
-  border-color:rgba(249,115,22,.22);
+  border-color:rgba(56,189,248,.22);
   transform:translateX(4px);
 }
 
 .nb.act{
-  background:linear-gradient(135deg,#ea580c,#fb923c)!important;
-  box-shadow:0 10px 25px rgba(249,115,22,.30);
+  background:linear-gradient(135deg,#0284c7,#38bdf8)!important;
+  box-shadow:0 10px 25px rgba(56,189,248,.30);
 }
 
 /* Stylish buttons */
 .btn-or{
-  background:linear-gradient(135deg,#ea580c,#fb923c)!important;
+  background:linear-gradient(135deg,#0284c7,#38bdf8)!important;
   border:none;
   box-shadow:
-    0 10px 20px rgba(249,115,22,.25),
+    0 10px 20px rgba(56,189,248,.25),
     inset 0 1px 0 rgba(255,255,255,.15);
   transition:all .25s ease;
 }
@@ -228,8 +228,8 @@ body{
 .btn-or:hover{
   transform:translateY(-2px);
   box-shadow:
-    0 14px 30px rgba(249,115,22,.35),
-    0 0 20px rgba(249,115,22,.20);
+    0 14px 30px rgba(56,189,248,.35),
+    0 0 20px rgba(56,189,248,.20);
 }
 
 /* Premium table */
@@ -244,7 +244,7 @@ tbody tr{
 }
 
 tbody tr:hover{
-  background:rgba(249,115,22,.06);
+  background:rgba(56,189,248,.06);
   transform:scale(1.004);
 }
 
@@ -260,8 +260,8 @@ td,th{
 }
 
 .inp:focus{
-  border-color:#fb923c!important;
-  box-shadow:0 0 0 4px rgba(249,115,22,.14)!important;
+  border-color:#38bdf8!important;
+  box-shadow:0 0 0 4px rgba(56,189,248,.14)!important;
 }
 
 /* Soft floating animation */
@@ -284,7 +284,7 @@ body::before{
   top:var(--my);
   transform:translate(-50%,-50%);
   background:radial-gradient(circle,
-    rgba(249,115,22,.10),
+    rgba(56,189,248,.10),
     transparent 70%);
   pointer-events:none;
   z-index:0;
@@ -299,14 +299,14 @@ body::before{
 
 /* Scrollbar */
 ::-webkit-scrollbar-thumb{
-  background:linear-gradient(#fb923c,#ea580c)!important;
+  background:linear-gradient(#38bdf8,#0284c7)!important;
   border-radius:10px;
 }
 
 /* Glow badges */
 .tag{
-  background:rgba(249,115,22,.12)!important;
-  border:1px solid rgba(249,115,22,.25);
+  background:rgba(56,189,248,.12)!important;
+  border:1px solid rgba(56,189,248,.25);
   color:#fdba74!important;
 }
 
@@ -316,15 +316,153 @@ body::before{
 }
 
 @keyframes premiumFade{
-  from{
-    opacity:0;
-    transform:translateY(10px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
+  from{ opacity:0; transform:translateY(10px); }
+  to{ opacity:1; transform:translateY(0); }
 }
+
+/* ===== AVTAR ANIMATION SYSTEM ===== */
+
+/* Page slide-in */
+@keyframes avtarPageIn{
+  from{ opacity:0; transform:translateX(-18px) scale(0.98); }
+  to{ opacity:1; transform:translateX(0) scale(1); }
+}
+/* Card pop up */
+@keyframes avtarCardUp{
+  from{ opacity:0; transform:translateY(22px) scale(0.96); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+/* Table row slide in from left */
+@keyframes avtarRowIn{
+  from{ opacity:0; transform:translateX(-14px); }
+  to{ opacity:1; transform:translateX(0); }
+}
+/* Number count glow */
+@keyframes avtarNumGlow{
+  0%{ text-shadow:none; }
+  50%{ text-shadow:0 0 18px rgba(56,189,248,0.7), 0 0 40px rgba(56,189,248,0.3); }
+  100%{ text-shadow:none; }
+}
+/* Teal border pulse on cards */
+@keyframes avtarBorderPulse{
+  0%,100%{ box-shadow:0 0 0 0 rgba(56,189,248,0); }
+  50%{ box-shadow:0 0 0 3px rgba(56,189,248,0.18), 0 8px 24px rgba(56,189,248,0.12); }
+}
+/* Shimmer sweep on cards */
+@keyframes avtarShimmer{
+  0%{ background-position:-200% 0; }
+  100%{ background-position:200% 0; }
+}
+/* Glow line animation */
+@keyframes avtarGlowLine{
+  0%{ width:0; opacity:0; }
+  60%{ opacity:1; }
+  100%{ width:100%; opacity:0.5; }
+}
+/* Floating dot */
+@keyframes avtarDotFloat{
+  0%,100%{ transform:translateY(0px); opacity:0.6; }
+  50%{ transform:translateY(-6px); opacity:1; }
+}
+
+/* Apply page-level animation */
+.content-area{
+  animation:avtarPageIn .38s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+/* Stat cards animate in with stagger */
+.sc{
+  animation:avtarCardUp .4s cubic-bezier(.22,.68,0,1.2) both;
+  animation-delay:var(--card-delay, 0ms);
+}
+.sc:nth-child(1){ --card-delay:60ms; }
+.sc:nth-child(2){ --card-delay:120ms; }
+.sc:nth-child(3){ --card-delay:180ms; }
+.sc:nth-child(4){ --card-delay:240ms; }
+
+/* Card number glow on load */
+.sc .mn{
+  animation:avtarNumGlow 1.8s ease 0.5s both;
+}
+
+/* Card border pulse */
+.sc{
+  animation:avtarCardUp .4s cubic-bezier(.22,.68,0,1.2) both, avtarBorderPulse 3s ease-in-out 1s infinite;
+}
+
+/* .card animate in */
+.card{
+  animation:avtarCardUp .42s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+/* Table rows stagger */
+.sr-row{
+  animation:avtarRowIn .3s ease both;
+}
+.sr-row:nth-child(1){ animation-delay:80ms; }
+.sr-row:nth-child(2){ animation-delay:110ms; }
+.sr-row:nth-child(3){ animation-delay:140ms; }
+.sr-row:nth-child(4){ animation-delay:170ms; }
+.sr-row:nth-child(5){ animation-delay:200ms; }
+.sr-row:nth-child(6){ animation-delay:230ms; }
+.sr-row:nth-child(7){ animation-delay:260ms; }
+.sr-row:nth-child(8){ animation-delay:290ms; }
+.sr-row:nth-child(9){ animation-delay:320ms; }
+.sr-row:nth-child(10){ animation-delay:350ms; }
+.sr-row:nth-child(n+11){ animation-delay:370ms; }
+
+/* kb-row same stagger */
+.kb-row{
+  animation:avtarRowIn .3s ease both;
+}
+.kb-row:nth-child(1){ animation-delay:80ms; }
+.kb-row:nth-child(2){ animation-delay:110ms; }
+.kb-row:nth-child(3){ animation-delay:140ms; }
+.kb-row:nth-child(4){ animation-delay:170ms; }
+.kb-row:nth-child(5){ animation-delay:200ms; }
+.kb-row:nth-child(6){ animation-delay:230ms; }
+.kb-row:nth-child(7){ animation-delay:260ms; }
+.kb-row:nth-child(8){ animation-delay:290ms; }
+.kb-row:nth-child(9){ animation-delay:320ms; }
+.kb-row:nth-child(n+10){ animation-delay:350ms; }
+
+/* Sidebar nav items animate */
+.nb{
+  animation:avtarRowIn .3s ease both;
+}
+
+/* Teal floating dots on dashboard header */
+.avtar-dot{
+  animation:avtarDotFloat 2.5s ease-in-out infinite;
+  display:inline-block;
+  color:rgba(56,189,248,0.6);
+  font-size:6px;
+}
+.avtar-dot:nth-child(2){ animation-delay:0.4s; }
+.avtar-dot:nth-child(3){ animation-delay:0.8s; }
+
+/* Shimmer on stat card hover */
+.sc::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(105deg, transparent 40%, rgba(56,189,248,0.07) 50%, transparent 60%);
+  background-size:200% 100%;
+  opacity:0;
+  transition:opacity .3s;
+  pointer-events:none;
+}
+.sc:hover::after{
+  opacity:1;
+  animation:avtarShimmer 1.2s ease;
+}
+
+/* Modal animate in */
+.mo-box{
+  animation:avtarCardUp .32s cubic-bezier(.22,.68,0,1.2) both;
+}
+
 
 </style>
 </head>
@@ -733,7 +871,7 @@ document.addEventListener('keydown',e=>{
     else cur=Math.max(cur-1,0);
     if(cur<0)cur=0;
     const sel=rows[cur];
-    if(sel){sel.classList.add('kb-active');sel.style.background='rgba(249,115,22,0.2)';sel.style.borderLeft='3px solid var(--orange)';sel.scrollIntoView({block:'nearest',behavior:'smooth'});searchIdx=cur;}
+    if(sel){sel.classList.add('kb-active');sel.style.background='rgba(56,189,248,0.2)';sel.style.borderLeft='3px solid var(--orange)';sel.scrollIntoView({block:'nearest',behavior:'smooth'});searchIdx=cur;}
     return;
   }
 
@@ -748,7 +886,7 @@ document.addEventListener('keydown',e=>{
     if(!rows.length)return;
     rows.forEach(r=>{r.classList.remove('kb-active');r.style.background='';r.style.borderLeft='';});
     const sel=e.key==='Home'?rows[0]:rows[rows.length-1];
-    if(sel){sel.classList.add('kb-active');sel.style.background='rgba(249,115,22,0.2)';sel.style.borderLeft='3px solid var(--orange)';sel.scrollIntoView({block:'nearest',behavior:'smooth'});}
+    if(sel){sel.classList.add('kb-active');sel.style.background='rgba(56,189,248,0.2)';sel.style.borderLeft='3px solid var(--orange)';sel.scrollIntoView({block:'nearest',behavior:'smooth'});}
     return;
   }
 
@@ -766,7 +904,7 @@ document.addEventListener('keydown',e=>{
     cur=e.key==='PageDown'?Math.min(cur+10,rows.length-1):Math.max(cur-10,0);
     if(cur<0)cur=0;
     const sel=rows[cur];
-    if(sel){sel.classList.add('kb-active');sel.style.background='rgba(249,115,22,0.2)';sel.style.borderLeft='3px solid var(--orange)';sel.scrollIntoView({block:'nearest',behavior:'smooth'});searchIdx=cur;}
+    if(sel){sel.classList.add('kb-active');sel.style.background='rgba(56,189,248,0.2)';sel.style.borderLeft='3px solid var(--orange)';sel.scrollIntoView({block:'nearest',behavior:'smooth'});searchIdx=cur;}
     return;
   }
 
@@ -820,27 +958,27 @@ function render(){
       </div>
       <svg viewBox="0 0 680 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:100px;display:block;">
         <defs>
-          <linearGradient id="mob-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/></linearGradient>
-          <linearGradient id="mob-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f97316" stop-opacity="0"/><stop offset="30%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="70%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></linearGradient>
+          <linearGradient id="mob-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+          <linearGradient id="mob-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="30%" stop-color="#38bdf8" stop-opacity="0.7"/><stop offset="70%" stop-color="#38bdf8" stop-opacity="0.7"/><stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/></linearGradient>
         </defs>
-        <text x="340" y="18" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#f97316" letter-spacing="3">॥ SHREE GANESHAY NAMAH ॥</text>
+        <text x="340" y="18" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#38bdf8" letter-spacing="3">॥ SHREE GANESHAY NAMAH ॥</text>
         <rect x="40" y="26" width="600" height="1" fill="url(#mob-al)"/>
         <!-- Star particles -->
-        <text x="28" y="42" font-size="9" fill="#f97316" class="kp-star1">✦</text>
+        <text x="28" y="42" font-size="9" fill="#38bdf8" class="kp-star1">✦</text>
         <text x="128" y="44" font-size="8" fill="#fbbf24" class="kp-star2">★</text>
-        <text x="22" y="110" font-size="7" fill="#f97316" class="kp-star3">✦</text>
+        <text x="22" y="110" font-size="7" fill="#38bdf8" class="kp-star3">✦</text>
         <text x="126" y="118" font-size="8" fill="#fbbf24" class="kp-star4">✦</text>
         <text x="76" y="34" font-size="7" fill="#fed7aa" class="kp-star5">★</text>
-        <text x="86" y="130" font-size="8" fill="#f97316" class="kp-star6">✦</text>
+        <text x="86" y="130" font-size="8" fill="#38bdf8" class="kp-star6">✦</text>
         <!-- Sirf KP badge animated -->
         <g class="kp-badge-group">
           <rect x="40" y="40" width="82" height="82" rx="17" fill="url(#mob-kp)"/>
-          <rect x="40" y="40" width="82" height="82" rx="17" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>
+          <rect x="40" y="40" width="82" height="82" rx="17" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.6"/>
           <text x="81" y="96" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="46" fill="#ffffff" letter-spacing="-2">KP</text>
         </g>
         <!-- Still text -->
         <text x="136" y="68" font-family="Inter,sans-serif" font-weight="900" font-size="34" fill="#f8fafc" letter-spacing="-1">KRUSHNNAL</text>
-        <text x="136" y="104" font-family="Inter,sans-serif" font-weight="900" font-size="32" fill="#f97316" letter-spacing="-1">PACKING</text>
+        <text x="136" y="104" font-family="Inter,sans-serif" font-weight="900" font-size="32" fill="#38bdf8" letter-spacing="-1">PACKING</text>
         <text x="137" y="126" font-family="Inter,sans-serif" font-size="12" font-weight="400" fill="#8b9dc3" letter-spacing="1">Dharmessh Bhai · Stock Mgmt</text>
       </svg>
     </div>
@@ -857,7 +995,7 @@ function render(){
       <button onclick="exportData()" style="width:100%;padding:6px 10px;background:#1a2a40;border:1px solid #2563eb33;color:#60a5fa;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.download} Download Backup</button>
       <button onclick="importData()" style="width:100%;padding:6px 10px;background:#152218;border:1px solid #16a34a33;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.upload} Restore Backup</button>
       <button onclick="openDelModal()" style="width:100%;padding:6px 10px;background:#2a0a0a;border:1px solid #ef444433;color:#f87171;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.trash} Purano Data Delete</button>
-      <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#1a1a2e;border:1px solid #f9731633;color:#f97316;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🔐 Password Change</button>
+      <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#030d1e;border:1px solid #38bdf833;color:#38bdf8;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🔐 Password Change</button>
     <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
     </div>
   </div>
@@ -867,28 +1005,28 @@ function render(){
         <svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:140px;display:block;">
           <defs>
             <linearGradient id="sb-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0d1117"/><stop offset="100%" stop-color="#111827"/></linearGradient>
-            <linearGradient id="sb-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/></linearGradient>
-            <linearGradient id="sb-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f97316" stop-opacity="0"/><stop offset="30%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="70%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></linearGradient>
+            <linearGradient id="sb-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+            <linearGradient id="sb-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="30%" stop-color="#38bdf8" stop-opacity="0.7"/><stop offset="70%" stop-color="#38bdf8" stop-opacity="0.7"/><stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/></linearGradient>
           </defs>
           <rect x="0" y="0" width="680" height="340" rx="0" fill="url(#sb-bg)"/>
-          <text x="340" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#f97316" letter-spacing="4">॥ SHREE GANESHAY NAMAH ॥</text>
+          <text x="340" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#38bdf8" letter-spacing="4">॥ SHREE GANESHAY NAMAH ॥</text>
           <rect x="40" y="36" width="600" height="1" fill="url(#sb-al)"/>
           <!-- Star particles -->
-          <text x="30" y="52" font-size="11" fill="#f97316" class="kp-star1">✦</text>
+          <text x="30" y="52" font-size="11" fill="#38bdf8" class="kp-star1">✦</text>
           <text x="158" y="58" font-size="9" fill="#fbbf24" class="kp-star2">★</text>
-          <text x="22" y="145" font-size="8" fill="#f97316" class="kp-star3">✦</text>
+          <text x="22" y="145" font-size="8" fill="#38bdf8" class="kp-star3">✦</text>
           <text x="160" y="155" font-size="10" fill="#fbbf24" class="kp-star4">✦</text>
           <text x="90" y="44" font-size="8" fill="#fed7aa" class="kp-star5">★</text>
-          <text x="108" y="172" font-size="9" fill="#f97316" class="kp-star6">✦</text>
+          <text x="108" y="172" font-size="9" fill="#38bdf8" class="kp-star6">✦</text>
           <!-- KP badge animated -->
           <g class="kp-badge-group">
             <rect x="44" y="54" width="108" height="108" rx="22" fill="url(#sb-kp)"/>
-            <rect x="44" y="54" width="108" height="108" rx="22" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>
+            <rect x="44" y="54" width="108" height="108" rx="22" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.6"/>
             <text x="98" y="128" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="62" fill="#ffffff" letter-spacing="-3">KP</text>
           </g>
           <!-- Still text -->
           <text x="168" y="94" font-family="Inter,sans-serif" font-weight="900" font-size="46" fill="#f8fafc" letter-spacing="-2">KRUSHNNAL</text>
-          <text x="168" y="142" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#f97316" letter-spacing="-1">PACKING</text>
+          <text x="168" y="142" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#38bdf8" letter-spacing="-1">PACKING</text>
           <rect x="168" y="158" width="450" height="1.5" fill="url(#sb-al)" opacity="0.6"/>
           <text x="170" y="178" font-family="Inter,sans-serif" font-size="13" font-weight="400" fill="#8b9dc3" letter-spacing="1">Dharmessh Bhai · Stock Mgmt</text>
         </svg>
@@ -934,7 +1072,7 @@ function render(){
         <button onclick="exportData()" style="width:100%;padding:6px 10px;background:#1a2a40;border:1px solid #2563eb33;color:#60a5fa;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;margin-bottom:3px;display:flex;align-items:center;gap:6px;min-height:30px;" onmouseover="this.style.background='#1e3252'" onmouseout="this.style.background='#1a2a40'" aria-label="Download Backup">${IC.download} Download Backup</button>
         <button onclick="importData()" style="width:100%;padding:6px 10px;background:#152218;border:1px solid #16a34a33;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:3px;" onmouseover="this.style.background='#1a2c1e'" onmouseout="this.style.background='#152218'" aria-label="Restore Backup">${IC.upload} Restore Backup</button>
         <button onclick="openDelModal()" style="width:100%;padding:6px 10px;background:#2a0a0a;border:1px solid #ef444433;color:#f87171;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:3px;" onmouseover="this.style.background='#3a0d0d'" onmouseout="this.style.background='#2a0a0a'" aria-label="Delete old data">${IC.trash} Purano Data Delete</button>
-        <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#1a1a2e;border:1px solid #f9731633;color:#f97316;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;" onmouseover="this.style.background='#2a1a1e'" onmouseout="this.style.background='#1a1a2e'">🔐 Password Change</button>
+        <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#030d1e;border:1px solid #38bdf833;color:#38bdf8;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;" onmouseover="this.style.background='#091828'" onmouseout="this.style.background='#1a1a2e'">🔐 Password Change</button>
     <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
       </div>
       <div style="padding:6px 12px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);flex-shrink:0;">
@@ -971,7 +1109,7 @@ function render(){
         {id:'out',l:'Gayo',i:'📤'},
         {id:'stock',l:'Stock',i:'📦'},
         {id:'report',l:'Report',i:'📊'},
-      ].map(n=>`<button onclick="tab='${n.id}';render()" style="background:${tab===n.id?'rgba(249,115,22,0.12)':'none'};border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;position:relative;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
+      ].map(n=>`<button onclick="tab='${n.id}';render()" style="background:${tab===n.id?'rgba(56,189,248,0.12)':'none'};border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;position:relative;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
         ${tab===n.id?`<span style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--orange);border-radius:0 0 4px 4px;"></span>`:''}
         <span style="font-size:21px;line-height:1;">${n.i}</span>
         <span style="font-size:9px;font-weight:800;letter-spacing:.3px;">${n.l}</span>
@@ -1034,7 +1172,7 @@ function setupKbRows(){
         r.classList.remove('kb-active');r.style.background='';r.style.borderLeft='';
       });
       this.classList.add('kb-active');
-      this.style.background='rgba(249,115,22,0.2)';
+      this.style.background='rgba(56,189,248,0.2)';
       this.style.borderLeft='3px solid var(--orange)';
     });
     row.addEventListener('focus',function(){
@@ -1043,7 +1181,7 @@ function setupKbRows(){
         r.classList.remove('kb-active');r.style.background='';r.style.borderLeft='';
       });
       this.classList.add('kb-active');
-      this.style.background='rgba(249,115,22,0.2)';
+      this.style.background='rgba(56,189,248,0.2)';
       this.style.borderLeft='3px solid var(--orange)';
     });
   });
@@ -1085,32 +1223,32 @@ function dashHTML(stock){
   const ri=[...S.inData].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,5);
   const ro=[...S.outData].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,5);
   return `
-  <div style="background:linear-gradient(135deg,#0d1520,#111827,#0d1a2e);border:1px solid var(--border2);border-radius:18px;padding:26px 30px;margin-bottom:16px;position:relative;overflow:hidden;display:flex;align-items:center;gap:22px;"><img src="${window._KPIMG||_KPIMG}" class="dash-header-img" style="width:clamp(80px,13vw,180px);height:clamp(95px,15vw,215px);object-fit:cover;object-position:center top;border-radius:12px;border:2px solid rgba(249,115,22,0.4);box-shadow:0 0 20px rgba(249,115,22,0.25);flex-shrink:0;" /><div style="flex:1;position:relative;">
-    <div style="position:absolute;right:0;top:0;bottom:0;width:220px;background:radial-gradient(ellipse at right,rgba(249,115,22,.12),transparent 70%);pointer-events:none;"></div>
+  <div style="background:linear-gradient(135deg,#0d1520,#111827,#0d1a2e);border:1px solid var(--border2);border-radius:18px;padding:26px 30px;margin-bottom:16px;position:relative;overflow:hidden;display:flex;align-items:center;gap:22px;"><img src="${window._KPIMG||_KPIMG}" class="dash-header-img" style="width:clamp(80px,13vw,180px);height:clamp(95px,15vw,215px);object-fit:cover;object-position:center top;border-radius:12px;border:2px solid rgba(56,189,248,0.4);box-shadow:0 0 20px rgba(56,189,248,0.25);flex-shrink:0;" /><div style="flex:1;position:relative;">
+    <div style="position:absolute;right:0;top:0;bottom:0;width:220px;background:radial-gradient(ellipse at right,rgba(56,189,248,.12),transparent 70%);pointer-events:none;"></div>
     <div style="position:absolute;right:24px;top:50%;transform:translateY(-50%);opacity:.05;pointer-events:none;color:var(--orange);"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
     <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:160px;display:block;margin-bottom:4px;">
       <defs>
-        <linearGradient id="db-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/></linearGradient>
-        <linearGradient id="db-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f97316" stop-opacity="0"/><stop offset="30%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="70%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></linearGradient>
+        <linearGradient id="db-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+        <linearGradient id="db-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="30%" stop-color="#38bdf8" stop-opacity="0.7"/><stop offset="70%" stop-color="#38bdf8" stop-opacity="0.7"/><stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/></linearGradient>
       </defs>
-      <text x="340" y="22" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#f97316" letter-spacing="5">॥ SHREE GANESHAY NAMAH ॥</text>
+      <text x="340" y="22" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#38bdf8" letter-spacing="5">॥ SHREE GANESHAY NAMAH ॥</text>
       <rect x="20" y="30" width="640" height="1" fill="url(#db-al)"/>
       <!-- Star particles -->
-      <text x="8" y="50" font-size="12" fill="#f97316" class="kp-star1">✦</text>
+      <text x="8" y="50" font-size="12" fill="#38bdf8" class="kp-star1">✦</text>
       <text x="140" y="52" font-size="10" fill="#fbbf24" class="kp-star2">★</text>
-      <text x="4" y="148" font-size="9" fill="#f97316" class="kp-star3">✦</text>
+      <text x="4" y="148" font-size="9" fill="#38bdf8" class="kp-star3">✦</text>
       <text x="142" y="158" font-size="11" fill="#fbbf24" class="kp-star4">✦</text>
       <text x="72" y="38" font-size="9" fill="#fed7aa" class="kp-star5">★</text>
-      <text x="90" y="172" font-size="10" fill="#f97316" class="kp-star6">✦</text>
+      <text x="90" y="172" font-size="10" fill="#38bdf8" class="kp-star6">✦</text>
       <!-- Sirf KP badge animated -->
       <g class="kp-badge-group">
         <rect x="22" y="46" width="88" height="88" rx="18" fill="url(#db-kp)"/>
-        <rect x="22" y="46" width="88" height="88" rx="18" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>
+        <rect x="22" y="46" width="88" height="88" rx="18" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.6"/>
         <text x="66" y="108" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="48" fill="#ffffff" letter-spacing="-2">KP</text>
       </g>
       <!-- Still text -->
       <text x="124" y="82" font-family="Inter,sans-serif" font-weight="900" font-size="38" fill="#f8fafc" letter-spacing="-1">KRUSHNNAL</text>
-      <text x="124" y="122" font-family="Inter,sans-serif" font-weight="900" font-size="36" fill="#f97316" letter-spacing="-1">PACKING</text>
+      <text x="124" y="122" font-family="Inter,sans-serif" font-weight="900" font-size="36" fill="#38bdf8" letter-spacing="-1">PACKING</text>
       <rect x="124" y="136" width="510" height="1.5" fill="url(#db-al)" opacity="0.6"/>
       <text x="126" y="154" font-family="Inter,sans-serif" font-size="13" font-weight="400" fill="#8b9dc3" letter-spacing="1">Packing &amp; Stock Management  ·  Dharmessh Bhai</text>
     </svg>
@@ -1290,13 +1428,13 @@ function setupDashProdNav(){
   rows.forEach((row,idx)=>{
     row.addEventListener('click',function(){
       rows.forEach(r=>{r.style.background='var(--card)';r.style.outline='none';});
-      this.style.background='rgba(249,115,22,0.20)';
-      this.style.outline='2px solid #f97316';
+      this.style.background='rgba(56,189,248,0.20)';
+      this.style.outline='2px solid #38bdf8';
       this.focus();
     });
     row.addEventListener('keydown',function(e){
-      if(e.key==='ArrowDown'){e.preventDefault();const n=rows[idx+1];if(n){rows.forEach(r=>{r.style.background='var(--card)';r.style.outline='none';});n.style.background='rgba(249,115,22,0.20)';n.style.outline='2px solid #f97316';n.focus();n.scrollIntoView({block:'nearest'});}}
-      if(e.key==='ArrowUp'){e.preventDefault();const p=rows[idx-1];if(p){rows.forEach(r=>{r.style.background='var(--card)';r.style.outline='none';});p.style.background='rgba(249,115,22,0.20)';p.style.outline='2px solid #f97316';p.focus();p.scrollIntoView({block:'nearest'});}}
+      if(e.key==='ArrowDown'){e.preventDefault();const n=rows[idx+1];if(n){rows.forEach(r=>{r.style.background='var(--card)';r.style.outline='none';});n.style.background='rgba(56,189,248,0.20)';n.style.outline='2px solid #38bdf8';n.focus();n.scrollIntoView({block:'nearest'});}}
+      if(e.key==='ArrowUp'){e.preventDefault();const p=rows[idx-1];if(p){rows.forEach(r=>{r.style.background='var(--card)';r.style.outline='none';});p.style.background='rgba(56,189,248,0.20)';p.style.outline='2px solid #38bdf8';p.focus();p.scrollIntoView({block:'nearest'});}}
     });
   });
 }
@@ -1556,7 +1694,7 @@ function repHoverDD(el,ddid){
   const dd=document.getElementById(ddid);
   if(!dd)return;
   dd.querySelectorAll('div').forEach(d=>{d.style.background='';d.style.color='var(--text)';});
-  el.style.background='rgba(249,115,22,0.22)';el.style.color='var(--orange)';
+  el.style.background='rgba(56,189,248,0.22)';el.style.color='var(--orange)';
 }
 
 function repSelectProd(el,key,ddid){
@@ -1592,7 +1730,7 @@ function repSearchKey(e,key,ddid,sid){
     e.preventDefault();
     _repDDIdx[fkey]=Math.min(_repDDIdx[fkey]+1,items.length-1);
     items.forEach((d,i)=>{
-      d.style.background=i===_repDDIdx[fkey]?'rgba(249,115,22,0.25)':'';
+      d.style.background=i===_repDDIdx[fkey]?'rgba(56,189,248,0.25)':'';
       d.style.color=i===_repDDIdx[fkey]?'var(--orange)':'var(--text)';
     });
     if(items[_repDDIdx[fkey]])items[_repDDIdx[fkey]].scrollIntoView({block:'nearest'});
@@ -1600,7 +1738,7 @@ function repSearchKey(e,key,ddid,sid){
     e.preventDefault();
     _repDDIdx[fkey]=Math.max(_repDDIdx[fkey]-1,-1);
     items.forEach((d,i)=>{
-      d.style.background=i===_repDDIdx[fkey]?'rgba(249,115,22,0.25)':'';
+      d.style.background=i===_repDDIdx[fkey]?'rgba(56,189,248,0.25)':'';
       d.style.color=i===_repDDIdx[fkey]?'var(--orange)':'var(--text)';
     });
   } else if(e.key==='Enter'){
@@ -1738,7 +1876,7 @@ function searchHTML(stock){
   const calGrid=`
   <div style="background:var(--surface);border:1.5px solid ${srchCalOpen?'var(--orange)':'var(--border2)'};border-radius:12px;overflow:hidden;">
     <!-- Calendar toggle button -->
-    <div onclick="srchCalOpen=!srchCalOpen;render()" style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:${srchMonth?'rgba(249,115,22,0.1)':'var(--surface)'};" onmouseover="this.style.background='#161d2e'" onmouseout="this.style.background='${srchMonth?'rgba(249,115,22,0.1)':'var(--surface)'}'">
+    <div onclick="srchCalOpen=!srchCalOpen;render()" style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:${srchMonth?'rgba(56,189,248,0.1)':'var(--surface)'};" onmouseover="this.style.background='#161d2e'" onmouseout="this.style.background='${srchMonth?'rgba(56,189,248,0.1)':'var(--surface)'}'">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="color:var(--orange);">${IC.calendar}</span>
         <span style="font-weight:700;font-size:13px;color:${srchMonth?'var(--orange)':'var(--muted)'};">${srchMonth?fMonthFull(srchMonth):'Mahino Select Karo'}</span>
@@ -1767,7 +1905,7 @@ function searchHTML(stock){
           const tot=inC+outC;
           const hasData=tot>0;
           const isSel=srchMonth===key;
-          return `<div onclick="srchMonth='${key}';srchCalOpen=false;render()" style="padding:8px 4px;border:2px solid ${isSel?'#f9731688':hasData?'var(--border2)':'var(--border)'};border-radius:9px;cursor:pointer;text-align:center;background:${isSel?'rgba(249,115,22,0.2)':hasData?'var(--card)':'var(--surface)'};transition:all .15s;" onmouseover="this.style.background='${isSel?'rgba(249,115,22,0.25)':'rgba(249,115,22,0.08)'}'" onmouseout="this.style.background='${isSel?'rgba(249,115,22,0.2)':hasData?'var(--card)':'var(--surface)'}'">
+          return `<div onclick="srchMonth='${key}';srchCalOpen=false;render()" style="padding:8px 4px;border:2px solid ${isSel?'#38bdf888':hasData?'var(--border2)':'var(--border)'};border-radius:9px;cursor:pointer;text-align:center;background:${isSel?'rgba(56,189,248,0.2)':hasData?'var(--card)':'var(--surface)'};transition:all .15s;" onmouseover="this.style.background='${isSel?'rgba(56,189,248,0.25)':'rgba(56,189,248,0.08)'}'" onmouseout="this.style.background='${isSel?'rgba(56,189,248,0.2)':hasData?'var(--card)':'var(--surface)'}'">
             <div style="font-size:13px;font-weight:800;color:${isSel?'var(--orange)':hasData?'var(--text)':'var(--muted)'};">${mn}</div>
             <div style="font-size:9px;margin-top:2px;color:${isSel?'#fdba74':hasData?'#4ade80':'var(--muted)'};">${hasData?tot:'0'}</div>
           </div>`;
@@ -1804,7 +1942,7 @@ function searchHTML(stock){
 
   <!-- Results -->
   ${!hasFilter?`<div style="text-align:center;padding:48px;color:var(--muted);">${IC.searchLg}<div style="font-size:16px;font-weight:700;margin-bottom:4px;margin-top:10px;">Search Karo</div><div style="font-size:13px;">Product naam lakhvo ya mahino select karo</div></div>`:''}
-  ${hasFilter&&srchMonth&&!q?`<div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:10px;padding:8px 12px;background:rgba(249,115,22,0.08);border-radius:8px;border:1px solid rgba(249,115,22,0.2);">📅 ${fMonthFull(srchMonth)} — ${inR.length+outR.length} total entries</div>`:''}
+  ${hasFilter&&srchMonth&&!q?`<div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:10px;padding:8px 12px;background:rgba(56,189,248,0.08);border-radius:8px;border:1px solid rgba(56,189,248,0.2);">📅 ${fMonthFull(srchMonth)} — ${inR.length+outR.length} total entries</div>`:''}
   ${hasFilter?sR.map(s=>`<div class="card" style="border-color:var(--orange)33;border-width:2px;padding:13px 15px;margin-bottom:11px;">
     <div style="font-size:14px;font-weight:900;color:var(--orange);margin-bottom:8px;display:flex;align-items:center;gap:6px;">${IC.package} ${s.product}</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
@@ -1884,14 +2022,14 @@ function prodHTML(stock){
 
 // ═══ PRINT FUNCTIONS ═══
 function pHdr(title,pd){
-  return `<div style="border-bottom:3px double #c2410c;padding-bottom:13px;margin-bottom:16px;display:flex;align-items:center;gap:12px;"><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #c2410c;flex-shrink:0;" /><div style="flex:1;text-align:center;">
-    <div style="font-size:15px;font-weight:900;color:#c2410c;letter-spacing:3px;margin-bottom:6px;">॥ ॐ શ્રી ગણેશાય નમઃ ॥</div>
+  return `<div style="border-bottom:3px double #0ea5e9;padding-bottom:13px;margin-bottom:16px;display:flex;align-items:center;gap:12px;"><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #0ea5e9;flex-shrink:0;" /><div style="flex:1;text-align:center;">
+    <div style="font-size:15px;font-weight:900;color:#0ea5e9;letter-spacing:3px;margin-bottom:6px;">॥ ॐ શ્રી ગણેશાય નમઃ ॥</div>
     <div style="font-size:24px;font-weight:900;color:#000;letter-spacing:.5px;margin-bottom:3px;">KRUSHNNAL PACKING VENDOR</div>
     <div style="font-size:12px;color:#444;line-height:1.8;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop,<br>Udhana, Surat - 394210 &nbsp;·&nbsp; Mo : 9724589469</div>
-    <div style="margin-top:8px;display:inline-block;background:#fff3e0;border:1px solid #f97316;border-radius:7px;padding:4px 14px;">
-      <span style="font-size:12px;color:#c2410c;font-weight:700;">${title} &nbsp;·&nbsp; Date : ${pd}</span>
+    <div style="margin-top:8px;display:inline-block;background:#fff3e0;border:1px solid #38bdf8;border-radius:7px;padding:4px 14px;">
+      <span style="font-size:12px;color:#0ea5e9;font-weight:700;">${title} &nbsp;·&nbsp; Date : ${pd}</span>
     </div>
-  </div><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #c2410c;flex-shrink:0;" /></div>`;
+  </div><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #0ea5e9;flex-shrink:0;" /></div>`;
 }
 
 function ptbl(rows,color,bg,type){
@@ -1992,8 +2130,8 @@ function printRep(type){
   document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;">
     ${pHdr(title,pd)}
     ${body}
-    <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;">
-      <div style="font-size:11px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
+    <div style="border-top:2px solid #38bdf8;padding-top:8px;text-align:center;">
+      <div style="font-size:11px;font-weight:700;color:#0ea5e9;">KRUSHNNAL PACKING VENDOR</div>
       <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
       <div style="font-size:9px;color:#bbb;margin-top:1px;">Print Date: ${pd}</div>
     </div>
@@ -2058,7 +2196,7 @@ function printStock(){
       </tfoot>
     </table>
     <div style="border-top:2px solid #6d28d9;padding-top:9px;text-align:center;margin-top:12px;">
-      <div style="font-size:11px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
+      <div style="font-size:11px;font-weight:700;color:#0ea5e9;">KRUSHNNAL PACKING VENDOR</div>
       <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
       <div style="font-size:9px;color:#bbb;margin-top:1px;">Stock Print Date: ${pd}</div>
     </div>
@@ -2123,7 +2261,7 @@ function buildModal(){
             autocomplete="off">
           <div id="prod-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--orange);border-radius:10px;z-index:999;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);margin-top:3px;"></div>
         </div>
-        <div id="prod-selected-lbl" style="margin-top:6px;padding:7px 12px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);border-radius:8px;font-size:13px;font-weight:700;color:var(--orange);display:${d.product?'block':'none'};">${d.product||''}</div>
+        <div id="prod-selected-lbl" style="margin-top:6px;padding:7px 12px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);border-radius:8px;font-size:13px;font-weight:700;color:var(--orange);display:${d.product?'block':'none'};">${d.product||''}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;">
         <div>
@@ -2238,7 +2376,7 @@ function saveM(){
   const d=modal.data;
   // Out entry ma pes=0 chalne de jyare damage ya short hoy
   const pesOk = modal.type==='out' ? (Number(d.pes||0)+Number(d.damage||0)+Number(d.short||0))>0 : !!d.pes;
-  if(!d.date||!d.product||!pesOk||!d.rate){toast('Badhaj fields bharo!','#f97316');return;}
+  if(!d.date||!d.product||!pesOk||!d.rate){toast('Badhaj fields bharo!','#38bdf8');return;}
   const row={date:d.date,product:d.product,pes:Number(d.pes||0),rate:Number(d.rate)};
   if(modal.type==='out'){
     row.damage=Number(d.damage||0);
@@ -2270,7 +2408,7 @@ function changePhoto(){
   inp.onchange=function(e){
     const file=e.target.files[0];
     if(!file)return;
-    if(file.size>2*1024*1024){toast('Photo 2MB thi nani hovi joiye!','#f97316');return;}
+    if(file.size>2*1024*1024){toast('Photo 2MB thi nani hovi joiye!','#38bdf8');return;}
     const reader=new FileReader();
     reader.onload=async function(ev){
       const b64=ev.target.result;
@@ -2335,8 +2473,8 @@ async function loadPhotoFromFB(){
 function saveProd(){
   const d=modal.data;
   const n=d.name?.trim();
-  if(!n){toast('Product naam lakhvo!','#f97316');return;}
-  if(S.products.find(p=>p.name===n)){toast('Product pahela thi chhe!','#f97316');return;}
+  if(!n){toast('Product naam lakhvo!','#38bdf8');return;}
+  if(S.products.find(p=>p.name===n)){toast('Product pahela thi chhe!','#38bdf8');return;}
   const r=parseFloat(d.rate)||0;
   S.products.push({name:n,rate:r,inRate:r,outRate:r});
   persist();modal=null;toast('Product + Rate save thayu!');render();
@@ -2348,9 +2486,9 @@ function saveRate(){
   if(idx==null||idx===undefined){toast('Error!','#ef4444');return;}
   const oldName=S.products[idx].name;
   const newName=d.name?.trim()||oldName;
-  if(!newName){toast('Product naam lakhvo!','#f97316');return;}
+  if(!newName){toast('Product naam lakhvo!','#38bdf8');return;}
   // Check duplicate name (except self)
-  if(newName!==oldName && S.products.find((p,i)=>p.name===newName&&i!==idx)){toast('Aa naam pahela thi chhe!','#f97316');return;}
+  if(newName!==oldName && S.products.find((p,i)=>p.name===newName&&i!==idx)){toast('Aa naam pahela thi chhe!','#38bdf8');return;}
   const r=parseFloat(d.rate)||0;
   S.products[idx].name=newName;
   S.products[idx].rate=r;
@@ -2492,7 +2630,7 @@ function renderDelModal(){
 
       <!-- Mode Toggle -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
-        <div onclick="delMode='quick';delSelMonth='';renderDelModal()" style="padding:9px 12px;border:2px solid ${delMode==='quick'?'#f9731688':'var(--border2)'};border-radius:9px;cursor:pointer;text-align:center;background:${delMode==='quick'?'rgba(249,115,22,0.12)':'var(--surface)'};">
+        <div onclick="delMode='quick';delSelMonth='';renderDelModal()" style="padding:9px 12px;border:2px solid ${delMode==='quick'?'#38bdf888':'var(--border2)'};border-radius:9px;cursor:pointer;text-align:center;background:${delMode==='quick'?'rgba(56,189,248,0.12)':'var(--surface)'};">
           <div style="font-size:13px;font-weight:800;color:${delMode==='quick'?'var(--orange)':'var(--muted)'};">⚡ Jaldi Delete</div>
           <div style="font-size:10px;color:var(--muted);margin-top:1px;">3 / 6 / 12 mahina junu</div>
         </div>
@@ -2508,7 +2646,7 @@ function renderDelModal(){
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
         ${[
           [3,cut3,cnt3,'#fbbf24','3 Mahina Juno'],
-          [6,cut6,cnt6,'#f97316','6 Mahina Juno'],
+          [6,cut6,cnt6,'#38bdf8','6 Mahina Juno'],
           [12,cut12,cnt12,'#ef4444','12 Mahina Juno'],
         ].map(([n,cut,cnt,c,lbl])=>`
         <div onclick="delSelMonth='__older_${n}__';renderDelModal()" style="padding:11px 16px;border:2px solid ${delSelMonth==='__older_'+n+'__'?c+'99':'var(--border2)'};border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:${delSelMonth==='__older_'+n+'__'?c+'18':'var(--card)'};">
@@ -2594,7 +2732,7 @@ function confirmDelOlder(){
   const inC=S.inData.filter(r=>r.date.slice(0,7)<cut).length;
   const outC=S.outData.filter(r=>r.date.slice(0,7)<cut).length;
   const tot=inC+outC;
-  if(tot===0){toast('Koi data nathi delete karva!','#f97316');return;}
+  if(tot===0){toast('Koi data nathi delete karva!','#38bdf8');return;}
   confirmQ={
     msg:`${n} mahina juno (${fMonthF(cut)} thi pehla) — ${tot} entries delete karvu chhe?`,
     onYes:()=>{
@@ -2671,7 +2809,7 @@ function prodNumSearch(val){
 
 function ddHover(el){
   document.querySelectorAll('.dd-item').forEach(i=>{i.style.background='';i.style.color='var(--text)';});
-  el.style.background='rgba(249,115,22,0.2)';
+  el.style.background='rgba(56,189,248,0.2)';
   el.style.color='var(--orange)';
   ddIdx=parseInt(el.getAttribute('data-idx'));
 }
@@ -2688,7 +2826,7 @@ function ddHighlight(idx){
   if(idx<0)idx=0;
   if(idx>=items.length)idx=items.length-1;
   ddIdx=idx;
-  items[ddIdx].style.background='rgba(249,115,22,0.22)';
+  items[ddIdx].style.background='rgba(56,189,248,0.22)';
   items[ddIdx].style.color='var(--orange)';
   items[ddIdx].scrollIntoView({block:'nearest',behavior:'smooth'});
 }
@@ -2760,22 +2898,22 @@ function kpShowLogin(){
   // SVG Logo
   html+='<svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:380px;max-height:190px;display:block;margin-bottom:32px;">';
   html+='<defs>';
-  html+='<linearGradient id="lg-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#c2410c"/></linearGradient>';
-  html+='<linearGradient id="lg-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f97316" stop-opacity="0"/><stop offset="30%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="70%" stop-color="#f97316" stop-opacity="0.7"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></linearGradient>';
+  html+='<linearGradient id="lg-kp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>';
+  html+='<linearGradient id="lg-al" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/><stop offset="30%" stop-color="#38bdf8" stop-opacity="0.7"/><stop offset="70%" stop-color="#38bdf8" stop-opacity="0.7"/><stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/></linearGradient>';
   html+='</defs>';
-  html+='<text x="340" y="30" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#f97316" letter-spacing="5" opacity="0.9">॥  SHREE  GANESHAY  NAMAH  ॥</text>';
+  html+='<text x="340" y="30" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#38bdf8" letter-spacing="5" opacity="0.9">॥  SHREE  GANESHAY  NAMAH  ॥</text>';
   html+='<rect x="40" y="40" width="600" height="1" fill="url(#lg-al)"/>';
-  html+='<text x="28" y="58" font-size="10" fill="#f97316" class="kp-star1">✦</text>';
+  html+='<text x="28" y="58" font-size="10" fill="#38bdf8" class="kp-star1">✦</text>';
   html+='<text x="130" y="54" font-size="8" fill="#fbbf24" class="kp-star2">★</text>';
-  html+='<text x="24" y="158" font-size="8" fill="#f97316" class="kp-star3">✦</text>';
+  html+='<text x="24" y="158" font-size="8" fill="#38bdf8" class="kp-star3">✦</text>';
   html+='<text x="132" y="168" font-size="9" fill="#fbbf24" class="kp-star4">✦</text>';
   html+='<g class="kp-badge-group">';
   html+='<rect x="44" y="60" width="110" height="110" rx="22" fill="url(#lg-kp)"/>';
-  html+='<rect x="44" y="60" width="110" height="110" rx="22" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>';
+  html+='<rect x="44" y="60" width="110" height="110" rx="22" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.6"/>';
   html+='<text x="99" y="132" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="64" fill="#ffffff" letter-spacing="-3">KP</text>';
   html+='</g>';
   html+='<text x="172" y="100" font-family="Inter,sans-serif" font-weight="900" font-size="46" fill="#f8fafc" letter-spacing="-2">KRUSHNNAL</text>';
-  html+='<text x="172" y="148" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#f97316" letter-spacing="-1">PACKING</text>';
+  html+='<text x="172" y="148" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#38bdf8" letter-spacing="-1">PACKING</text>';
   html+='<rect x="172" y="163" width="460" height="1.5" fill="url(#lg-al)" opacity="0.6"/>';
   html+='<text x="174" y="184" font-family="Inter,sans-serif" font-size="14" font-weight="400" fill="#8b9dc3" letter-spacing="1">Packing &amp; Stock Management</text>';
   html+='</svg>';
@@ -2793,7 +2931,7 @@ function kpShowLogin(){
     html+='</div>';
   });
 
-  html+='<div style="position:absolute;bottom:24px;left:56px;font-size:11px;color:#2a3550;">© 2026 Krushnnal Packing Vendor · Dharmessh Bhai</div>';
+  html+='<div style="position:absolute;bottom:24px;left:56px;font-size:11px;color:rgba(56,189,248,0.25);">© 2026 Krushnnal Packing Vendor · Dharmessh Bhai</div>';
   html+='</div>';
 
   // ── RIGHT SIDE — Login Form ──
@@ -2803,7 +2941,7 @@ function kpShowLogin(){
 
   // Animated logo on login page
   html+='<style>';
-  html+='@keyframes kpLoginPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 6px rgba(249,115,22,0.5))}50%{transform:scale(1.1);filter:drop-shadow(0 0 18px rgba(249,115,22,0.9))}}';
+  html+='@keyframes kpLoginPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 6px rgba(56,189,248,0.5))}50%{transform:scale(1.1);filter:drop-shadow(0 0 18px rgba(56,189,248,0.9))}}';
   html+='@keyframes kpLoginStar1{0%,100%{transform:translate(0,0) scale(1);opacity:0.8}50%{transform:translate(-5px,-14px) scale(1.4);opacity:1}}';
   html+='@keyframes kpLoginStar2{0%,100%{transform:translate(0,0) scale(1);opacity:0.6}50%{transform:translate(8px,-18px) scale(1.5);opacity:1}}';
   html+='@keyframes kpLoginStar3{0%,100%{transform:translate(0,0) scale(1);opacity:0.7}50%{transform:translate(-10px,-8px) scale(1.2);opacity:1}}';
@@ -2903,11 +3041,11 @@ function openChangePass(){
   var d=document.createElement('div');
   d.id='kp-chpass';
   d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;';
-  var html='<div style="background:#121620;border:1.5px solid #f9731644;border-radius:16px;padding:28px;width:290px;text-align:center;">';
-  html+='<div style="font-size:15px;font-weight:900;color:#f97316;margin-bottom:4px;">Password Change</div>';
+  var html='<div style="background:#121620;border:1.5px solid #38bdf844;border-radius:16px;padding:28px;width:290px;text-align:center;">';
+  html+='<div style="font-size:15px;font-weight:900;color:#38bdf8;margin-bottom:4px;">Password Change</div>';
   html+='<div style="font-size:11px;color:#8b9dc3;margin-bottom:14px;">Navo 4 digit password</div>';
   html+='<div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px;" id="kpn-dots">';
-  for(var i=0;i<4;i++) html+='<div id="kpnd'+i+'" style="width:52px;height:56px;background:#0d1117;border:1.5px solid #232f45;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#f97316;"></div>';
+  for(var i=0;i<4;i++) html+='<div id="kpnd'+i+'" style="width:52px;height:56px;background:#0d1117;border:1.5px solid #232f45;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#38bdf8;"></div>';
   html+='</div>';
   var nums2=[1,2,3,4,5,6,7,8,9];
   html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">';
@@ -2937,7 +3075,7 @@ function kpnUpd(){
     var d=document.getElementById('kpnd'+i);
     if(!d) return;
     d.textContent=i<kpNVal.length?'●':'';
-    d.style.borderColor=i<kpNVal.length?'#f97316':'#232f45';
+    d.style.borderColor=i<kpNVal.length?'#38bdf8':'#232f45';
   }
 }
 function kpnSave(){

@@ -1696,14 +1696,63 @@ function srchTabSelectProd(name){
   if(dd) dd.style.display='none';
   render();
 }
+// Active dropdown tracker for arrow key nav
+let _fddActive={ddid:null,idx:-1};
+
 function showFilterDD(val,ddid,onSelectFn){
   const dd=document.getElementById(ddid);
   if(!dd) return;
-  if(!val||!val.trim()){dd.style.display='none';return;}
+  if(!val||!val.trim()){dd.style.display='none';_fddActive={ddid:null,idx:-1};return;}
   const matches=smartProductFilter(val);
   dd.innerHTML=buildFilterDD(matches,onSelectFn);
   dd.style.display=matches.length?'block':'none';
+  _fddActive={ddid,idx:-1};
 }
+
+function fddHighlight(ddid,idx){
+  const dd=document.getElementById(ddid);
+  if(!dd) return;
+  const items=dd.querySelectorAll('.fdd-item');
+  if(!items.length) return;
+  if(idx<0) idx=0;
+  if(idx>=items.length) idx=items.length-1;
+  items.forEach((el,i)=>{
+    if(i===idx){el.style.background='rgba(249,115,22,0.25)';el.style.color='var(--orange)';el.scrollIntoView({block:'nearest',behavior:'smooth'});}
+    else{el.style.background='';el.style.color='var(--text)';}
+  });
+  _fddActive.idx=idx;
+}
+
+function fddEnterSelect(){
+  if(!_fddActive.ddid) return false;
+  const dd=document.getElementById(_fddActive.ddid);
+  if(!dd||dd.style.display==='none') return false;
+  const items=dd.querySelectorAll('.fdd-item');
+  if(_fddActive.idx<0||!items[_fddActive.idx]) return false;
+  const name=items[_fddActive.idx].getAttribute('data-name');
+  if(!name) return false;
+  const id=_fddActive.ddid;
+  if(id==='in-fbar-dd') fBarSelectProd(name,'in');
+  else if(id==='out-fbar-dd') fBarSelectProd(name,'out');
+  else if(id==='stk-dd') stkSelectProd(name);
+  else if(id==='prodtab-dd') prodTabSelectProd(name);
+  else if(id==='srch-dd') srchTabSelectProd(name);
+  else if(id==='rep-in-dd'){repInF.p=name;repInF.q='';dd.style.display='none';render();}
+  else if(id==='rep-out-dd'){repOutF.p=name;repOutF.q='';dd.style.display='none';render();}
+  _fddActive={ddid:null,idx:-1};
+  return true;
+}
+
+// Arrow key listener for all filter dropdowns
+document.addEventListener('keydown',function(e){
+  if(!_fddActive.ddid) return;
+  const dd=document.getElementById(_fddActive.ddid);
+  if(!dd||dd.style.display==='none'){_fddActive={ddid:null,idx:-1};return;}
+  if(e.key==='ArrowDown'){e.preventDefault();fddHighlight(_fddActive.ddid,_fddActive.idx+1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();fddHighlight(_fddActive.ddid,_fddActive.idx-1);}
+  else if(e.key==='Enter'){if(fddEnterSelect()) e.preventDefault();}
+  else if(e.key==='Escape'){dd.style.display='none';_fddActive={ddid:null,idx:-1};}
+},true);
 
 function fBar(f,type){
   const sid=type+'-ent-si';

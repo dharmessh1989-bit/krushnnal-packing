@@ -617,6 +617,23 @@ td:last-child{border-radius:0 9px 9px 0;}
   border-radius:8px!important;
 }
 
+/* ── Content area smooth tab switch — NO page jump ── */
+#content-area{
+  will-change:opacity,transform;
+  /* Prevent scroll-position reset on re-render */
+  overflow-anchor:none;
+}
+
+/* Prevent layout shift on render */
+#app{
+  contain:layout style;
+}
+
+/* Nav button transition — no jump */
+.nb{
+  will-change:background,color,transform;
+}
+
 /* ── Print ── */
 @media print{
   .card,.sc{
@@ -930,23 +947,29 @@ document.addEventListener('keydown',e=>{
   if(e.key==='F9'){e.preventDefault();tab='in';render();showKbHint('F9 → Maal Aavyo List');return;}
   if(e.key==='F10'){e.preventDefault();tab='out';render();showKbHint('F10 → Maal Gayo List');return;}
 
-  // ── Escape: 1 vaar press = badhu j band ──
+  // ── Escape: Modal/Confirm hoy to sirf band karo — tab change nahi ──
   if(e.key==='Escape'){
     e.preventDefault();
-    // Badha fixed popup remove karo (product history, delete modal, etc)
+    // Extra fixed popups (product history, etc) — sirf jo open hoy to
+    let extraClosed=false;
     document.querySelectorAll('div[style*="position:fixed"],div[style*="position: fixed"]').forEach(el=>{
-      if(el.id==='toast'||el.id==='mob-overlay'||el.id==='mob-sidebar'||el.id==='kp-login'||el.id==='app'||el.id==='pa') return;
-      el.remove();
+      if(el.id==='toast'||el.id==='mob-overlay'||el.id==='mob-sidebar'||el.id==='kp-login'||el.id==='app'||el.id==='pa'||el.id==='kp-modal-layer') return;
+      // modal/confirm layer nathi to remove karo
+      if(!el.closest('#kp-modal-layer')&&el.id!=='del-mo-bg'){el.remove();extraClosed=true;}
     });
-    // Modal band karo
-    modal=null;
-    confirmQ=null;
-    // Tab → dashboard par pachha
-    tab='dashboard';
-    // kb-active clear
+    if(modal||confirmQ){
+      modal=null;
+      confirmQ=null;
+      document.querySelectorAll('.kb-active').forEach(r=>{r.classList.remove('kb-active');r.style.background='';r.style.borderLeft='';});
+      render();
+      showKbHint('Esc → Modal band');
+      return;
+    }
+    if(extraClosed){showKbHint('Esc → Band');return;}
+    // Koi modal na hoy to search/filter clear karo
+    if(searchQ){searchQ='';render();showKbHint('Esc → Search clear');return;}
     document.querySelectorAll('.kb-active').forEach(r=>{r.classList.remove('kb-active');r.style.background='';r.style.borderLeft='';});
-    render();
-    showKbHint('Esc → Band');
+    showKbHint('Esc');
     return;
   }
 
@@ -1090,14 +1113,16 @@ document.addEventListener('keydown',e=>{
 });
 
 let _renderT=null;
+let _shellBuilt=false; // Shell ek j vaar banavo
+
 function render(){
   if(!kpLoggedIn) return;
   clearTimeout(_renderT);
   _renderT=requestAnimationFrame(_doRender);
 }
 function _doRender(){
-  // Scroll position save
-  const _ca=document.getElementById('content-area')||document.querySelector('.content-area');
+  // ── SMART RENDER: Shell ek j vaara banavo, pachhi sirf content update ──
+  const _ca=document.getElementById('content-area');
   const _sc=_ca?_ca.scrollTop:0;
   const _win=window.scrollY||0;
   // Modal active input track karo
@@ -1105,6 +1130,18 @@ function _doRender(){
   _modalActiveId=(_ae&&_ae.id&&(_ae.tagName==='INPUT'||_ae.tagName==='SELECT'||_ae.tagName==='TEXTAREA'))?_ae.id:'';
   _modalActiveSel=_ae&&_ae.selectionStart!==undefined?_ae.selectionStart:0;
   reapplyBadge();
+
+  // Shell already chhe? Sirf targeted update karo — no jump, no flicker
+  if(_shellBuilt && document.getElementById('content-area')){
+    _updateShell();
+    // Modal layer hamesha update karo (open hoy ke close hoy)
+    _updateModal();
+    // Content sirf update karo jo tab change thayun hoy ke modal nathi
+    if(!modal && !confirmQ){
+      _updateContent(_sc,_win);
+    }
+    return;
+  }
   const stock=stk(),lowN=stock.filter(r=>r.balPes>0&&r.balPes<=100).length;
   const NAV=[
     {id:'dashboard',l:'Dashboard',  i:IC.home,k:'1'},
@@ -1258,7 +1295,7 @@ function _doRender(){
             <div class="top-header-date" style="font-size:11px;color:var(--muted);margin-top:1px;">${new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div id="hdr-btns" style="display:flex;gap:8px;align-items:center;">
           ${tab==='in'?`<button class="btn btn-or" onclick="openAdd('in')" aria-label="Add Maal Aavyo entry">${IC.plus} Maal Aavyo <span class="kbd" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff;">F2</span></button>`:''}
           ${tab==='out'?`<button class="btn btn-or" onclick="openAdd('out')" aria-label="Add Maal Gayo entry">${IC.plus} Maal Gayo <span class="kbd" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff;">F3</span></button>`:''}
           ${tab==='products'?`<button class="btn btn-or" onclick="openAdd('product')" aria-label="Add Product">${IC.plus} Product <span class="kbd" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff;">F1</span></button>`:''}
@@ -1290,6 +1327,114 @@ function _doRender(){
     </div>
   </div>
   ${modal?buildModal():''}${confirmQ?buildConfirm():''}`;
+  _shellBuilt=true; // Shell build thayun — aage sirf update thase
+  // Full render pachhi: scroll restore + setup
+  requestAnimationFrame(()=>{
+    const ca=document.getElementById('content-area');
+    if(ca&&_sc>0)ca.scrollTop=_sc;
+    if(_win>0)window.scrollTo(0,_win);
+    _restoreFocusAndSetup();
+    if(modal){
+      const mfocus=document.getElementById(_modalActiveId||'');
+      if(mfocus){mfocus.focus();try{if(mfocus.setSelectionRange)mfocus.setSelectionRange(_modalActiveSel,_modalActiveSel);}catch(e){}}
+      else{const mf=document.querySelector('.modal-box input,.modal-box select');if(mf)mf.focus();}
+    }
+    setupDashProdNav();
+    setupKbRows();
+  });
+} // end _doRender
+
+
+// ══════════════════════════════════════════════════════════════════
+// SMART UPDATE HELPERS — Page jump / flicker fix
+// Shell ek j vaar bane, pachhi sirf targeted updates
+// ══════════════════════════════════════════════════════════════════
+
+function _updateShell(){
+  // Nav active state update (no re-render, sirf class change)
+  const NAV2=['dashboard','in','out','stock','report','search','products'];
+  document.querySelectorAll('.nb').forEach(btn=>{
+    const onclick=btn.getAttribute('onclick')||'';
+    const match=onclick.match(/tab='([^']+)'/);
+    if(match){
+      const tid=match[1];
+      if(tid===tab){btn.classList.add('act');} else {btn.classList.remove('act');}
+    }
+  });
+  // Top header title update
+  const NAV_LABELS={dashboard:'🏠 Dashboard',in:'📥 Maal Aavyo',out:'📤 Maal Gayo',stock:'📦 Stock',report:'📊 Report',search:'🔍 Search',products:'📁 Products'};
+  const hdr=document.querySelector('.top-header-title');
+  if(hdr) hdr.textContent=NAV_LABELS[tab]||tab;
+  // Header action buttons
+  const IC2=typeof IC!=='undefined'?IC:{plus:'+'};
+  const hdrBtns=document.getElementById('hdr-btns');
+  if(hdrBtns){
+    let btns='';
+    if(tab==='in') btns=`<button class="btn btn-or" onclick="openAdd('in')">${IC2.plus||'+'} Maal Aavyo</button>`;
+    else if(tab==='out') btns=`<button class="btn btn-or" onclick="openAdd('out')">${IC2.plus||'+'} Maal Gayo</button>`;
+    else if(tab==='products') btns=`<button class="btn btn-or" onclick="openAdd('product')">${IC2.plus||'+'} Product</button>`;
+    else if(tab==='report') btns=`<button class="btn" onclick="printRep('in')" style="background:#0f2218;color:#4ade80;border:1px solid #22c55e55;padding:8px 12px;font-size:12px;">${IC2.printer||'🖨'} IN</button><button class="btn" onclick="printRep('out')" style="background:#1f0a0a;color:#f87171;border:1px solid #ef444455;padding:8px 12px;font-size:12px;">${IC2.printer||'🖨'} OUT</button><button class="btn" onclick="printRep('both')" style="background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb44;padding:8px 12px;font-size:12px;">${IC2.printer||'🖨'} Both</button>`;
+    else if(tab==='stock') btns=`<button class="btn" onclick="printStock()" style="background:#1a1f35;color:#818cf8;border:1px solid #4f46e544;padding:9px 14px;font-size:13px;">${IC2.printer||'🖨'} Print</button>`;
+    hdrBtns.innerHTML=btns;
+  }
+  // Mobile bottom nav active update
+  document.querySelectorAll('#mob-nav button').forEach(btn=>{
+    const oc=btn.getAttribute('onclick')||'';
+    const m=oc.match(/tab='([^']+)'/);
+    if(m){
+      if(m[1]===tab){btn.style.color='var(--orange)';btn.style.background='rgba(249,115,22,0.12)';}
+      else{btn.style.color='var(--muted)';btn.style.background='none';}
+    }
+  });
+}
+
+function _updateContent(savedScroll,savedWin){
+  const ca=document.getElementById('content-area');
+  if(!ca) return;
+  const stock=stk();
+  // Remove fade class, add back for smooth transition
+  ca.classList.remove('fade');
+  ca.innerHTML=body(stock);
+  // Animate content area — lightweight, no page jump
+  ca.style.opacity='0';
+  ca.style.transform='translateY(6px)';
+  requestAnimationFrame(()=>{
+    ca.style.transition='opacity 0.18s ease, transform 0.18s ease';
+    ca.style.opacity='1';
+    ca.style.transform='translateY(0)';
+    setTimeout(()=>{ ca.style.transition=''; },200);
+  });
+  // Scroll restore
+  if(savedScroll>0) ca.scrollTop=savedScroll;
+  if(savedWin>0) window.scrollTo(0,savedWin);
+  // Focus restore
+  _restoreFocusAndSetup();
+}
+
+function _updateModal(){
+  // Modal/Confirm overlay update without full page rebuild
+  let mo=document.getElementById('kp-modal-layer');
+  if(!mo){
+    mo=document.createElement('div');
+    mo.id='kp-modal-layer';
+    mo.style.cssText='position:relative;z-index:300;';
+    const app=document.getElementById('app');
+    if(app) app.appendChild(mo);
+  }
+  if(modal||confirmQ){
+    mo.innerHTML=(modal?buildModal():'')+(confirmQ?buildConfirm():'');
+    // Focus first input
+    requestAnimationFrame(()=>{
+      const mfocus=document.getElementById(_modalActiveId||'');
+      if(mfocus){mfocus.focus();try{if(mfocus.setSelectionRange)mfocus.setSelectionRange(_modalActiveSel,_modalActiveSel);}catch(e){}}
+      else{const mf=document.querySelector('#kp-modal-layer .modal-box input,#kp-modal-layer .modal-box select');if(mf)mf.focus();}
+    });
+  } else {
+    mo.innerHTML=''; // Modal band — layer saaf karo
+  }
+}
+
+function _restoreFocusAndSetup(){
   if(tab==='search'){const si=document.getElementById('si');if(si){si.focus();si.setSelectionRange(si.value.length,si.value.length);}}
   if(tab==='stock'){const si=document.getElementById('stk-si');if(si){si.focus();si.setSelectionRange(si.value.length,si.value.length);}}
   if(tab==='products'){const si=document.getElementById('prod-si');if(si){si.focus();si.setSelectionRange(si.value.length,si.value.length);}}
@@ -1304,34 +1449,8 @@ function _doRender(){
     else if(repOutF.q&&!repInF.q){if(ro){ro.focus();ro.setSelectionRange(ro.value.length,ro.value.length);}}
   }
   applyKbPanel();
-  // Modal open hoy tyare — render pachhi same input focus karo
-  if(modal){
-    // Active element id save karyu chhe upar — restore karo
-    requestAnimationFrame(()=>{
-      const ca=document.getElementById('content-area')||document.querySelector('.content-area');
-      if(ca&&_sc>0)ca.scrollTop=_sc;
-      if(_win>0)window.scrollTo(0,_win);
-      // Modal input focus restore
-      const mfocus=document.getElementById(_modalActiveId||'');
-      if(mfocus){mfocus.focus();try{if(mfocus.setSelectionRange)mfocus.setSelectionRange(_modalActiveSel,_modalActiveSel);}catch(e){}}
-      else{
-        // Default: pahela input focus karo
-        const mf=document.querySelector('.modal-box input, .modal-box select');
-        if(mf)mf.focus();
-      }
-      setupDashProdNav();
-      setupKbRows();
-    });
-  } else {
-    requestAnimationFrame(()=>{
-      const ca=document.getElementById('content-area')||document.querySelector('.content-area');
-      if(ca&&_sc>0)ca.scrollTop=_sc;
-      if(_win>0)window.scrollTo(0,_win);
-      setupDashProdNav();
-      setupKbRows();
-    });
-  }
-} // end _doRender
+  requestAnimationFrame(()=>{setupDashProdNav();setupKbRows();});
+}
 
 function setupKbRows(){
   document.querySelectorAll('.kb-row').forEach(row=>{
@@ -3861,6 +3980,19 @@ kpShowLogin();
 </script>
 
 <script>
+// ══════════════════════════════════════════════════════
+// ROBUST MODAL CLOSE — Esc + Background click HAMESHA kaam kare
+// ══════════════════════════════════════════════════════
+
+// Background click — mo-bg par click hoy to modal band karo
+document.addEventListener('mousedown', function(e){
+  // .mo-bg direct click (not child)
+  if(e.target && e.target.classList && e.target.classList.contains('mo-bg')){
+    if(modal){modal=null;render();return;}
+    if(confirmQ){confirmQ=null;render();return;}
+  }
+}, true);
+
 // Throttled mousemove — rAF vade smooth, CPU load ochhu
 let _rafMx=false;
 document.addEventListener("mousemove",(e)=>{

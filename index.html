@@ -778,8 +778,10 @@ async function fbPull(){
         if(newJson!==curJson){
           S=d;
           try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
-          // Modal open hoy to render nahi — sirf data update
-          if(!modal){
+          // Modal open hoy ya input focus hoy to render nahi — keyboard break nai thay
+          const _fTag=document.activeElement?document.activeElement.tagName:'';
+          const _inputFocused=_fTag==='INPUT'||_fTag==='SELECT'||_fTag==='TEXTAREA';
+          if(!modal && !_inputFocused){
             render();
           }
         }
@@ -1129,6 +1131,13 @@ function _doRender(){
   const _ae=document.activeElement;
   _modalActiveId=(_ae&&_ae.id&&(_ae.tagName==='INPUT'||_ae.tagName==='SELECT'||_ae.tagName==='TEXTAREA'))?_ae.id:'';
   _modalActiveSel=_ae&&_ae.selectionStart!==undefined?_ae.selectionStart:0;
+  // ── KB-ACTIVE ROW SAVE: render pehla highlighted row no index save karo ──
+  const _kbActiveRow=document.querySelector('.kb-active');
+  let _savedKbIdx=-1;
+  if(_kbActiveRow){
+    const _allKbRows=Array.from(document.querySelectorAll('.kb-row'));
+    _savedKbIdx=_allKbRows.indexOf(_kbActiveRow);
+  }
   reapplyBadge();
 
   // Shell already chhe? Sirf targeted update karo — no jump, no flicker
@@ -1139,6 +1148,15 @@ function _doRender(){
     // Content sirf update karo jo tab change thayun hoy ke modal nathi
     if(!modal && !confirmQ){
       _updateContent(_sc,_win);
+      // ── KB-ACTIVE RESTORE: render pachhi highlighted row wapas set karo ──
+      if(_savedKbIdx>=0){
+        const _newRows=Array.from(document.querySelectorAll('.kb-row'));
+        if(_newRows[_savedKbIdx]){
+          _newRows[_savedKbIdx].classList.add('kb-active');
+          _newRows[_savedKbIdx].style.background='rgba(249,115,22,0.2)';
+          _newRows[_savedKbIdx].style.borderLeft='3px solid var(--orange)';
+        }
+      }
     }
     return;
   }
@@ -3311,8 +3329,9 @@ async function loadPhotoFromFB(){
         if(window._KPIMG===b64)return;
         window._KPIMG=b64;
         localStorage.setItem('_KP_CUSTOM_IMG',b64);
-        // Modal open hoy to render nahi
-        if(modal)return;
+        // Modal open hoy ya input focus hoy to render nahi
+        const _pfTag=document.activeElement?document.activeElement.tagName:'';
+        if(modal||_pfTag==='INPUT'||_pfTag==='SELECT'||_pfTag==='TEXTAREA')return;
         const _ae=document.activeElement;
         const _aeid=_ae?_ae.id:'';
         const _aesel=_ae&&_ae.selectionStart!==undefined?_ae.selectionStart:null;

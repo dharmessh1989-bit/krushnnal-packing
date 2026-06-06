@@ -743,6 +743,7 @@ function closeMobSidebar(){
 // ═══ FIREBASE REALTIME DATABASE SYNC ═══
 const FB_URL='https://krushnnal-packing-default-rtdb.asia-southeast1.firebasedatabase.app/data.json';
 let fbSyncTimeout=null;
+let fbPushPending=false; // Entry save thayi, push pending chhe — pull nai karvani
 
 function load(){
   try{const s=localStorage.getItem(SK);if(s)return JSON.parse(s);}catch(e){}
@@ -753,7 +754,8 @@ let S=load();
 function persist(){
   try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
   clearTimeout(fbSyncTimeout);
-  fbSyncTimeout=setTimeout(()=>fbPush(),1500);
+  fbPushPending=true;
+  fbSyncTimeout=setTimeout(()=>{fbPush();},1500);
 }
 
 async function fbPush(){
@@ -764,7 +766,7 @@ async function fbPush(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(S)
     });
-    if(res.ok){updateSyncBadge('synced');}
+    if(res.ok){updateSyncBadge('synced');fbPushPending=false;}
     else{updateSyncBadge('offline');}
   }catch(e){updateSyncBadge('offline');}
 }
@@ -776,6 +778,8 @@ async function fbPull(){
     if(res.ok){
       const d=await res.json();
       if(d&&d.inData&&d.outData){
+        // Push pending hoy to local data overwrite NAHI karvo (entry lost bug fix)
+        if(fbPushPending){updateSyncBadge('synced');return true;}
         // Data same chhe to render NAHI karvo — screen jump nahi
         const newJson=JSON.stringify(d);
         const curJson=JSON.stringify(S);

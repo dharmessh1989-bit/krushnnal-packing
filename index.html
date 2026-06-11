@@ -1010,8 +1010,10 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&modal&&!e.shiftKey&&tag!=='BUTTON'){
     e.preventDefault();
     if(modal.type==='product'){
-      const pn=document.getElementById('pname'),pr=document.getElementById('pinr'),ac=document.activeElement;
-      if(ac===pn){if(pr)pr.focus();return;}
+      const pn=document.getElementById('pname'),psn=document.getElementById('psname'),pu=document.getElementById('punit'),pr=document.getElementById('pinr'),ac=document.activeElement;
+      if(ac===pn){if(psn)psn.focus();return;}
+      if(ac===psn){if(pu)pu.focus();return;}
+      if(ac===pu){if(pr)pr.focus();return;}
       saveProd();return;
     }
     if(modal.type==='product-rate'){saveRate();return;}
@@ -1322,8 +1324,10 @@ function _doRender(){
         <div id="hdr-btns" style="display:flex;gap:8px;align-items:center;">
           ${tab==='in'?`<button class="btn btn-or" onclick="openAdd('in')" aria-label="Add Maal Aavyo entry">${IC.plus} Maal Aavyo <span class="kbd" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff;">F2</span></button>`:''}
           ${tab==='out'?`<button class="btn btn-or" onclick="openAdd('out')" aria-label="Add Maal Gayo entry">${IC.plus} Maal Gayo <span class="kbd" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff;">F3</span></button>`:''}
-          ${tab==='products'?`<button class="btn btn-or" onclick="openAdd('product')" aria-label="Add Product">${IC.plus} Product <span class="kbd" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff;">F1</span></button>`:''}
-          ${tab==='report'?`<button class="btn" onclick="printRep('in')" style="background:#0f2218;color:#4ade80;border:1px solid #22c55e55;padding:8px 12px;font-size:12px;" aria-label="Print IN report">${IC.printer} IN</button><button class="btn" onclick="printRep('out')" style="background:#1f0a0a;color:#f87171;border:1px solid #ef444455;padding:8px 12px;font-size:12px;" aria-label="Print OUT report">${IC.printer} OUT</button><button class="btn" onclick="printRep('both')" style="background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb44;padding:8px 12px;font-size:12px;" aria-label="Print Both report">${IC.printer} Both</button>`:''}
+          ${tab==='products'?`<button class="btn btn-or" onclick="openAdd('product')" aria-label="Add Product">${IC.plus} Product <span class="kbd" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff;">F1</span></button>
+          <button class="btn" onclick="document.getElementById('kp-photo-inp').click()" style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);color:#93c5fd;border:1.5px solid #1d4ed844;padding:9px 14px;font-size:13px;" aria-label="Photo thi entry">📷 Photo Entry</button>
+          <input type="file" id="kp-photo-inp" accept="image/*" capture="environment" style="display:none" onchange="kpPhotoEntry(this)">`:''}
+          ${tab==='report'?`<button class="btn" onclick="printRep('in')" style="background:#0f2218;color:#4ade80;border:1px solid #22c55e55;padding:8px 12px;font-size:12px;" aria-label="Print IN report">${IC.printer} IN</button>`:''}  ${tab==='report'?`<button class="btn" onclick="printRep('in')" style="background:#0f2218;color:#4ade80;border:1px solid #22c55e55;padding:8px 12px;font-size:12px;" aria-label="Print IN report">${IC.printer} IN</button><button class="btn" onclick="printRep('out')" style="background:#1f0a0a;color:#f87171;border:1px solid #ef444455;padding:8px 12px;font-size:12px;" aria-label="Print OUT report">${IC.printer} OUT</button><button class="btn" onclick="printRep('both')" style="background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb44;padding:8px 12px;font-size:12px;" aria-label="Print Both report">${IC.printer} Both</button>`:''}
           ${tab==='stock'?`<button class="btn" onclick="printStock()" style="background:#1a1f35;color:#818cf8;border:1px solid #4f46e544;padding:9px 14px;font-size:13px;" aria-label="Print Stock">${IC.printer} Print</button>`:''}
         </div>
       </div>
@@ -2546,6 +2550,8 @@ function prodHTML(stock){
     <thead><tr style="background:var(--surface);border-bottom:2px solid var(--orange)33;">
       <th style="text-align:left;color:var(--muted);">#</th>
       <th style="text-align:left;color:var(--orange);">Product Naam</th>
+      <th style="text-align:left;color:var(--blue);">Short</th>
+      <th style="text-align:left;color:var(--purple);">Unit</th>
       <th style="text-align:right;color:var(--gold);">Rate</th>
       <th style="text-align:right;color:var(--green);">Aavyo</th>
       <th style="text-align:right;color:var(--red);">Gayo</th>
@@ -2560,6 +2566,8 @@ function prodHTML(stock){
       return `<tr class="rr kb-row" tabindex="0" style="background:${pi%2===0?'var(--card)':'var(--surface)'};">
         <td style="color:var(--muted);font-size:12px;">${pi+1}</td>
         <td style="font-size:14px;">${p.name}</td>
+        <td style="font-size:12px;color:var(--blue);font-weight:700;">${p.shortName||'—'}</td>
+        <td style="font-size:12px;color:var(--purple);font-weight:600;">${p.unit||'—'}</td>
         <td style="text-align:right;color:var(--gold);font-weight:600;" class="mn">${inr(p.rate||p.inRate||0)}</td>
         <td style="text-align:right;color:var(--green);font-weight:600;" class="mn">${num(s.inPes)}</td>
         <td style="text-align:right;color:var(--red);font-weight:600;" class="mn">${num(s.outPes)}</td>
@@ -3096,13 +3104,34 @@ function buildModal(){
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div>
             <div id="modal-title" style="font-size:16px;font-weight:900;color:var(--orange);display:flex;align-items:center;gap:6px;">${isRate?IC.edit+' Product Edit':IC.plus+' Navo Product'} <span class="kbd">F1</span></div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Name→Enter→Rate→Enter=Save · Esc=Band</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Name→ShortName→Unit→Rate→Enter=Save · Esc=Band</div>
           </div>
           <button onclick="modal=null;render()" style="background:var(--border);border:1px solid var(--border2);color:var(--muted);cursor:pointer;border-radius:7px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;" aria-label="Close modal">${IC.x}</button>
         </div>
         <div style="margin-bottom:13px;">
-          <label for="pname" style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.package} PRODUCT NAME</label>
+          <label for="pname" style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.package} PRODUCT NAME (Full)</label>
           <input type="text" class="inp" id="pname" placeholder="Product naam..." value="${d.name||''}" style="font-size:15px;" oninput="modal.data.name=this.value" autofocus>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:13px;">
+          <div style="flex:1;">
+            <label for="psname" style="font-size:10px;color:var(--blue);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">✦ SHORT NAME</label>
+            <input type="text" class="inp" id="psname" placeholder="Jema: PB5, TR..." value="${d.shortName||''}" style="font-size:15px;border-color:var(--blue)55;color:var(--blue);" oninput="modal.data.shortName=this.value" autocomplete="off">
+          </div>
+          <div style="flex:1;">
+            <label for="punit" style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">📐 UNIT</label>
+            <select class="inp" id="punit" style="font-size:15px;border-color:var(--purple)55;color:var(--purple);" onchange="modal.data.unit=this.value">
+              <option value="" ${!(d.unit)?'selected':''}>-- Unit --</option>
+              <option value="Pcs" ${d.unit==='Pcs'?'selected':''}>Pcs (નંગ)</option>
+              <option value="Kg" ${d.unit==='Kg'?'selected':''}>Kg (કિલો)</option>
+              <option value="Meter" ${d.unit==='Meter'?'selected':''}>Meter (મીટર)</option>
+              <option value="Roll" ${d.unit==='Roll'?'selected':''}>Roll (રોલ)</option>
+              <option value="Box" ${d.unit==='Box'?'selected':''}>Box (બોક્સ)</option>
+              <option value="Bundle" ${d.unit==='Bundle'?'selected':''}>Bundle (ભારો)</option>
+              <option value="Sheet" ${d.unit==='Sheet'?'selected':''}>Sheet (શીટ)</option>
+              <option value="Bag" ${d.unit==='Bag'?'selected':''}>Bag (થેલો)</option>
+              <option value="Other" ${d.unit==='Other'?'selected':''}>Other (અન્ય)</option>
+            </select>
+          </div>
         </div>
         <div style="margin-bottom:16px;">
           <label for="pinr" style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.rupee} RATE (Rs.)</label>
@@ -3128,6 +3157,7 @@ function buildModal(){
         </div>
         <button onclick="modal=null;render()" style="background:var(--border);border:1px solid var(--border2);color:var(--muted);cursor:pointer;border-radius:7px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;" aria-label="Close modal">${IC.x}</button>
       </div>
+      <button onclick="photoScan()" style="width:100%;margin-bottom:14px;padding:11px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.3px;">📷 Bill Photo Upload → Auto Fill (AI Scan)</button>
       <div style="margin-bottom:11px;">
         <label for="md" style="font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.calendar} TARIKH</label>
         <input type="date" class="inp" id="md" value="${d.date||tod()}" style="font-size:14px;" oninput="modal.data.date=this.value">
@@ -3233,9 +3263,160 @@ function autoRate(productName){
   }
 }
 
+// ─── PHOTO OCR: Tesseract.js (local, no internet needed) ───
+function photoScan(){
+  // Photo upload karo - image dikhe, values side ma type karo
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='image/*';inp.capture='environment';
+  inp.onchange=function(e){
+    const file=e.target.files[0];if(!file)return;
+    const imgUrl=URL.createObjectURL(file);
+    _showPhotoEntryPopup(imgUrl, function(prodVal,pesVal,rateVal){
+      if(prodVal)modal.data.product=prodVal;
+      if(pesVal)modal.data.pes=pesVal;
+      if(rateVal)modal.data.rate=rateVal;
+      // Auto rate from product
+      if(prodVal&&!rateVal){
+        const pNum=parseInt(prodVal);
+        const mp=S.products.find(p=>{
+          const nm=p.name.match(/\d+/g)||[];
+          return nm.includes(String(pNum))||p.name===prodVal;
+        });
+        if(mp&&(mp.inRate||mp.rate))modal.data.rate=String(mp.inRate||mp.rate);
+      }
+      render();
+      const filled=[prodVal&&'Product',pesVal&&'Pes',rateVal&&'Rate'].filter(Boolean);
+      if(filled.length)toast('✅ '+filled.join(', ')+' fill thayu!','#22c55e');
+      setTimeout(()=>{const pf=document.getElementById('prod-num-inp');if(pf){pf.focus();if(pf.select)pf.select();}},80);
+    }, 'in');
+  };
+  inp.click();
+}
+
+// ═══ kpPhotoEntry — Products tab photo scan ═══
+async function kpPhotoEntry(inp){
+  const file=inp.files[0];if(!file)return;
+  inp.value='';
+  const imgUrl=URL.createObjectURL(file);
+  _showPhotoEntryPopup(imgUrl, function(sname,unit,rate){
+    modal={type:'product',mode:'add',data:{name:sname,shortName:sname,unit:unit,rate:rate}};
+    render();
+    toast('📷 Fill thayu! Full name check karo ane Save karo.','#22c55e');
+    setTimeout(()=>{const pn=document.getElementById('pname');if(pn)pn.focus();},80);
+  }, 'product');
+}
+
+// ═══ SHARED PHOTO POPUP ═══
+function _showPhotoEntryPopup(imgUrl, onFill, mode){
+  const isProduct = mode==='product';
+  const overlay=document.createElement('div');
+  overlay.id='kp-photo-overlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.92);display:flex;align-items:stretch;justify-content:center;padding:0;backdrop-filter:blur(4px);';
+
+  const f1 = isProduct
+    ? `<div style="margin-bottom:10px;">
+        <label style="font-size:10px;color:#60a5fa;font-weight:700;display:block;margin-bottom:4px;">✦ SHORT NAME</label>
+        <input id="pp-f1" type="text" placeholder="Ex: 160 WISTERIA PO3 FLOWER" autocomplete="off"
+          style="width:100%;background:#0a0f1e;border:1.5px solid #1d4ed844;border-radius:8px;padding:10px 12px;color:#93c5fd;font-size:13px;outline:none;font-family:inherit;">
+      </div>`
+    : `<div style="margin-bottom:10px;">
+        <label style="font-size:10px;color:#8b9dc3;font-weight:700;display:block;margin-bottom:4px;">📦 PRODUCT NUMBER</label>
+        <input id="pp-f1" type="text" inputmode="numeric" placeholder="Ex: 371" autocomplete="off"
+          style="width:100%;background:#0a0f1e;border:1.5px solid #232f45;border-radius:8px;padding:10px 12px;color:#f1f5f9;font-size:16px;outline:none;font-family:inherit;">
+      </div>`;
+
+  const f2label = isProduct ? '📐 UNIT (Qty)' : '📐 PIECE (QTY)';
+  const f2color = isProduct ? '#a78bfa' : '#f1f5f9';
+  const f2border = isProduct ? '#7c3aed44' : '#232f45';
+
+  overlay.innerHTML=`
+  <div style="display:flex;flex-direction:column;width:100%;max-width:900px;height:100vh;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#080c18;border-bottom:1px solid #1c2333;flex-shrink:0;">
+      <div style="font-size:14px;font-weight:900;color:#f97316;">📷 Photo juo ane values bharvo</div>
+      <button id="pp-close" style="background:#1c2333;border:1px solid #232f45;color:#8b9dc3;border-radius:7px;width:32px;height:32px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+
+    <!-- Body: image left, form right -->
+    <div style="display:flex;flex:1;overflow:hidden;gap:0;">
+
+      <!-- LEFT: Photo -->
+      <div style="flex:1;background:#050810;display:flex;align-items:center;justify-content:center;overflow:auto;padding:12px;min-width:0;">
+        <img src="${imgUrl}" alt="Uploaded photo"
+          style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.6);">
+      </div>
+
+      <!-- RIGHT: Form -->
+      <div style="width:280px;flex-shrink:0;background:#0c1222;border-left:1px solid #1c2333;padding:20px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:0;">
+
+        <div style="font-size:11px;color:#4a5a7a;margin-bottom:14px;">Photo joine values type karo 👇</div>
+
+        ${f1}
+
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <div style="flex:1;">
+            <label style="font-size:10px;color:${f2color};font-weight:700;display:block;margin-bottom:4px;">${f2label}</label>
+            <input id="pp-f2" type="text" inputmode="numeric" placeholder="Ex: 288" autocomplete="off"
+              style="width:100%;background:#0a0f1e;border:1.5px solid ${f2border};border-radius:8px;padding:10px 10px;color:${f2color};font-size:16px;outline:none;font-family:inherit;">
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:10px;color:#fbbf24;font-weight:700;display:block;margin-bottom:4px;">₹ RATE (Rs.)</label>
+            <input id="pp-f3" type="text" inputmode="decimal" placeholder="Ex: 2.00" autocomplete="off"
+              style="width:100%;background:#0a0f1e;border:1.5px solid #fbbf2433;border-radius:8px;padding:10px 10px;color:#fbbf24;font-size:16px;outline:none;font-family:inherit;">
+          </div>
+        </div>
+
+        <button id="pp-save" style="width:100%;padding:13px;background:linear-gradient(135deg,#c2410c,#f97316);color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:900;cursor:pointer;margin-top:4px;">✓ Fill Karo</button>
+
+        <div style="margin-top:12px;background:#080c18;border:1px solid #1c2333;border-radius:8px;padding:10px;">
+          <div style="font-size:10px;color:#6366f1;font-weight:700;margin-bottom:4px;">🤖 AI thi auto-fill:</div>
+          <div style="font-size:10px;color:#4a5a7a;line-height:1.6;">
+            <a href="https://claude.ai" target="_blank" style="color:#a78bfa;">claude.ai</a> par photo upload karo,
+            "Short name, unit ane rate kadho" puchho, copy karo
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Mobile: stack vertically  
+  const mq=window.matchMedia('(max-width:600px)');
+  if(mq.matches){
+    overlay.querySelector('[style*="display:flex;flex:1"]').style.cssText+='flex-direction:column;';
+    overlay.querySelector('[style*="width:280px"]').style.cssText='width:100%;border-left:none;border-top:1px solid #1c2333;padding:16px;background:#0c1222;overflow-y:auto;';
+  }
+
+  setTimeout(()=>{const fi=document.getElementById('pp-f1');if(fi)fi.focus();},80);
+
+  document.getElementById('pp-close').onclick=()=>{URL.revokeObjectURL(imgUrl);overlay.remove();};
+  overlay.addEventListener('click',e=>{if(e.target===overlay){URL.revokeObjectURL(imgUrl);overlay.remove();}});
+
+  document.getElementById('pp-save').onclick=()=>{
+    const v1=document.getElementById('pp-f1').value.trim();
+    const v2=document.getElementById('pp-f2').value.trim();
+    const v3=document.getElementById('pp-f3').value.trim();
+    URL.revokeObjectURL(imgUrl);
+    overlay.remove();
+    onFill(v1,v2,v3);
+  };
+
+  ['pp-f1','pp-f2','pp-f3'].forEach((id,i,arr)=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){e.preventDefault();const nx=document.getElementById(arr[i+1]);if(nx)nx.focus();else document.getElementById('pp-save').click();}
+      if(e.key==='Escape'){URL.revokeObjectURL(imgUrl);overlay.remove();}
+    });
+  });
+}
+
+
 function openAdd(type){
   if(type==='product'){
-    modal={type:'product',mode:'add',data:{name:'',rate:''}};
+    modal={type:'product',mode:'add',data:{name:'',shortName:'',unit:'',rate:''}};
     render();setTimeout(()=>document.getElementById('pname')?.focus(),50);return;
   }
   modal={type,mode:'add',data:{date:tod(),product:'',pes:'',rate:''}};
@@ -3250,7 +3431,7 @@ function openEdit(type,id){
 
 function editProd(idx){
   const p=S.products[idx];
-  modal={type:'product-rate',pidx:idx,data:{name:p.name,rate:p.rate||p.inRate||''}};
+  modal={type:'product-rate',pidx:idx,data:{name:p.name,shortName:p.shortName||'',unit:p.unit||'',rate:p.rate||p.inRate||''}};
   render();setTimeout(()=>document.getElementById('pinr')?.focus(),50);
 }
 
@@ -3359,7 +3540,9 @@ function saveProd(){
   if(!n){toast('Product naam lakhvo!','#f97316');return;}
   if(S.products.find(p=>p.name===n)){toast('Product pahela thi chhe!','#f97316');return;}
   const r=parseFloat(d.rate)||0;
-  S.products.push({name:n,rate:r,inRate:r,outRate:r});
+  const sn=(d.shortName||'').trim();
+  const un=(d.unit||'').trim();
+  S.products.push({name:n,shortName:sn,unit:un,rate:r,inRate:r,outRate:r});
   persist();modal=null;toast('Product + Rate save thayu!');render();
 }
 
@@ -3374,6 +3557,8 @@ function saveRate(){
   if(newName!==oldName && S.products.find((p,i)=>p.name===newName&&i!==idx)){toast('Aa naam pahela thi chhe!','#f97316');return;}
   const r=parseFloat(d.rate)||0;
   S.products[idx].name=newName;
+  S.products[idx].shortName=(d.shortName||'').trim();
+  S.products[idx].unit=(d.unit||'').trim();
   S.products[idx].rate=r;
   S.products[idx].inRate=r;
   S.products[idx].outRate=r;

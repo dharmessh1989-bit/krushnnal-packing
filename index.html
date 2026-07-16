@@ -2586,25 +2586,25 @@ function prodHTML(stock){
 
 // ═══ PRINT FUNCTIONS ═══
 function pHdr(title,pd){
-  return `<div style="border-bottom:3px double #c2410c;padding-bottom:13px;margin-bottom:16px;display:flex;align-items:center;gap:12px;"><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #c2410c;flex-shrink:0;" /><div style="flex:1;text-align:center;">
-    <div style="font-size:15px;font-weight:900;color:#c2410c;letter-spacing:3px;margin-bottom:6px;">॥ ॐ શ્રી ગણેશાય નમઃ ॥</div>
-    <div style="font-size:24px;font-weight:900;color:#000;letter-spacing:.5px;margin-bottom:3px;">KRUSHNNAL PACKING VENDOR</div>
-    <div style="font-size:12px;color:#444;line-height:1.8;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop,<br>Udhana, Surat - 394210 &nbsp;·&nbsp; Mo : 9724589469</div>
+  return `<div style="border-bottom:3px double #c2410c;padding-bottom:13px;margin-bottom:16px;display:flex;align-items:center;gap:12px;page-break-inside:avoid;break-inside:avoid;page-break-after:avoid;"><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #c2410c;flex-shrink:0;" /><div style="flex:1;text-align:center;">
+    <div style="font-size:20px;font-weight:900;color:#c2410c;letter-spacing:3px;margin-bottom:6px;">॥ ॐ શ્રી ગણેશાય નમઃ ॥</div>
+    <div style="font-size:30px;font-weight:900;color:#000;letter-spacing:.5px;margin-bottom:3px;">KRUSHNNAL PACKING VENDOR</div>
+    <div style="font-size:17px;color:#444;line-height:1.8;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop,<br>Udhana, Surat - 394210 &nbsp;·&nbsp; Mo : 9724589469</div>
     <div style="margin-top:8px;display:inline-block;background:#fff3e0;border:1px solid #f97316;border-radius:7px;padding:4px 14px;">
-      <span style="font-size:12px;color:#c2410c;font-weight:700;">${title} &nbsp;·&nbsp; Date : ${pd}</span>
+      <span style="font-size:17px;color:#c2410c;font-weight:700;">${title} &nbsp;·&nbsp; Date : ${pd}</span>
     </div>
   </div><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #c2410c;flex-shrink:0;" /></div>`;
 }
 
 function ptbl(rows,color,bg,type){
-  if(!rows.length)return `<div style="text-align:center;padding:12px;color:#888;border:1px solid #e5e7eb;border-radius:7px;">Koi entry nathi</div>`;
+  if(!rows.length)return `<div style="text-align:center;padding:12px;color:#333;border:1px solid #e5e7eb;border-radius:7px;">Koi entry nathi</div>`;
   const tp=rows.reduce((s,r)=>s+r.pes,0);
   const tdmg=type==='out'?rows.reduce((s,r)=>s+(r.damage||0),0):0;
   const tshrt=type==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
   const tnet=type==='out'?tp-tdmg-tshrt:0;
   const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
-  return `<table style="width:100%;border-collapse:collapse;font-size:11px;">
-    <thead><tr style="background:${color}!important;background-image:linear-gradient(${color},${color})!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;">
+  return `<table style="width:100%;border-collapse:collapse;font-size:16px;">
+    <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
       <th style="padding:7px 8px;text-align:center;width:24px;">#</th>
       <th style="padding:7px 8px;text-align:left;">Tarikh</th>
       <th style="padding:7px 8px;text-align:left;">Product</th>
@@ -2616,25 +2616,34 @@ function ptbl(rows,color,bg,type){
     <tbody>${rows.map((r,i)=>{
       const net=type==='out'?r.pes+(r.damage||0)+(r.short||0):r.pes;
       return `<tr style="background:${i%2===0?'#fff':bg};border-bottom:1px solid #e5e7eb;">
-      <td style="padding:6px 8px;text-align:center;color:#999;font-size:10px;">${i+1}</td>
+      <td style="padding:6px 8px;text-align:center;color:#666;font-size:15px;">${i+1}</td>
       <td style="padding:6px 8px;font-family:'Courier New',monospace;font-weight:600;">${fd(r.date)}</td>
       <td style="padding:6px 8px;font-weight:700;">${r.product}</td>
       <td style="padding:6px 8px;text-align:right;font-weight:800;font-family:'Courier New',monospace;">${num(r.pes)}</td>
       ${type==='out'?`<td style="padding:6px 8px;text-align:right;color:#b45309;font-weight:700;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:6px 8px;text-align:right;color:#7c3aed;font-weight:700;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td><td style="padding:6px 8px;text-align:right;color:#1d4ed8;font-weight:800;font-family:'Courier New',monospace;">${num(net)}</td>`:''}
-      <td style="padding:6px 8px;text-align:right;color:#555;font-family:'Courier New',monospace;">${inr(r.rate)}</td>
+      <td style="padding:6px 8px;text-align:right;color:#333;font-family:'Courier New',monospace;">${inr(r.rate)}</td>
       <td style="padding:6px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
     </tr>`;}).join('')}</tbody>
-    <tfoot><tr style="background:${color}!important;background-image:linear-gradient(${color},${color})!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;">
-      <td colspan="3" style="padding:7px 8px;font-weight:900;font-size:12px;">KUL — ${rows.length}</td>
-      <td style="padding:7px 8px;text-align:right;font-weight:900;font-size:13px;font-family:'Courier New',monospace;">${num(tp)}</td>
-      ${type==='out'?`<td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-size:13px;font-family:'Courier New',monospace;">${num(tp+tdmg+tshrt)}</td>`:''}
+    <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+      <td colspan="3" style="padding:7px 8px;font-weight:900;font-size:17px;">KUL — ${rows.length}</td>
+      <td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${num(tp)}</td>
+      ${type==='out'?`<td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${num(tp+tdmg+tshrt)}</td>`:''}
       <td></td>
-      <td style="padding:7px 8px;text-align:right;font-weight:900;font-size:13px;font-family:'Courier New',monospace;">${inr(ta)}</td>
+      <td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${inr(ta)}</td>
     </tr></tfoot>
   </table>`;
 }
 
 // ═══ MOBILE-SAFE PRINT ═══
+// 2nd page thi aagad darek page na UPAR 1cm (10mm) khali jagya guarantee kare chhe.
+// Aa "repeating table header" trick chhe — browser print dialog ma "Margins: None"
+// select karo to pan @page CSS ignore thay jay, pan aa real content hoi etle kadi cut nathi thatu.
+function wrapPrintTop(html){
+  return `<table style="width:100%;border-collapse:collapse;">`+
+    `<thead><tr><td style="height:10mm;padding:0;margin:0;border:0;line-height:0;font-size:0;">&nbsp;</td></tr></thead>`+
+    `<tbody><tr><td style="padding:0;margin:0;border:0;">`+html+`</td></tr></tbody>`+
+  `</table>`;
+}
 function mobilePrint(htmlContent){
   try{
     let iframe=document.getElementById('_printFrame');
@@ -2675,13 +2684,13 @@ function printRep(type){
   let body='';
   if(type==='in'||type==='both'){
     body+=`<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:13px;">
-      <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:#f0fdf4;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-        <div><div style="font-size:10px;color:#15803d;font-weight:800;margin-bottom:3px;">MAAL AAVYO TOTAL</div>
-          <div><span style="font-size:10px;color:#555;">Piece: </span><span style="font-size:18px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(tiP)}</span></div></div>
-        <div style="text-align:right;"><div style="font-size:10px;color:#555;">Amount</div><div style="font-size:16px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(tiA)}</div><div style="font-size:10px;color:#888;">${inR.length} entries</div></div>
+      <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:#fff;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div><div style="font-size:15px;color:#15803d;font-weight:800;margin-bottom:3px;">MAAL AAVYO TOTAL</div>
+          <div><span style="font-size:15px;color:#333;">Piece: </span><span style="font-size:23px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(tiP)}</span></div></div>
+        <div style="text-align:right;"><div style="font-size:15px;color:#333;">Amount</div><div style="font-size:21px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(tiA)}</div><div style="font-size:15px;color:#333;">${inR.length} entries</div></div>
       </div>
     </div>
-    <div style="font-size:12px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — Detail</div>
+    <div style="font-size:17px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — Detail</div>
     <div style="margin-bottom:15px;">${ptbl(inR,'#15803d','#f0fdf4','in')}</div>`;
   }
   if(type==='both'){body+=`<div style="height:8px;"></div>`;}
@@ -2690,38 +2699,38 @@ function printRep(type){
     const toShrt=outR.reduce((s,r)=>s+(r.short||0),0);
     const toNet=toP-toDmg-toShrt;
     body+=`<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:13px;">
-      <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:#fef2f2;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+      <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div><div style="font-size:10px;color:#b91c1c;font-weight:800;margin-bottom:3px;">MAAL GAYO TOTAL</div>
-            <div><span style="font-size:10px;color:#555;">Piece: </span><span style="font-size:18px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(toP)}</span></div></div>
-          <div style="text-align:right;"><div style="font-size:10px;color:#555;">Amount</div><div style="font-size:16px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${inr(toA)}</div><div style="font-size:10px;color:#888;">${outR.length} entries</div></div>
+          <div><div style="font-size:15px;color:#b91c1c;font-weight:800;margin-bottom:3px;">MAAL GAYO TOTAL</div>
+            <div><span style="font-size:15px;color:#333;">Piece: </span><span style="font-size:23px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(toP)}</span></div></div>
+          <div style="text-align:right;"><div style="font-size:15px;color:#333;">Amount</div><div style="font-size:21px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${inr(toA)}</div><div style="font-size:15px;color:#333;">${outR.length} entries</div></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;border-top:1px solid #fca5a5;padding-top:8px;">
-          <div style="background:#fff8e1;border:1px solid #f59e0b;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-            <div style="font-size:9px;color:#b45309;font-weight:800;margin-bottom:2px;">⚠️ DAMAGE</div>
-            <div style="font-size:16px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
+          <div style="background:#fff;border:1px solid #f59e0b;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+            <div style="font-size:14px;color:#b45309;font-weight:800;margin-bottom:2px;">⚠️ DAMAGE</div>
+            <div style="font-size:21px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
           </div>
-          <div style="background:#f5f3ff;border:1px solid #7c3aed;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-            <div style="font-size:9px;color:#7c3aed;font-weight:800;margin-bottom:2px;">📉 SHORT</div>
-            <div style="font-size:16px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
+          <div style="background:#fff;border:1px solid #7c3aed;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+            <div style="font-size:14px;color:#7c3aed;font-weight:800;margin-bottom:2px;">📉 SHORT</div>
+            <div style="font-size:21px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
           </div>
-          <div style="background:#eff6ff;border:1px solid #2563eb;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-            <div style="font-size:9px;color:#1d4ed8;font-weight:800;margin-bottom:2px;">✅ NET PIECE</div>
-            <div style="font-size:16px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(toNet)}</div>
+          <div style="background:#fff;border:1px solid #2563eb;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+            <div style="font-size:14px;color:#1d4ed8;font-weight:800;margin-bottom:2px;">✅ NET PIECE</div>
+            <div style="font-size:21px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(toNet)}</div>
           </div>
         </div>
       </div>
     </div>
-    <div style="font-size:12px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — Detail</div>
+    <div style="font-size:17px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — Detail</div>
     <div style="margin-bottom:15px;">${ptbl(outR,'#b91c1c','#fef2f2','out')}</div>`;
   }
   document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:#fff;">
     ${pHdr(title,pd)}
     ${body}
-    <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:8px;">
-      <div style="font-size:11px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
-      <div style="font-size:9px;color:#bbb;margin-top:1px;">Print Date: ${pd}</div>
+    <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:8px;page-break-inside:avoid;break-inside:avoid;">
+      <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
+      <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
     </div>
   </div>`;
   // Navi window ma print karo - dark CSS load nahi thay
@@ -2730,15 +2739,17 @@ function printRep(type){
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}
 table{width:100%;border-collapse:collapse;}
-@page{margin:8mm;size:A4;}
+@page{margin:10mm 8mm;size:A4;}
 @media print{
   body{background:#fff!important;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   thead{display:table-header-group!important;}
   tfoot{display:table-row-group!important;}
-  tfoot tr{page-break-inside:avoid!important;}
+  tr,td,th{page-break-inside:avoid!important;break-inside:avoid-page!important;}
+  .pbox{page-break-inside:avoid!important;break-inside:avoid-page!important;}
+  table{page-break-inside:auto;}
 }
-</style></head><body>` + document.getElementById('pa').innerHTML + `</body></html>`;
+</style></head><body>` + wrapPrintTop(document.getElementById('pa').innerHTML) + `</body></html>`;
   mobilePrint(printHTML);
   document.getElementById('pa').style.display='none';
 }
@@ -2751,24 +2762,24 @@ function printStock(){
   document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:#fff;">
     ${pHdr('📦 STOCK REGISTER',pd)}
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-      <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:#f0fdf4;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-        <div style="font-size:10px;color:#15803d;font-weight:800;margin-bottom:3px;">KUL AAVYO</div>
-        <div style="font-size:20px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(ti)} pcs</div>
-        <div style="font-size:13px;font-weight:700;color:#16a34a;font-family:'Courier New',monospace;">${inr(tiA)}</div>
+      <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:#fff;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:15px;color:#15803d;font-weight:800;margin-bottom:3px;">KUL AAVYO</div>
+        <div style="font-size:26px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(ti)} pcs</div>
+        <div style="font-size:17px;font-weight:700;color:#16a34a;font-family:'Courier New',monospace;">${inr(tiA)}</div>
       </div>
-      <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:#fef2f2;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-        <div style="font-size:10px;color:#b91c1c;font-weight:800;margin-bottom:3px;">KUL GAYO</div>
-        <div style="font-size:20px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(to)} pcs</div>
-        <div style="font-size:13px;font-weight:700;color:#dc2626;font-family:'Courier New',monospace;">${inr(toA)}</div>
+      <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:#fff;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:15px;color:#b91c1c;font-weight:800;margin-bottom:3px;">KUL GAYO</div>
+        <div style="font-size:26px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(to)} pcs</div>
+        <div style="font-size:17px;font-weight:700;color:#dc2626;font-family:'Courier New',monospace;">${inr(toA)}</div>
       </div>
-      <div style="border:2px solid #2563eb;border-radius:8px;padding:11px 14px;background:#eff6ff;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-        <div style="font-size:10px;color:#1d4ed8;font-weight:800;margin-bottom:3px;">KUL BALANCE</div>
-        <div style="font-size:20px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(tb)} pcs</div>
-        <div style="font-size:13px;font-weight:700;color:#2563eb;font-family:'Courier New',monospace;">${stock.length} products</div>
+      <div style="border:2px solid #2563eb;border-radius:8px;padding:11px 14px;background:#fff;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:15px;color:#1d4ed8;font-weight:800;margin-bottom:3px;">KUL BALANCE</div>
+        <div style="font-size:26px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(tb)} pcs</div>
+        <div style="font-size:17px;font-weight:700;color:#2563eb;font-family:'Courier New',monospace;">${stock.length} products</div>
       </div>
     </div>
-    <table style="width:100%;border-collapse:collapse;font-size:12px;">
-      <thead><tr style="background:#4c1d95!important;background-image:linear-gradient(#4c1d95,#4c1d95)!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;">
+    <table style="width:100%;border-collapse:collapse;font-size:17px;">
+      <thead><tr style="background:#fff!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;">
         <th style="padding:9px 11px;text-align:center;width:30px;">#</th>
         <th style="padding:9px 11px;text-align:left;">Product</th>
         <th style="padding:9px 11px;text-align:right;">Aavyo(Pcs)</th>
@@ -2779,29 +2790,29 @@ function printStock(){
         <th style="padding:9px 11px;text-align:center;">Status</th>
       </tr></thead>
       <tbody>${stock.map((r,i)=>`<tr style="background:${i%2===0?'#fff':'#f5f3ff'};border-bottom:1px solid #e5e7eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-        <td style="padding:8px 11px;text-align:center;color:#999;font-size:11px;">${i+1}</td>
+        <td style="padding:8px 11px;text-align:center;color:#666;font-size:16px;">${i+1}</td>
         <td style="padding:8px 11px;font-weight:700;">${r.product}</td>
         <td style="padding:8px 11px;text-align:right;font-weight:700;color:#15803d;font-family:'Courier New',monospace;">${num(r.inPes)}</td>
         <td style="padding:8px 11px;text-align:right;color:#16a34a;font-family:'Courier New',monospace;">${inr(r.inAmt)}</td>
         <td style="padding:8px 11px;text-align:right;font-weight:700;color:#b91c1c;font-family:'Courier New',monospace;">${num(r.outPes)}</td>
         <td style="padding:8px 11px;text-align:right;color:#dc2626;font-family:'Courier New',monospace;">${inr(r.outAmt)}</td>
-        <td style="padding:8px 11px;text-align:right;font-weight:900;font-family:'Courier New',monospace;font-size:14px;color:${r.balPes>100?'#15803d':r.balPes>0?'#b45309':'#b91c1c'};">${num(r.balPes)}</td>
-        <td style="padding:8px 11px;text-align:center;"><span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${r.balPes>100?'#dcfce7':r.balPes>0?'#fef9c3':'#fee2e2'};color:${r.balPes>100?'#15803d':r.balPes>0?'#854d0e':'#b91c1c'};-webkit-print-color-adjust:exact;print-color-adjust:exact;">${r.balPes>100?'OK':r.balPes>0?'Aacho':'Khatam'}</span></td>
+        <td style="padding:8px 11px;text-align:right;font-weight:900;font-family:'Courier New',monospace;font-size:19px;color:${r.balPes>100?'#15803d':r.balPes>0?'#b45309':'#b91c1c'};">${num(r.balPes)}</td>
+        <td style="padding:8px 11px;text-align:center;"><span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:16px;font-weight:700;background:${r.balPes>100?'#dcfce7':r.balPes>0?'#fef9c3':'#fee2e2'};color:${r.balPes>100?'#15803d':r.balPes>0?'#854d0e':'#b91c1c'};-webkit-print-color-adjust:exact;print-color-adjust:exact;">${r.balPes>100?'OK':r.balPes>0?'Aacho':'Khatam'}</span></td>
       </tr>`).join('')}</tbody>
-      <tfoot><tr style="background:#4c1d95!important;background-image:linear-gradient(#4c1d95,#4c1d95)!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;font-weight:900!important;">
-        <td colspan="2" style="padding:9px 11px;font-size:13px;">KUL TOTAL</td>
-        <td style="padding:9px 11px;text-align:right;font-size:14px;font-family:'Courier New',monospace;">${num(ti)}</td>
+      <tfoot><tr style="background:#fff!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;font-weight:900!important;">
+        <td colspan="2" style="padding:9px 11px;font-size:17px;">KUL TOTAL</td>
+        <td style="padding:9px 11px;text-align:right;font-size:19px;font-family:'Courier New',monospace;">${num(ti)}</td>
         <td style="padding:9px 11px;text-align:right;font-family:'Courier New',monospace;">${inr(tiA)}</td>
-        <td style="padding:9px 11px;text-align:right;font-size:14px;font-family:'Courier New',monospace;">${num(to)}</td>
+        <td style="padding:9px 11px;text-align:right;font-size:19px;font-family:'Courier New',monospace;">${num(to)}</td>
         <td style="padding:9px 11px;text-align:right;font-family:'Courier New',monospace;">${inr(toA)}</td>
-        <td style="padding:9px 11px;text-align:right;font-size:15px;font-family:'Courier New',monospace;">${num(tb)}</td>
+        <td style="padding:9px 11px;text-align:right;font-size:20px;font-family:'Courier New',monospace;">${num(tb)}</td>
         <td></td>
       </tr></tfoot>
     </table>
-    <div style="border-top:2px solid #6d28d9;padding-top:9px;text-align:center;margin-top:12px;">
-      <div style="font-size:11px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
-      <div style="font-size:9px;color:#bbb;margin-top:1px;">Stock Print Date: ${pd}</div>
+    <div style="border-top:2px solid #6d28d9;padding-top:9px;text-align:center;margin-top:12px;page-break-inside:avoid;break-inside:avoid;">
+      <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
+      <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:14px;color:#333;margin-top:1px;">Stock Print Date: ${pd}</div>
     </div>
   </div>`;
   const printHTML2 = `<!DOCTYPE html><html><head><meta charset="UTF-8">
@@ -2809,15 +2820,17 @@ function printStock(){
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}
 table{width:100%;border-collapse:collapse;}
-@page{margin:8mm;size:A4;}
+@page{margin:10mm 8mm;size:A4;}
 @media print{
   body{background:#fff!important;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   thead{display:table-header-group!important;}
   tfoot{display:table-row-group!important;}
-  tfoot tr{page-break-inside:avoid!important;}
+  tr,td,th{page-break-inside:avoid!important;break-inside:avoid-page!important;}
+  .pbox{page-break-inside:avoid!important;break-inside:avoid-page!important;}
+  table{page-break-inside:auto;}
 }
-</style></head><body>` + document.getElementById('pa').innerHTML + `</body></html>`;
+</style></head><body>` + wrapPrintTop(document.getElementById('pa').innerHTML) + `</body></html>`;
   mobilePrint(printHTML2);
   document.getElementById('pa').style.display='none';
 }
@@ -2841,26 +2854,26 @@ function printSearch(){
 
     // Helper: mini table for IN or OUT rows
     function miniTbl(rows,color,bg,type){
-      if(!rows.length) return `<div style="color:#888;font-size:10px;padding:6px 0;font-style:italic;">Koi entry nathi</div>`;
+      if(!rows.length) return `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#888;font-size:15px;font-style:italic;padding:10px 0;min-height:40px;">Koi entry nathi</div>`;
       const tp=rows.reduce((s,r)=>s+r.pes,0);
       const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
       const tdmg=type==='out'?rows.reduce((s,r)=>s+(r.damage||0),0):0;
       const tshrt=type==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
-      return `<table style="width:100%;border-collapse:collapse;font-size:9px;">
-        <thead><tr style="background:${color}!important;background-image:linear-gradient(${color},${color})!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;">
+      return `<table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
           <th style="padding:4px 5px;text-align:left;">Tarikh</th>
           <th style="padding:4px 5px;text-align:right;">Pcs</th>
           ${type==='out'?`<th style="padding:4px 4px;text-align:right;">Dmg</th><th style="padding:4px 4px;text-align:right;">Shrt</th>`:''}
           <th style="padding:4px 5px;text-align:right;">Amount</th>
         </tr></thead>
         <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'#fff':bg};border-bottom:1px solid #e5e7eb;">
-          <td style="padding:3px 5px;font-family:'Courier New',monospace;font-size:8.5px;">${fd(r.date)}</td>
+          <td style="padding:3px 5px;font-family:'Courier New',monospace;font-size:14px;">${fd(r.date)}</td>
           <td style="padding:3px 5px;text-align:right;font-weight:700;font-family:'Courier New',monospace;">${num(r.pes)}</td>
           ${type==='out'?`<td style="padding:3px 4px;text-align:right;color:#b45309;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:3px 4px;text-align:right;color:#7c3aed;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td>`:''}
           <td style="padding:3px 5px;text-align:right;font-weight:700;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
         </tr>`).join('')}</tbody>
-        <tfoot><tr style="background:${color}!important;background-image:linear-gradient(${color},${color})!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;">
-          <td style="padding:4px 5px;font-weight:900;font-size:9px;">KUL — ${rows.length}</td>
+        <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+          <td style="padding:4px 5px;font-weight:900;font-size:14px;">KUL — ${rows.length}</td>
           <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tp)}</td>
           ${type==='out'?`<td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td>`:''}
           <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(ta)}</td>
@@ -2871,17 +2884,17 @@ function printSearch(){
     const bodyHTML=`
     <!-- Grand Summary -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-      <div style="border:2px solid #16a34a;border-radius:7px;padding:9px 13px;background:#f0fdf4;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-        <div><div style="font-size:9px;color:#15803d;font-weight:800;margin-bottom:2px;">📥 MAAL AAVYO TOTAL</div>
-          <div style="font-size:17px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(totIn)} pcs</div></div>
-        <div style="text-align:right;"><div style="font-size:9px;color:#555;">Amount</div>
-          <div style="font-size:14px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(totInAmt)}</div></div>
+      <div style="border:2px solid #16a34a;border-radius:7px;padding:9px 13px;background:#fff;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div><div style="font-size:14px;color:#15803d;font-weight:800;margin-bottom:2px;">📥 MAAL AAVYO TOTAL</div>
+          <div style="font-size:22px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(totIn)} pcs</div></div>
+        <div style="text-align:right;"><div style="font-size:14px;color:#333;">Amount</div>
+          <div style="font-size:19px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(totInAmt)}</div></div>
       </div>
-      <div style="border:2px solid #dc2626;border-radius:7px;padding:9px 13px;background:#fef2f2;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-        <div><div style="font-size:9px;color:#b91c1c;font-weight:800;margin-bottom:2px;">📤 MAAL GAYO TOTAL</div>
-          <div style="font-size:17px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(totOut)} pcs</div></div>
-        <div style="text-align:right;"><div style="font-size:9px;color:#555;">Amount</div>
-          <div style="font-size:14px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${inr(totOutAmt)}</div></div>
+      <div style="border:2px solid #dc2626;border-radius:7px;padding:9px 13px;background:#fff;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div><div style="font-size:14px;color:#b91c1c;font-weight:800;margin-bottom:2px;">📤 MAAL GAYO TOTAL</div>
+          <div style="font-size:22px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(totOut)} pcs</div></div>
+        <div style="text-align:right;"><div style="font-size:14px;color:#333;">Amount</div>
+          <div style="font-size:19px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${inr(totOutAmt)}</div></div>
       </div>
     </div>
 
@@ -2895,24 +2908,24 @@ function printSearch(){
       const outAmt=pOut.reduce((s,r)=>s+r.pes*r.rate,0);
       const bal=inPes-outPes;
       return `
-      <div style="margin-bottom:10px;page-break-inside:avoid;border:1.5px solid #e5e7eb;border-radius:7px;overflow:hidden;">
+      <div style="margin-bottom:5px;page-break-inside:avoid;break-inside:avoid-page;border:1.5px solid #e5e7eb;border-radius:7px;">
         <!-- Product header -->
-        <div style="background:#1e1b4b!important;background-image:linear-gradient(#1e1b4b,#1e1b4b)!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:11px;font-weight:900;">${i+1}. ${pname}</div>
-          <div style="display:flex;gap:14px;font-size:9px;font-family:'Courier New',monospace;">
-            <span style="color:#bbf7d0;">IN: ${num(inPes)} pcs · ${inr(inAmt)}</span>
-            <span style="color:#fecaca;">OUT: ${num(outPes)} pcs · ${inr(outAmt)}</span>
-            <span style="color:${bal>0?'#93c5fd':bal===0?'#fcd34d':'#fca5a5'};font-weight:900;">BAL: ${num(bal)}</span>
+        <div style="background:#fff!important;border-top:2px solid #1e1b4b;border-bottom:2px solid #1e1b4b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#1e1b4b;padding:4px 10px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:16px;font-weight:900;">${i+1}. ${pname}</div>
+          <div style="display:flex;gap:14px;font-size:14px;font-family:'Courier New',monospace;">
+            <span style="color:#15803d;">IN: ${num(inPes)} pcs · ${inr(inAmt)}</span>
+            <span style="color:#b91c1c;">OUT: ${num(outPes)} pcs · ${inr(outAmt)}</span>
+            <span style="color:${bal>0?'#1d4ed8':bal===0?'#b45309':'#b91c1c'};font-weight:900;">BAL: ${num(bal)}</span>
           </div>
         </div>
         <!-- Side-by-side tables -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;">
-          <div style="border-right:1px solid #e5e7eb;padding:6px 8px;">
-            <div style="font-size:9px;font-weight:800;color:#15803d;margin-bottom:4px;">📥 Maal Aavyo — ${pIn.length} entries</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:stretch;">
+          <div style="border-right:1px solid #e5e7eb;padding:4px 8px;display:flex;flex-direction:column;">
+            <div style="font-size:14px;font-weight:800;color:#15803d;margin-bottom:4px;">📥 Maal Aavyo — ${pIn.length} entries</div>
             ${miniTbl(pIn,'#15803d','#f0fdf4','in')}
           </div>
-          <div style="padding:6px 8px;">
-            <div style="font-size:9px;font-weight:800;color:#b91c1c;margin-bottom:4px;">📤 Maal Gayo — ${pOut.length} entries</div>
+          <div style="padding:4px 8px;display:flex;flex-direction:column;">
+            <div style="font-size:14px;font-weight:800;color:#b91c1c;margin-bottom:4px;">📤 Maal Gayo — ${pOut.length} entries</div>
             ${miniTbl(pOut,'#b91c1c','#fef2f2','out')}
           </div>
         </div>
@@ -2920,12 +2933,12 @@ function printSearch(){
     }).join('')}`;
     document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:#fff;">
       ${pHdr(title,pd)}${bodyHTML}
-      <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:10px;">
-        <div style="font-size:11px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-        <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
-        <div style="font-size:9px;color:#bbb;margin-top:1px;">Print Date: ${pd}</div>
+      <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:10px;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
+        <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+        <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
       </div></div>`;
-    const ph=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}table{width:100%;border-collapse:collapse;}@page{margin:7mm;size:A4 portrait;}@media print{body{background:#fff!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}thead{display:table-header-group!important;}tfoot{display:table-row-group!important;}tfoot tr{page-break-inside:avoid!important;}}</style></head><body>`+document.getElementById('pa').innerHTML+`</body></html>`;
+    const ph=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}table{width:100%;border-collapse:collapse;}@page{margin:10mm 8mm;size:A4 portrait;}@media print{body{background:#fff!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}thead{display:table-header-group!important;}tfoot{display:table-row-group!important;}tr,td,th{page-break-inside:avoid!important;break-inside:avoid-page!important;}.pbox{page-break-inside:avoid!important;break-inside:avoid-page!important;}table{page-break-inside:auto;}}</style></head><body>`+wrapPrintTop(document.getElementById('pa').innerHTML)+`</body></html>`;
     mobilePrint(ph);
     document.getElementById('pa').style.display='none';
     return;
@@ -2966,13 +2979,13 @@ function printSearch(){
 
   // Print table function (inline)
   function mkTbl(rows,color,bg,type){
-    if(!rows.length) return `<div style="text-align:center;padding:14px;color:#888;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;">Koi entry nathi</div>`;
+    if(!rows.length) return `<div style="flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:#888;border:1px solid #e5e7eb;border-radius:7px;font-size:17px;font-style:italic;min-height:60px;">Koi entry nathi</div>`;
     const tp=rows.reduce((s,r)=>s+r.pes,0);
     const tdmg=type==='out'?rows.reduce((s,r)=>s+(r.damage||0),0):0;
     const tshrt=type==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
     const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
-    return `<table style="width:100%;border-collapse:collapse;font-size:9.5px;">
-      <thead><tr style="background:${color}!important;background-image:linear-gradient(${color},${color})!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;">
+    return `<table style="width:100%;border-collapse:collapse;font-size:15px;">
+      <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
         <th style="padding:5px 5px;text-align:center;width:18px;">#</th>
         <th style="padding:5px 5px;text-align:left;">Tarikh</th>
         <th style="padding:5px 5px;text-align:left;">Product</th>
@@ -2982,20 +2995,20 @@ function printSearch(){
         <th style="padding:5px 5px;text-align:right;">Amount</th>
       </tr></thead>
       <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'#fff':bg};border-bottom:1px solid #e5e7eb;">
-        <td style="padding:4px 5px;text-align:center;color:#999;font-size:9px;">${i+1}</td>
-        <td style="padding:4px 5px;font-family:'Courier New',monospace;font-weight:600;font-size:9px;">${fd(r.date)}</td>
-        <td style="padding:4px 5px;font-weight:700;font-size:9.5px;">${r.product}</td>
+        <td style="padding:4px 5px;text-align:center;color:#666;font-size:14px;">${i+1}</td>
+        <td style="padding:4px 5px;font-family:'Courier New',monospace;font-weight:600;font-size:14px;">${fd(r.date)}</td>
+        <td style="padding:4px 5px;font-weight:700;font-size:15px;">${r.product}</td>
         <td style="padding:4px 5px;text-align:right;font-weight:800;font-family:'Courier New',monospace;">${num(r.pes)}</td>
         ${type==='out'?`<td style="padding:4px 4px;text-align:right;color:#b45309;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:4px 4px;text-align:right;color:#7c3aed;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td>`:''}
-        <td style="padding:4px 5px;text-align:right;color:#555;font-family:'Courier New',monospace;">${inr(r.rate)}</td>
+        <td style="padding:4px 5px;text-align:right;color:#333;font-family:'Courier New',monospace;">${inr(r.rate)}</td>
         <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
       </tr>`).join('')}</tbody>
-      <tfoot><tr style="background:${color}!important;background-image:linear-gradient(${color},${color})!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;">
-        <td colspan="3" style="padding:5px 5px;font-weight:900;font-size:10px;">KUL — ${rows.length}</td>
+      <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+        <td colspan="3" style="padding:5px 5px;font-weight:900;font-size:15px;">KUL — ${rows.length}</td>
         <td style="padding:5px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tp)}</td>
         ${type==='out'?`<td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td>`:''}
         <td></td>
-        <td style="padding:5px 5px;text-align:right;font-weight:900;font-size:10px;font-family:'Courier New',monospace;">${inr(ta)}</td>
+        <td style="padding:5px 5px;text-align:right;font-weight:900;font-size:15px;font-family:'Courier New',monospace;">${inr(ta)}</td>
       </tr></tfoot>
     </table>`;
   }
@@ -3003,41 +3016,41 @@ function printSearch(){
   // Summary row (side-by-side)
   const summaryRow=`
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-    <div style="border:2px solid #16a34a;border-radius:8px;padding:10px 14px;background:#f0fdf4;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+    <div style="border:2px solid #16a34a;border-radius:8px;padding:10px 14px;background:#fff;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
       <div>
-        <div style="font-size:10px;color:#15803d;font-weight:800;margin-bottom:2px;">📥 MAAL AAVYO TOTAL</div>
-        <div style="font-size:18px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(tiP)} pcs</div>
+        <div style="font-size:15px;color:#15803d;font-weight:800;margin-bottom:2px;">📥 MAAL AAVYO TOTAL</div>
+        <div style="font-size:23px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(tiP)} pcs</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:10px;color:#555;">Amount</div>
-        <div style="font-size:15px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(tiA)}</div>
-        <div style="font-size:10px;color:#888;">${inR.length} entries</div>
+        <div style="font-size:15px;color:#333;">Amount</div>
+        <div style="font-size:20px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(tiA)}</div>
+        <div style="font-size:15px;color:#333;">${inR.length} entries</div>
       </div>
     </div>
-    <div style="border:2px solid #dc2626;border-radius:8px;padding:10px 14px;background:#fef2f2;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+    <div style="border:2px solid #dc2626;border-radius:8px;padding:10px 14px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <div>
-          <div style="font-size:10px;color:#b91c1c;font-weight:800;margin-bottom:2px;">📤 MAAL GAYO TOTAL</div>
-          <div style="font-size:18px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(toP)} pcs</div>
+          <div style="font-size:15px;color:#b91c1c;font-weight:800;margin-bottom:2px;">📤 MAAL GAYO TOTAL</div>
+          <div style="font-size:23px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(toP)} pcs</div>
         </div>
         <div style="text-align:right;">
-          <div style="font-size:10px;color:#555;">Amount</div>
-          <div style="font-size:15px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${inr(toA)}</div>
-          <div style="font-size:10px;color:#888;">${outR.length} entries</div>
+          <div style="font-size:15px;color:#333;">Amount</div>
+          <div style="font-size:20px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${inr(toA)}</div>
+          <div style="font-size:15px;color:#333;">${outR.length} entries</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;border-top:1px solid #fca5a5;padding-top:5px;">
-        <div style="background:#fff8e1;border:1px solid #f59e0b;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-          <div style="font-size:9px;color:#b45309;font-weight:800;">⚠️ DMG</div>
-          <div style="font-size:13px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
+        <div style="background:#fff;border:1px solid #f59e0b;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+          <div style="font-size:14px;color:#b45309;font-weight:800;">⚠️ DMG</div>
+          <div style="font-size:17px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
         </div>
-        <div style="background:#f5f3ff;border:1px solid #7c3aed;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-          <div style="font-size:9px;color:#7c3aed;font-weight:800;">📉 SHRT</div>
-          <div style="font-size:13px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
+        <div style="background:#fff;border:1px solid #7c3aed;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+          <div style="font-size:14px;color:#7c3aed;font-weight:800;">📉 SHRT</div>
+          <div style="font-size:17px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
         </div>
-        <div style="background:#eff6ff;border:1px solid #2563eb;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-          <div style="font-size:9px;color:#1d4ed8;font-weight:800;">✅ NET</div>
-          <div style="font-size:13px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(toNet)}</div>
+        <div style="background:#fff;border:1px solid #2563eb;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+          <div style="font-size:14px;color:#1d4ed8;font-weight:800;">✅ NET</div>
+          <div style="font-size:17px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(toNet)}</div>
         </div>
       </div>
     </div>
@@ -3045,13 +3058,13 @@ function printSearch(){
 
   // Side-by-side table layout
   const bothTablesBody=`
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-    <div>
-      <div style="font-size:12px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — ${inR.length} entries</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch;">
+    <div style="display:flex;flex-direction:column;">
+      <div style="font-size:17px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — ${inR.length} entries</div>
       ${mkTbl(inR,'#15803d','#f0fdf4','in')}
     </div>
-    <div>
-      <div style="font-size:12px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — ${outR.length} entries</div>
+    <div style="display:flex;flex-direction:column;">
+      <div style="font-size:17px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — ${outR.length} entries</div>
       ${mkTbl(outR,'#b91c1c','#fef2f2','out')}
     </div>
   </div>`;
@@ -3061,27 +3074,29 @@ function printSearch(){
   document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:900px;margin:0 auto;background:#fff;">
     ${pHdr(title,pd)}
     ${bodyHTML}
-    <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:10px;">
-      <div style="font-size:11px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:10px;color:#777;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
-      <div style="font-size:9px;color:#bbb;margin-top:1px;">Print Date: ${pd}</div>
+    <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:10px;page-break-inside:avoid;break-inside:avoid;">
+      <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
+      <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
     </div>
   </div>`;
 
   const printHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;font-size:10px;}
+body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;font-size:15px;}
 table{width:100%;border-collapse:collapse;}
-@page{margin:6mm;size:A4 portrait;}
+@page{margin:10mm 8mm;size:A4 portrait;}
 @media print{
   body{background:#fff!important;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   thead{display:table-header-group!important;}
   tfoot{display:table-row-group!important;}
-  tfoot tr{page-break-inside:avoid!important;}
+  tr,td,th{page-break-inside:avoid!important;break-inside:avoid-page!important;}
+  .pbox{page-break-inside:avoid!important;break-inside:avoid-page!important;}
+  table{page-break-inside:auto;}
 }
-</style></head><body>`+document.getElementById('pa').innerHTML+`</body></html>`;
+</style></head><body>`+wrapPrintTop(document.getElementById('pa').innerHTML)+`</body></html>`;
 
   mobilePrint(printHTML);
   document.getElementById('pa').style.display='none';

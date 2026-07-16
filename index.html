@@ -874,9 +874,9 @@ function stk(){
     const inPes=inR.reduce((s,r)=>s+r.pes,0);
     const inAmt=inR.reduce((s,r)=>s+r.pes*r.rate,0);
     // OUT pieces = pes+damage+short
-    const outPes=outR.reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0),0);
+    const outPes=outR.reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0),0);
     // OUT amount = (pes+damage+short)*rate - stock ma thi badha pieces kadhi naakhvo
-    const outAmt=outR.reduce((s,r)=>s+(r.pes+(r.damage||0)+(r.short||0))*r.rate,0);
+    const outAmt=outR.reduce((s,r)=>s+(r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0))*r.rate,0);
     const balPes=inPes-outPes;
     // Stock value = inAmt - outAmt (outAmt includes damage+short)
     const balAmt=inAmt-outAmt;
@@ -1022,6 +1022,7 @@ document.addEventListener('keydown',e=>{
     const mraEl=document.getElementById('mra');
     const mdmgEl=document.getElementById('mdmg');
     const mshrtEl=document.getElementById('mshrt');
+    const mfreshEl=document.getElementById('mfresh');
     if(ac===mdEl){if(mpEl)mpEl.focus();return;}
     if(ac===mpEl||tag==='SELECT'){if(mpeEl)mpeEl.focus();return;}
     if(ac===mpeEl){
@@ -1030,7 +1031,8 @@ document.addEventListener('keydown',e=>{
       saveM();return;
     }
     if(ac===mdmgEl){if(mshrtEl)mshrtEl.focus();return;}
-    if(ac===mshrtEl){saveM();return;}
+    if(ac===mshrtEl){if(mfreshEl){mfreshEl.focus();return;}saveM();return;}
+    if(ac===mfreshEl){saveM();return;}
     if(ac===mraEl){saveM();return;}
     saveM();return;
   }
@@ -1040,7 +1042,7 @@ document.addEventListener('keydown',e=>{
     e.preventDefault();
     const ac=document.activeElement;
     const fwd=modal.type==='out'
-      ?['md','prod-num-inp','mpe','mdmg','mshrt']
+      ?['md','prod-num-inp','mpe','mdmg','mshrt','mfresh']
       :['md','prod-num-inp','mpe','mra'];
     const seq=e.shiftKey?[...fwd].reverse():fwd;
     const cur=fwd.indexOf(ac?.id);
@@ -1508,7 +1510,7 @@ function dashHTML(stock){
   const toA=S.outData.reduce((s,r)=>s+r.pes*r.rate,0);
   const tiP=S.inData.reduce((s,r)=>s+r.pes,0);
   // Pieces: pes+damage+short = total out pieces
-  const toP=S.outData.reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0),0);
+  const toP=S.outData.reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0),0);
   // Stock balance: stk() correct use karo (damage+short include)
   const totalBalPcs=stock.reduce((s,r)=>s+r.balPes,0);
   const totalBalAmt=stock.reduce((s,r)=>s+r.balAmt,0);
@@ -1518,7 +1520,7 @@ function dashHTML(stock){
   const mIn=S.inData.filter(r=>r.date.startsWith(mk)).reduce((s,r)=>s+r.pes*r.rate,0);
   const mOut=S.outData.filter(r=>r.date.startsWith(mk)).reduce((s,r)=>s+r.pes*r.rate,0);
   const mInP=S.inData.filter(r=>r.date.startsWith(mk)).reduce((s,r)=>s+r.pes,0);
-  const mOutP=S.outData.filter(r=>r.date.startsWith(mk)).reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0),0);
+  const mOutP=S.outData.filter(r=>r.date.startsWith(mk)).reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0),0);
   const mInCnt=S.inData.filter(r=>r.date.startsWith(mk)).length;
   const mOutCnt=S.outData.filter(r=>r.date.startsWith(mk)).length;
   // Prev/Next month helpers
@@ -1711,6 +1713,8 @@ function showProdHistory(pname){
             <th style="padding:6px 8px;text-align:left;color:#f87171;">Tarikh</th>
             <th style="padding:6px 8px;text-align:right;color:#f87171;">Piece</th>
             <th style="padding:6px 8px;text-align:right;color:#fbbf24;">Damage</th>
+            <th style="padding:6px 8px;text-align:right;color:#a78bfa;">Short</th>
+            <th style="padding:6px 8px;text-align:right;color:#34d399;">Fresh</th>
             <th style="padding:6px 8px;text-align:right;color:#f87171;">Amount</th>
           </tr></thead>
           <tbody>${outRows.map((r,i)=>`<tr style="border-bottom:1px solid #1c2333;">
@@ -1718,6 +1722,8 @@ function showProdHistory(pname){
             <td style="padding:5px 8px;color:#a8b8d8;">${fd(r.date)}</td>
             <td style="padding:5px 8px;text-align:right;color:#f87171;font-weight:700;">${num(r.pes)}</td>
             <td style="padding:5px 8px;text-align:right;color:#fbbf24;">${(r.damage||0)>0?num(r.damage):'-'}</td>
+            <td style="padding:5px 8px;text-align:right;color:#a78bfa;">${(r.short||0)>0?num(r.short):'-'}</td>
+            <td style="padding:5px 8px;text-align:right;color:#34d399;">${(r.fresh||0)>0?num(r.fresh):'-'}</td>
             <td style="padding:5px 8px;text-align:right;color:#f87171;font-weight:800;">${inr(r.pes*r.rate)}</td>
           </tr>`).join('')}</tbody>
         </table>`:'<div style="text-align:center;padding:20px;color:#8b9dc3;">કોઈ entry નથી</div>'}
@@ -1752,7 +1758,8 @@ function tbl(rows,type){
   const tp=s.reduce((x,r)=>x+r.pes,0);
   const tdmg=type==='out'?s.reduce((x,r)=>x+(r.damage||0),0):0;
   const tshrt=type==='out'?s.reduce((x,r)=>x+(r.short||0),0):0;
-  const tnet=type==='out'?tp-tdmg-tshrt:0;
+  const tfresh=type==='out'?s.reduce((x,r)=>x+(r.fresh||0),0):0;
+  const tnet=type==='out'?tp-tdmg-tshrt-tfresh:0;
   const ta=type==='out'?s.reduce((x,r)=>x+r.pes*r.rate,0):s.reduce((x,r)=>x+r.pes*r.rate,0);
   return `<table>
     <thead><tr style="background:${c}15;border-bottom:2px solid ${c}40;">
@@ -1760,20 +1767,20 @@ function tbl(rows,type){
       <th style="text-align:left;color:${c};">Tarikh</th>
       <th style="text-align:left;color:${c};">Product</th>
       <th style="text-align:right;color:${c};">Piece</th>
-      ${type==='out'?`<th style="text-align:right;color:var(--gold);">Damage</th><th style="text-align:right;color:var(--purple);">Short</th><th style="text-align:right;color:var(--blue);">Total</th>`:''}
+      ${type==='out'?`<th style="text-align:right;color:var(--gold);">Damage</th><th style="text-align:right;color:var(--purple);">Short</th><th style="text-align:right;color:var(--green);">Fresh</th><th style="text-align:right;color:var(--blue);">Total</th>`:''}
       <th style="text-align:right;color:${c};">Rate</th>
       <th style="text-align:right;color:${c};">Amount</th>
       <th></th><th></th>
     </tr></thead>
     <tbody>${s.map((r,i)=>{
-      const net=type==='out'?r.pes+(r.damage||0)+(r.short||0):r.pes;
+      const net=type==='out'?r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0):r.pes;
       const amt=r.pes*r.rate;
       return `<tr class="rr sr-row kb-row" tabindex="0" style="background:${i%2===0?'var(--card)':'var(--surface)'};">
       <td style="color:var(--muted);font-size:11px;">${i+1}</td>
       <td style="color:var(--muted2);font-size:12px;" class="mn">${fd(r.date)}</td>
       <td style="font-weight:700;font-size:13px;">${r.product}</td>
       <td style="text-align:right;color:${c};font-weight:700;font-size:13px;" class="mn">${num(r.pes)}</td>
-      ${type==='out'?`<td style="text-align:right;color:var(--gold);font-weight:600;font-size:12px;" class="mn">${(r.damage||0)>0?'⚠️ '+num(r.damage):'-'}</td><td style="text-align:right;color:var(--purple);font-weight:600;font-size:12px;" class="mn">${(r.short||0)>0?'📉 '+num(r.short):'-'}</td><td style="text-align:right;color:var(--blue);font-weight:700;font-size:12px;" class="mn">${num(net)}</td>`:''}
+      ${type==='out'?`<td style="text-align:right;color:var(--gold);font-weight:600;font-size:12px;" class="mn">${(r.damage||0)>0?'⚠️ '+num(r.damage):'-'}</td><td style="text-align:right;color:var(--purple);font-weight:600;font-size:12px;" class="mn">${(r.short||0)>0?'📉 '+num(r.short):'-'}</td><td style="text-align:right;color:var(--green);font-weight:600;font-size:12px;" class="mn">${(r.fresh||0)>0?'🍃 '+num(r.fresh):'-'}</td><td style="text-align:right;color:var(--blue);font-weight:700;font-size:12px;" class="mn">${num(net)}</td>`:''}
       <td style="text-align:right;color:var(--muted2);font-size:12px;" class="mn">${inr(r.rate)}</td>
       <td style="text-align:right;font-weight:800;color:${c};font-size:13px;" class="mn">${inr(amt)}</td>
       <td style="padding:6px 4px;"><button class="bsm" onclick="openEdit('${type}',${r.id})" style="background:#1d4ed818;border:1px solid #1d4ed844;color:#60a5fa;" aria-label="Edit entry ${r.product}">${IC.edit}</button></td>
@@ -1782,7 +1789,7 @@ function tbl(rows,type){
     <tfoot><tr style="background:${c}15;border-top:2px solid ${c}40;">
       <td colspan="3" style="padding:10px 12px;font-weight:900;color:${c};font-size:13px;">KUL — ${s.length}</td>
       <td style="text-align:right;font-weight:900;color:${c};font-size:14px;padding:10px 12px;" class="mn">${num(tp)}</td>
-      ${type==='out'?`<td style="text-align:right;font-weight:900;color:var(--gold);font-size:13px;padding:10px 12px;" class="mn">${num(tdmg)}</td><td style="text-align:right;font-weight:900;color:var(--purple);font-size:13px;padding:10px 12px;" class="mn">${num(tshrt)}</td><td style="text-align:right;font-weight:900;color:var(--blue);font-size:14px;padding:10px 12px;" class="mn">${num(tp+tdmg+tshrt)}</td>`:''}
+      ${type==='out'?`<td style="text-align:right;font-weight:900;color:var(--gold);font-size:13px;padding:10px 12px;" class="mn">${num(tdmg)}</td><td style="text-align:right;font-weight:900;color:var(--purple);font-size:13px;padding:10px 12px;" class="mn">${num(tshrt)}</td><td style="text-align:right;font-weight:900;color:var(--green);font-size:13px;padding:10px 12px;" class="mn">${num(tfresh)}</td><td style="text-align:right;font-weight:900;color:var(--blue);font-size:14px;padding:10px 12px;" class="mn">${num(tp+tdmg+tshrt+tfresh)}</td>`:''}
       <td></td>
       <td style="text-align:right;font-weight:900;color:${c};font-size:14px;padding:10px 12px;" class="mn">${inr(ta)}</td>
       <td colspan="2"></td>
@@ -1989,31 +1996,32 @@ function repDtbl(rows,type){
   const tp=rows.reduce((s,r)=>s+r.pes,0);
   const tdmg=type==='out'?rows.reduce((s,r)=>s+(r.damage||0),0):0;
   const tshrt=type==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
+  const tfresh=type==='out'?rows.reduce((s,r)=>s+(r.fresh||0),0):0;
   const ta=type==='out'?rows.reduce((s,r)=>s+r.pes*r.rate,0):rows.reduce((s,r)=>s+r.pes*r.rate,0);
   return `<div class="card"><table>
     <thead><tr style="background:${c}22;border-bottom:2px solid ${c}50;">
       <th style="text-align:left;color:${c};">#</th><th style="text-align:left;color:${c};">Tarikh</th>
       <th style="text-align:left;color:${c};">Product</th>
       <th style="text-align:right;color:${c};">Piece</th>
-      ${type==='out'?`<th style="text-align:right;color:#fbbf24;">Damage</th><th style="text-align:right;color:#a78bfa;">Short</th><th style="text-align:right;color:#60a5fa;">Total</th>`:''}
+      ${type==='out'?`<th style="text-align:right;color:#fbbf24;">Damage</th><th style="text-align:right;color:#a78bfa;">Short</th><th style="text-align:right;color:#34d399;">Fresh</th><th style="text-align:right;color:#60a5fa;">Total</th>`:''}
       <th style="text-align:right;color:${c};">Rate</th><th style="text-align:right;color:${c};">Amount</th>
     </tr></thead>
     <tbody>${rows.map((r,i)=>{
-      const net=type==='out'?r.pes+(r.damage||0)+(r.short||0):r.pes;
+      const net=type==='out'?r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0):r.pes;
       const amt=r.pes*r.rate;
       return `<tr class="rr sr-row kb-row" tabindex="0" style="background:${i%2===0?'var(--card)':'var(--surface)'};">
       <td style="color:var(--muted);font-size:11px;">${i+1}</td>
       <td style="color:var(--muted2);font-size:12px;" class="mn">${fd(r.date)}</td>
       <td style="font-weight:700;font-size:13px;">${r.product}</td>
       <td style="text-align:right;font-weight:800;color:${c};font-size:13px;" class="mn">${num(r.pes)}</td>
-      ${type==='out'?`<td style="text-align:right;color:#fbbf24;font-size:12px;" class="mn">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="text-align:right;color:#a78bfa;font-size:12px;" class="mn">${(r.short||0)>0?num(r.short):'-'}</td><td style="text-align:right;color:#60a5fa;font-weight:700;font-size:12px;" class="mn">${num(net)}</td>`:''}
+      ${type==='out'?`<td style="text-align:right;color:#fbbf24;font-size:12px;" class="mn">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="text-align:right;color:#a78bfa;font-size:12px;" class="mn">${(r.short||0)>0?num(r.short):'-'}</td><td style="text-align:right;color:#34d399;font-size:12px;" class="mn">${(r.fresh||0)>0?num(r.fresh):'-'}</td><td style="text-align:right;color:#60a5fa;font-weight:700;font-size:12px;" class="mn">${num(net)}</td>`:''}
       <td style="text-align:right;color:var(--muted2);font-size:12px;" class="mn">${inr(r.rate)}</td>
       <td style="text-align:right;font-weight:900;color:${c};font-size:13px;" class="mn">${inr(amt)}</td>
     </tr>`;}).join('')}</tbody>
     <tfoot><tr style="background:${c}20;border-top:2px solid ${c}50;">
       <td colspan="3" style="padding:9px 12px;font-weight:900;color:${c};font-size:13px;">KUL — ${rows.length}</td>
       <td style="text-align:right;font-weight:900;color:${c};padding:9px 12px;font-size:13px;" class="mn">${num(tp)}</td>
-      ${type==='out'?`<td style="text-align:right;font-weight:900;color:#fbbf24;padding:9px 12px;" class="mn">${num(tdmg)}</td><td style="text-align:right;font-weight:900;color:#a78bfa;padding:9px 12px;" class="mn">${num(tshrt)}</td><td style="text-align:right;font-weight:900;color:#60a5fa;padding:9px 12px;" class="mn">${num(tp+tdmg+tshrt)}</td>`:''}
+      ${type==='out'?`<td style="text-align:right;font-weight:900;color:#fbbf24;padding:9px 12px;" class="mn">${num(tdmg)}</td><td style="text-align:right;font-weight:900;color:#a78bfa;padding:9px 12px;" class="mn">${num(tshrt)}</td><td style="text-align:right;font-weight:900;color:#34d399;padding:9px 12px;" class="mn">${num(tfresh)}</td><td style="text-align:right;font-weight:900;color:#60a5fa;padding:9px 12px;" class="mn">${num(tp+tdmg+tshrt+tfresh)}</td>`:''}
       <td></td>
       <td style="text-align:right;font-weight:900;color:${c};padding:9px 12px;font-size:13px;" class="mn">${inr(ta)}</td>
     </tfoot>
@@ -2189,7 +2197,8 @@ function reportHTML(){
   const toP=outR.reduce((s,r)=>s+r.pes,0),toA=outR.reduce((s,r)=>s+r.pes*r.rate,0);
   const toDmg=outR.reduce((s,r)=>s+(r.damage||0),0);
   const toShrt=outR.reduce((s,r)=>s+(r.short||0),0);
-  const toNet=toP-toDmg-toShrt;
+  const toFresh=outR.reduce((s,r)=>s+(r.fresh||0),0);
+  const toNet=toP-toDmg-toShrt-toFresh;
   return `
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px;">
     <div>
@@ -2206,7 +2215,7 @@ function reportHTML(){
           <div><div style="font-size:10px;color:var(--red);font-weight:700;margin-bottom:1px;display:flex;align-items:center;gap:4px;">${IC.outbox} MAAL GAYO — ${outR.length} entries</div><div style="font-size:20px;font-weight:900;color:var(--red);" class="mn">${num(toP)} pcs</div></div>
           <div style="font-size:16px;font-weight:900;color:var(--red);" class="mn">${inr(toA)}</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;">
           <div style="background:#fbbf2415;border:1px solid #fbbf2433;border-radius:7px;padding:6px 9px;text-align:center;">
             <div style="font-size:9px;color:var(--gold);font-weight:700;margin-bottom:2px;">⚠️ DAMAGE</div>
             <div style="font-size:15px;font-weight:900;color:var(--gold);" class="mn">${num(toDmg)}</div>
@@ -2214,6 +2223,10 @@ function reportHTML(){
           <div style="background:#a78bfa15;border:1px solid #a78bfa33;border-radius:7px;padding:6px 9px;text-align:center;">
             <div style="font-size:9px;color:var(--purple);font-weight:700;margin-bottom:2px;">📉 SHORT</div>
             <div style="font-size:15px;font-weight:900;color:var(--purple);" class="mn">${num(toShrt)}</div>
+          </div>
+          <div style="background:#34d39915;border:1px solid #34d39933;border-radius:7px;padding:6px 9px;text-align:center;">
+            <div style="font-size:9px;color:var(--green);font-weight:700;margin-bottom:2px;">🍃 FRESH</div>
+            <div style="font-size:15px;font-weight:900;color:var(--green);" class="mn">${num(toFresh)}</div>
           </div>
           <div style="background:#60a5fa15;border:1px solid #60a5fa33;border-radius:7px;padding:6px 9px;text-align:center;">
             <div style="font-size:9px;color:var(--blue);font-weight:700;margin-bottom:2px;">✅ NET</div>
@@ -2279,7 +2292,7 @@ function searchHTML(stock){
     sR=stock.filter(r=>matchProd(r.product)).map(r=>{
       if(!srchMonth) return r;
       const inPes=inPool.filter(x=>x.product===r.product).reduce((s,x)=>s+x.pes,0);
-      const outPes=outPool.filter(x=>x.product===r.product).reduce((s,x)=>s+x.pes+(x.damage||0)+(x.short||0),0);
+      const outPes=outPool.filter(x=>x.product===r.product).reduce((s,x)=>s+x.pes+(x.damage||0)+(x.short||0)+(x.fresh||0),0);
       const inAmt=inPool.filter(x=>x.product===r.product).reduce((s,x)=>s+x.pes*x.rate,0);
       const outAmt=outPool.filter(x=>x.product===r.product).reduce((s,x)=>s+x.pes*x.rate,0);
       return {...r,inPes,outPes,balPes:inPes-outPes,inAmt,outAmt};
@@ -2476,6 +2489,7 @@ function searchHTML(stock){
                   <th style="text-align:right;padding:4px 6px;color:var(--muted);font-size:10px;font-weight:700;">Pcs</th>
                   <th style="text-align:right;padding:4px 6px;color:var(--muted);font-size:10px;font-weight:700;">Dmg</th>
                   <th style="text-align:right;padding:4px 6px;color:var(--muted);font-size:10px;font-weight:700;">Shrt</th>
+                  <th style="text-align:right;padding:4px 6px;color:var(--muted);font-size:10px;font-weight:700;">Fresh</th>
                   <th style="text-align:right;padding:4px 6px;color:var(--muted);font-size:10px;font-weight:700;">Amt</th>
                 </tr></thead>
                 <tbody>${pOut.map((r,ri)=>`<tr style="border-bottom:1px solid var(--border)22;background:${ri%2===0?'':'rgba(255,255,255,0.02)'};">
@@ -2483,12 +2497,13 @@ function searchHTML(stock){
                   <td style="padding:5px 6px;text-align:right;color:var(--red);font-weight:700;" class="mn">${num(r.pes)}</td>
                   <td style="padding:5px 6px;text-align:right;color:var(--gold);font-size:11px;" class="mn">${(r.damage||0)>0?num(r.damage):'—'}</td>
                   <td style="padding:5px 6px;text-align:right;color:var(--purple);font-size:11px;" class="mn">${(r.short||0)>0?num(r.short):'—'}</td>
+                  <td style="padding:5px 6px;text-align:right;color:var(--green);font-size:11px;" class="mn">${(r.fresh||0)>0?num(r.fresh):'—'}</td>
                   <td style="padding:5px 6px;text-align:right;color:var(--red);font-weight:700;" class="mn">${inr(r.pes*r.rate)}</td>
                 </tr>`).join('')}</tbody>
                 <tfoot><tr style="border-top:1.5px solid var(--red)44;">
                   <td style="padding:5px 6px;font-weight:800;color:var(--red);font-size:11px;">KUL</td>
                   <td style="padding:5px 6px;text-align:right;font-weight:900;color:var(--red);" class="mn">${num(outPes)}</td>
-                  <td colspan="2"></td>
+                  <td colspan="3"></td>
                   <td style="padding:5px 6px;text-align:right;font-weight:900;color:var(--red);" class="mn">${inr(outAmt)}</td>
                 </tr></tfoot>
               </table>`:`<div style="color:var(--muted);font-size:12px;padding:8px 0;">Koi entry nathi</div>`}
@@ -2601,7 +2616,8 @@ function ptbl(rows,color,bg,type){
   const tp=rows.reduce((s,r)=>s+r.pes,0);
   const tdmg=type==='out'?rows.reduce((s,r)=>s+(r.damage||0),0):0;
   const tshrt=type==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
-  const tnet=type==='out'?tp-tdmg-tshrt:0;
+  const tfresh=type==='out'?rows.reduce((s,r)=>s+(r.fresh||0),0):0;
+  const tnet=type==='out'?tp-tdmg-tshrt-tfresh:0;
   const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
   return `<table style="width:100%;border-collapse:collapse;font-size:16px;">
     <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
@@ -2609,25 +2625,25 @@ function ptbl(rows,color,bg,type){
       <th style="padding:7px 8px;text-align:left;">Tarikh</th>
       <th style="padding:7px 8px;text-align:left;">Product</th>
       <th style="padding:7px 8px;text-align:right;">Piece</th>
-      ${type==='out'?`<th style="padding:7px 8px;text-align:right;">Damage</th><th style="padding:7px 8px;text-align:right;">Short</th><th style="padding:7px 8px;text-align:right;">Total</th>`:''}
+      ${type==='out'?`<th style="padding:7px 8px;text-align:right;">Damage</th><th style="padding:7px 8px;text-align:right;">Short</th><th style="padding:7px 8px;text-align:right;">Fresh</th><th style="padding:7px 8px;text-align:right;">Total</th>`:''}
       <th style="padding:7px 8px;text-align:right;">Rate(Rs.)</th>
       <th style="padding:7px 8px;text-align:right;">Amount(Rs.)</th>
     </tr></thead>
     <tbody>${rows.map((r,i)=>{
-      const net=type==='out'?r.pes+(r.damage||0)+(r.short||0):r.pes;
+      const net=type==='out'?r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0):r.pes;
       return `<tr style="background:${i%2===0?'#fff':bg};border-bottom:1px solid #e5e7eb;">
       <td style="padding:6px 8px;text-align:center;color:#666;font-size:15px;">${i+1}</td>
       <td style="padding:6px 8px;font-family:'Courier New',monospace;font-weight:600;">${fd(r.date)}</td>
       <td style="padding:6px 8px;font-weight:700;">${r.product}</td>
       <td style="padding:6px 8px;text-align:right;font-weight:800;font-family:'Courier New',monospace;">${num(r.pes)}</td>
-      ${type==='out'?`<td style="padding:6px 8px;text-align:right;color:#b45309;font-weight:700;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:6px 8px;text-align:right;color:#7c3aed;font-weight:700;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td><td style="padding:6px 8px;text-align:right;color:#1d4ed8;font-weight:800;font-family:'Courier New',monospace;">${num(net)}</td>`:''}
+      ${type==='out'?`<td style="padding:6px 8px;text-align:right;color:#b45309;font-weight:700;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:6px 8px;text-align:right;color:#7c3aed;font-weight:700;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td><td style="padding:6px 8px;text-align:right;color:#059669;font-weight:700;font-family:'Courier New',monospace;">${(r.fresh||0)>0?num(r.fresh):'-'}</td><td style="padding:6px 8px;text-align:right;color:#1d4ed8;font-weight:800;font-family:'Courier New',monospace;">${num(net)}</td>`:''}
       <td style="padding:6px 8px;text-align:right;color:#333;font-family:'Courier New',monospace;">${inr(r.rate)}</td>
       <td style="padding:6px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
     </tr>`;}).join('')}</tbody>
     <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
       <td colspan="3" style="padding:7px 8px;font-weight:900;font-size:17px;">KUL — ${rows.length}</td>
       <td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${num(tp)}</td>
-      ${type==='out'?`<td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${num(tp+tdmg+tshrt)}</td>`:''}
+      ${type==='out'?`<td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tfresh)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${num(tp+tdmg+tshrt+tfresh)}</td>`:''}
       <td></td>
       <td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${inr(ta)}</td>
     </tr></tfoot>
@@ -2697,7 +2713,8 @@ function printRep(type){
   if(type==='out'||type==='both'){
     const toDmg=outR.reduce((s,r)=>s+(r.damage||0),0);
     const toShrt=outR.reduce((s,r)=>s+(r.short||0),0);
-    const toNet=toP-toDmg-toShrt;
+    const toFresh=outR.reduce((s,r)=>s+(r.fresh||0),0);
+    const toNet=toP-toDmg-toShrt-toFresh;
     body+=`<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:13px;">
       <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -2705,7 +2722,7 @@ function printRep(type){
             <div><span style="font-size:15px;color:#333;">Piece: </span><span style="font-size:23px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(toP)}</span></div></div>
           <div style="text-align:right;"><div style="font-size:15px;color:#333;">Amount</div><div style="font-size:21px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${inr(toA)}</div><div style="font-size:15px;color:#333;">${outR.length} entries</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;border-top:1px solid #fca5a5;padding-top:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;border-top:1px solid #fca5a5;padding-top:8px;">
           <div style="background:#fff;border:1px solid #f59e0b;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
             <div style="font-size:14px;color:#b45309;font-weight:800;margin-bottom:2px;">⚠️ DAMAGE</div>
             <div style="font-size:21px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
@@ -2713,6 +2730,10 @@ function printRep(type){
           <div style="background:#fff;border:1px solid #7c3aed;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
             <div style="font-size:14px;color:#7c3aed;font-weight:800;margin-bottom:2px;">📉 SHORT</div>
             <div style="font-size:21px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
+          </div>
+          <div style="background:#fff;border:1px solid #059669;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+            <div style="font-size:14px;color:#059669;font-weight:800;margin-bottom:2px;">🍃 FRESH</div>
+            <div style="font-size:21px;font-weight:900;color:#059669;font-family:'Courier New',monospace;">${num(toFresh)}</div>
           </div>
           <div style="background:#fff;border:1px solid #2563eb;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
             <div style="font-size:14px;color:#1d4ed8;font-weight:800;margin-bottom:2px;">✅ NET PIECE</div>
@@ -2859,23 +2880,24 @@ function printSearch(){
       const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
       const tdmg=type==='out'?rows.reduce((s,r)=>s+(r.damage||0),0):0;
       const tshrt=type==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
+      const tfresh=type==='out'?rows.reduce((s,r)=>s+(r.fresh||0),0):0;
       return `<table style="width:100%;border-collapse:collapse;font-size:14px;">
         <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
           <th style="padding:4px 5px;text-align:left;">Tarikh</th>
           <th style="padding:4px 5px;text-align:right;">Pcs</th>
-          ${type==='out'?`<th style="padding:4px 4px;text-align:right;">Dmg</th><th style="padding:4px 4px;text-align:right;">Shrt</th>`:''}
+          ${type==='out'?`<th style="padding:4px 4px;text-align:right;">Dmg</th><th style="padding:4px 4px;text-align:right;">Shrt</th><th style="padding:4px 4px;text-align:right;">Fresh</th>`:''}
           <th style="padding:4px 5px;text-align:right;">Amount</th>
         </tr></thead>
         <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'#fff':bg};border-bottom:1px solid #e5e7eb;">
           <td style="padding:3px 5px;font-family:'Courier New',monospace;font-size:14px;">${fd(r.date)}</td>
           <td style="padding:3px 5px;text-align:right;font-weight:700;font-family:'Courier New',monospace;">${num(r.pes)}</td>
-          ${type==='out'?`<td style="padding:3px 4px;text-align:right;color:#b45309;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:3px 4px;text-align:right;color:#7c3aed;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td>`:''}
+          ${type==='out'?`<td style="padding:3px 4px;text-align:right;color:#b45309;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:3px 4px;text-align:right;color:#7c3aed;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td><td style="padding:3px 4px;text-align:right;color:#059669;font-family:'Courier New',monospace;">${(r.fresh||0)>0?num(r.fresh):'-'}</td>`:''}
           <td style="padding:3px 5px;text-align:right;font-weight:700;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
         </tr>`).join('')}</tbody>
         <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
           <td style="padding:4px 5px;font-weight:900;font-size:14px;">KUL — ${rows.length}</td>
           <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tp)}</td>
-          ${type==='out'?`<td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td>`:''}
+          ${type==='out'?`<td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tfresh)}</td>`:''}
           <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(ta)}</td>
         </tr></tfoot>
       </table>`;
@@ -2968,7 +2990,8 @@ function printSearch(){
   const toA=outR.reduce((s,r)=>s+r.pes*r.rate,0);
   const toDmg=outR.reduce((s,r)=>s+(r.damage||0),0);
   const toShrt=outR.reduce((s,r)=>s+(r.short||0),0);
-  const toNet=toP-toDmg-toShrt;
+  const toFresh=outR.reduce((s,r)=>s+(r.fresh||0),0);
+  const toNet=toP-toDmg-toShrt-toFresh;
 
   // Title banavo
   let filterLabel='';
@@ -2983,6 +3006,7 @@ function printSearch(){
     const tp=rows.reduce((s,r)=>s+r.pes,0);
     const tdmg=type==='out'?rows.reduce((s,r)=>s+(r.damage||0),0):0;
     const tshrt=type==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
+    const tfresh=type==='out'?rows.reduce((s,r)=>s+(r.fresh||0),0):0;
     const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
     return `<table style="width:100%;border-collapse:collapse;font-size:15px;">
       <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
@@ -2990,7 +3014,7 @@ function printSearch(){
         <th style="padding:5px 5px;text-align:left;">Tarikh</th>
         <th style="padding:5px 5px;text-align:left;">Product</th>
         <th style="padding:5px 5px;text-align:right;">Pcs</th>
-        ${type==='out'?`<th style="padding:5px 4px;text-align:right;">Dmg</th><th style="padding:5px 4px;text-align:right;">Shrt</th>`:''}
+        ${type==='out'?`<th style="padding:5px 4px;text-align:right;">Dmg</th><th style="padding:5px 4px;text-align:right;">Shrt</th><th style="padding:5px 4px;text-align:right;">Fresh</th>`:''}
         <th style="padding:5px 5px;text-align:right;">Rate</th>
         <th style="padding:5px 5px;text-align:right;">Amount</th>
       </tr></thead>
@@ -2999,14 +3023,14 @@ function printSearch(){
         <td style="padding:4px 5px;font-family:'Courier New',monospace;font-weight:600;font-size:14px;">${fd(r.date)}</td>
         <td style="padding:4px 5px;font-weight:700;font-size:15px;">${r.product}</td>
         <td style="padding:4px 5px;text-align:right;font-weight:800;font-family:'Courier New',monospace;">${num(r.pes)}</td>
-        ${type==='out'?`<td style="padding:4px 4px;text-align:right;color:#b45309;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:4px 4px;text-align:right;color:#7c3aed;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td>`:''}
+        ${type==='out'?`<td style="padding:4px 4px;text-align:right;color:#b45309;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:4px 4px;text-align:right;color:#7c3aed;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td><td style="padding:4px 4px;text-align:right;color:#059669;font-family:'Courier New',monospace;">${(r.fresh||0)>0?num(r.fresh):'-'}</td>`:''}
         <td style="padding:4px 5px;text-align:right;color:#333;font-family:'Courier New',monospace;">${inr(r.rate)}</td>
         <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
       </tr>`).join('')}</tbody>
       <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
         <td colspan="3" style="padding:5px 5px;font-weight:900;font-size:15px;">KUL — ${rows.length}</td>
         <td style="padding:5px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tp)}</td>
-        ${type==='out'?`<td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td>`:''}
+        ${type==='out'?`<td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tfresh)}</td>`:''}
         <td></td>
         <td style="padding:5px 5px;text-align:right;font-weight:900;font-size:15px;font-family:'Courier New',monospace;">${inr(ta)}</td>
       </tr></tfoot>
@@ -3039,7 +3063,7 @@ function printSearch(){
           <div style="font-size:15px;color:#333;">${outR.length} entries</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;border-top:1px solid #fca5a5;padding-top:5px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;border-top:1px solid #fca5a5;padding-top:5px;">
         <div style="background:#fff;border:1px solid #f59e0b;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
           <div style="font-size:14px;color:#b45309;font-weight:800;">⚠️ DMG</div>
           <div style="font-size:17px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
@@ -3047,6 +3071,10 @@ function printSearch(){
         <div style="background:#fff;border:1px solid #7c3aed;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
           <div style="font-size:14px;color:#7c3aed;font-weight:800;">📉 SHRT</div>
           <div style="font-size:17px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
+        </div>
+        <div style="background:#fff;border:1px solid #059669;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+          <div style="font-size:14px;color:#059669;font-weight:800;">🍃 FRESH</div>
+          <div style="font-size:17px;font-weight:900;color:#059669;font-family:'Courier New',monospace;">${num(toFresh)}</div>
         </div>
         <div style="background:#fff;border:1px solid #2563eb;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
           <div style="font-size:14px;color:#1d4ed8;font-weight:800;">✅ NET</div>
@@ -3172,7 +3200,7 @@ function buildModal(){
         </div>
       </div>
       ${type==='out'?`
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:10px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:10px;">
         <div>
           <label for="mdmg" style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:4px;display:block;">⚠️ DAMAGE (Piece)</label>
           <input type="text" class="inp" inputmode="numeric" pattern="[0-9]*" id="mdmg" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="0" min="0" value="${d.damage||0}" style="font-size:15px;font-weight:700;border-color:#fbbf2466;" oninput="modal.data.damage=this.value;updNet()">
@@ -3181,14 +3209,18 @@ function buildModal(){
           <label for="mshrt" style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:4px;display:block;">📉 SHORT (Piece)</label>
           <input type="text" class="inp" inputmode="numeric" pattern="[0-9]*" id="mshrt" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="0" min="0" value="${d.short||0}" style="font-size:15px;font-weight:700;border-color:#a78bfa66;" oninput="modal.data.short=this.value;updNet()">
         </div>
+        <div>
+          <label for="mfresh" style="font-size:10px;color:var(--green);font-weight:700;margin-bottom:4px;display:block;">🍃 FRESH (Piece)</label>
+          <input type="text" class="inp" inputmode="numeric" pattern="[0-9]*" id="mfresh" autocorrect="off" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="0" min="0" value="${d.fresh||0}" style="font-size:15px;font-weight:700;border-color:#34d39966;" oninput="modal.data.fresh=this.value;updNet()">
+        </div>
       </div>
       <div style="background:#0d1a2e;border:1.5px solid var(--blue)44;border-radius:9px;padding:9px 14px;margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="color:var(--muted);font-size:12px;font-weight:600;">Stock mathi Ochhu Thase (Piece + Damage + Short)</span>
-          <span id="mnet" style="color:var(--blue);font-weight:900;font-size:18px;" class="mn">${num((Number(d.pes)||0)+(Number(d.damage)||0)-(Number(d.short)||0))}</span>
+          <span style="color:var(--muted);font-size:12px;font-weight:600;">Stock mathi Ochhu Thase (Piece + Damage + Short + Fresh)</span>
+          <span id="mnet" style="color:var(--blue);font-weight:900;font-size:18px;" class="mn">${num((Number(d.pes)||0)+(Number(d.damage)||0)+(Number(d.short)||0)+(Number(d.fresh)||0))}</span>
         </div>
         <div style="margin-top:5px;font-size:11px;color:var(--muted2);">
-          Piece: ${d.pes||0} + Damage: ${d.damage||0} - Short: ${d.short||0}
+          Piece: ${d.pes||0} + Damage: ${d.damage||0} + Short: ${d.short||0} + Fresh: ${d.fresh||0}
         </div>
       </div>`:''}
       <div style="background:${c}15;border:1.5px solid ${c}33;border-radius:11px;padding:11px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
@@ -3232,10 +3264,11 @@ function updNet(){
   const p=Number(document.getElementById('mpe')?.value||0);
   const dmg=Number(document.getElementById('mdmg')?.value||0);
   const shrt=Number(document.getElementById('mshrt')?.value||0);
-  const el=document.getElementById('mnet');if(el)el.textContent=num(p+dmg+shrt);
+  const fresh=Number(document.getElementById('mfresh')?.value||0);
+  const el=document.getElementById('mnet');if(el)el.textContent=num(p+dmg+shrt+fresh);
   // Update breakdown
   const breakdown=document.getElementById('mnet')?.parentElement?.querySelector('div:last-child');
-  if(breakdown)breakdown.textContent=`Piece: ${p} + Damage: ${dmg} + Short: ${shrt}`;
+  if(breakdown)breakdown.textContent=`Piece: ${p} + Damage: ${dmg} + Short: ${shrt} + Fresh: ${fresh}`;
 }
 
 function autoRate(productName){
@@ -3272,12 +3305,13 @@ function editProd(idx){
 function saveM(){
   const d=modal.data;
   // Out entry ma pes=0 chalne de jyare damage ya short hoy
-  const pesOk = modal.type==='out' ? (Number(d.pes||0)+Number(d.damage||0)+Number(d.short||0))>0 : !!d.pes;
+  const pesOk = modal.type==='out' ? (Number(d.pes||0)+Number(d.damage||0)+Number(d.short||0)+Number(d.fresh||0))>0 : !!d.pes;
   if(!d.date||!d.product||!pesOk||!d.rate){toast('Badhaj fields bharo!','#f97316');return;}
   const row={date:d.date,product:d.product,pes:Number(d.pes||0),rate:Number(d.rate)};
   if(modal.type==='out'){
     row.damage=Number(d.damage||0);
     row.short=Number(d.short||0);
+    row.fresh=Number(d.fresh||0);
   }
   if(modal.type==='in'){
     if(modal.mode==='add'){row.id=S.nextInId++;S.inData.push(row);}
@@ -3290,7 +3324,7 @@ function saveM(){
   const _st=modal.type, _sd=modal.data.date;
   toast('Entry save thayi!');
   // Turant j navi entry open karo — no delay, no click needed
-  modal={type:_st,mode:'add',data:{date:_sd,product:'',pes:'',rate:'',damage:'',short:''}};
+  modal={type:_st,mode:'add',data:{date:_sd,product:'',pes:'',rate:'',damage:'',short:'',fresh:''}};
   render();
   // Product number field par focus karo — date par nahi
   setTimeout(()=>{

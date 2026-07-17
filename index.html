@@ -866,11 +866,13 @@ const tod=()=>new Date().toISOString().slice(0,10);
 const fd=d=>d?d.split('-').reverse().join('/'):'';
 const MONTHS=['','January','February','March','April','May','June','July','August','September','October','November','December'];
 
-function stk(){
-  const all=[...new Set([...S.inData,...S.outData].map(r=>r.product))].sort();
+function stk(month){
+  const inPool=month?S.inData.filter(r=>r.date.startsWith(month)):S.inData;
+  const outPool=month?S.outData.filter(r=>r.date.startsWith(month)):S.outData;
+  const all=[...new Set([...inPool,...outPool].map(r=>r.product))].sort();
   return all.map(p=>{
-    const inR=S.inData.filter(r=>r.product===p);
-    const outR=S.outData.filter(r=>r.product===p);
+    const inR=inPool.filter(r=>r.product===p);
+    const outR=outPool.filter(r=>r.product===p);
     const inPes=inR.reduce((s,r)=>s+r.pes,0);
     const inAmt=inR.reduce((s,r)=>s+r.pes*r.rate,0);
     // OUT pieces = pes+damage+short
@@ -896,6 +898,7 @@ let tab='dashboard',prevTab='dashboard',modal=null,confirmQ=null,searchQ='',repM
 let kpLoggedIn=false; // Login thay pachhi j app render thay
 let dashMonth=new Date().toISOString().slice(0,7);
 let stkQ='';
+let stkMonth=''; // Stock tab month filter — khali hoy to All Time (cumulative) balance
 let stkOnlyBal=false; // Stock Value double click thay tyare true — ফক্ত balance>0
 let inF={p:'',m:'',q:''},outF={p:'',m:'',q:''};
 let repInF={p:'',m:repMonth,d:'',q:''},repOutF={p:'',m:repMonth,d:'',q:''};
@@ -1422,8 +1425,7 @@ function _updateShell(){
 function _updateContent(savedScroll,savedWin){
   const ca=document.getElementById('content-area');
   if(!ca) return;
-  const stock=stk();
-  // Remove fade class, add back for smooth transition
+  const stock=stk(tab==='stock'?stkMonth:'');
   ca.classList.remove('fade');
   ca.innerHTML=body(stock);
   // Animate content area — lightweight, no page jump
@@ -1950,6 +1952,14 @@ function stockHTML(stock){
       : stock);
   const ti=filtered.reduce((s,r)=>s+r.inPes,0),to=filtered.reduce((s,r)=>s+r.outPes,0),tb=filtered.reduce((s,r)=>s+r.balPes,0);
   return `
+  <!-- Month filter -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:11px;flex-wrap:wrap;">
+    <span style="font-size:12px;color:var(--muted);font-weight:700;">📅 Month:</span>
+    <input type="month" class="inp" style="width:auto;font-size:13px;padding:7px 10px;border:1.5px solid ${stkMonth?'var(--orange)':'var(--border2)'};"
+      value="${stkMonth}" onchange="stkMonth=this.value;render()">
+    ${stkMonth?`<button onclick="stkMonth='';render()" style="background:#7f1d1d22;border:1px solid #7f1d1d44;color:#f87171;border-radius:7px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:700;">✕ All Time</button>
+      <span style="font-size:11px;color:var(--gold);font-weight:600;">⚠️ Aa month na j entries no hisab — total real stock mate month hatavo</span>`:`<span style="font-size:11px;color:var(--muted);">All Time (hamesha nu total balance)</span>`}
+  </div>
   <!-- Search bar -->
   <div style="position:relative;margin-bottom:13px;">
     <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.6;">🔍</span>
@@ -1965,26 +1975,29 @@ function stockHTML(stock){
   </div>
 
   <div class="dash-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:13px;">
-    ${sc('Total In',num(ti),'','var(--green)',IC.inbox)}${sc('Total Out',num(to),'','var(--red)',IC.outbox)}${sc('Balance',num(tb),'','var(--blue)',IC.package)}
+    ${sc(stkMonth?'Month In':'Total In',num(ti),'','var(--green)',IC.inbox)}${sc(stkMonth?'Month Out':'Total Out',num(to),'','var(--red)',IC.outbox)}${sc(stkMonth?'Month Net':'Balance',num(tb),'','var(--blue)',IC.package)}
   </div>
   <div class="card"><table>
     <thead><tr style="background:var(--surface);border-bottom:2px solid var(--border2);">
       <th style="text-align:left;color:var(--muted);">Product</th>
+      <th style="text-align:right;color:var(--orange);">Rate</th>
       <th style="text-align:right;color:var(--green);">Aavyo</th><th style="text-align:right;color:var(--green);">In Amt</th>
       <th style="text-align:right;color:var(--red);">Gayo</th><th style="text-align:right;color:var(--red);">Out Amt</th>
-      <th style="text-align:right;color:var(--blue);">BALANCE</th><th style="text-align:center;color:var(--muted);">Status</th>
+      <th style="text-align:right;color:var(--blue);">${stkMonth?'MONTH NET':'BALANCE'}</th><th style="text-align:center;color:var(--muted);">Status</th>
     </tr></thead>
     <tbody>${filtered.length?filtered.map((r,i)=>`<tr class="rr sr-row" style="background:${i%2===0?'var(--card)':'var(--surface)'};">
       <td style="font-weight:800;font-size:13px;">${r.product}</td>
+      <td style="text-align:right;color:var(--orange);font-weight:700;" class="mn">${inr(getProdRate(r.product,'in'))}</td>
       <td style="text-align:right;color:var(--green);font-weight:700;" class="mn">${num(r.inPes)}</td>
       <td style="text-align:right;color:#4ade80aa;" class="mn">${inr(r.inAmt)}</td>
       <td style="text-align:right;color:var(--red);font-weight:700;" class="mn">${num(r.outPes)}</td>
       <td style="text-align:right;color:#f87171aa;" class="mn">${inr(r.outAmt)}</td>
       <td style="text-align:right;font-weight:900;font-size:15px;color:${r.balPes>100?'var(--green)':r.balPes>0?'var(--gold)':'var(--red)'};" class="mn">${num(r.balPes)}</td>
       <td style="text-align:center;"><span class="tag" style="background:${r.balPes>100?'#14532d':r.balPes>0?'#713f12':'#7f1d1d'};color:${r.balPes>100?'#4ade80':r.balPes>0?'#fbbf24':'#f87171'};">${r.balPes>100?IC.checkCircle+' OK':r.balPes>0?IC.alertCircle+' Aacho':IC.xCircle+' Khatam'}</span></td>
-    </tr>`).join(''):`<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted);">😕 "${stkQ}" maate koi product nathi</td></tr>`}</tbody>
+    </tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--muted);">😕 "${stkQ}" maate koi product nathi</td></tr>`}</tbody>
     <tfoot><tr style="background:#1a2240;border-top:2px solid var(--blue)44;">
       <td style="padding:10px 12px;font-weight:900;color:var(--blue);font-size:13px;">KUL${stkQ?` (${filtered.length}/${stock.length})`:' TOTAL'}</td>
+      <td></td>
       <td style="text-align:right;font-weight:900;color:var(--green);padding:10px 12px;" class="mn">${num(ti)}</td>
       <td style="text-align:right;color:#4ade80aa;padding:10px 12px;" class="mn">${inr(filtered.reduce((s,r)=>s+r.inAmt,0))}</td>
       <td style="text-align:right;font-weight:900;color:var(--red);padding:10px 12px;" class="mn">${num(to)}</td>
@@ -2442,6 +2455,7 @@ function searchHTML(stock){
           onmouseover="this.style.background='rgba(249,115,22,0.05)'" onmouseout="this.style.background=''">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
             <span style="font-size:14px;font-weight:900;color:var(--orange);white-space:nowrap;">${pname}</span>
+            <span style="font-size:13px;font-weight:900;color:var(--orange);white-space:nowrap;">· Rate: ${inr(getProdRate(pname,'in'))}</span>
             <span style="font-size:10px;color:var(--muted);">${pIn.length+pOut.length} entries</span>
           </div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -2781,12 +2795,14 @@ table{width:100%;border-collapse:collapse;}
 }
 
 function printStock(){
-  const stock=stk();
+  const stock=stk(stkMonth);
   const ti=stock.reduce((s,r)=>s+r.inPes,0),to=stock.reduce((s,r)=>s+r.outPes,0),tb=stock.reduce((s,r)=>s+r.balPes,0);
   const tiA=stock.reduce((s,r)=>s+r.inAmt,0),toA=stock.reduce((s,r)=>s+r.outAmt,0);
   const pd=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
-  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:#fff;">
-    ${pHdr('📦 STOCK REGISTER',pd)}
+  const MNFLstk=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const stkTitle=stkMonth?('📦 STOCK REGISTER — '+MNFLstk[parseInt(stkMonth.split('-')[1])-1]+' '+stkMonth.split('-')[0]):'📦 STOCK REGISTER (All Time)';
+  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:100%;margin:0 auto;background:#fff;">
+    ${pHdr(stkTitle,pd)}
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
       <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:#fff;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div style="font-size:15px;color:#15803d;font-weight:800;margin-bottom:3px;">KUL AAVYO</div>
@@ -2804,34 +2820,39 @@ function printStock(){
         <div style="font-size:17px;font-weight:700;color:#2563eb;font-family:'Courier New',monospace;">${stock.length} products</div>
       </div>
     </div>
-    <table style="width:100%;border-collapse:collapse;font-size:17px;">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;">
+      <colgroup>
+        <col style="width:4%;"><col style="width:24%;"><col style="width:9%;"><col style="width:10%;"><col style="width:11%;"><col style="width:10%;"><col style="width:11%;"><col style="width:11%;"><col style="width:10%;">
+      </colgroup>
       <thead><tr style="background:#fff!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;">
-        <th style="padding:9px 11px;text-align:center;width:30px;">#</th>
-        <th style="padding:9px 11px;text-align:left;">Product</th>
-        <th style="padding:9px 11px;text-align:right;">Aavyo(Pcs)</th>
-        <th style="padding:9px 11px;text-align:right;">In Amount</th>
-        <th style="padding:9px 11px;text-align:right;">Gayo(Pcs)</th>
-        <th style="padding:9px 11px;text-align:right;">Out Amount</th>
-        <th style="padding:9px 11px;text-align:right;">BALANCE(Pcs)</th>
-        <th style="padding:9px 11px;text-align:center;">Status</th>
+        <th style="padding:6px 4px;text-align:center;">#</th>
+        <th style="padding:6px 4px;text-align:left;">Product</th>
+        <th style="padding:6px 4px;text-align:right;">Rate</th>
+        <th style="padding:6px 4px;text-align:right;">Aavyo</th>
+        <th style="padding:6px 4px;text-align:right;">In Amt</th>
+        <th style="padding:6px 4px;text-align:right;">Gayo</th>
+        <th style="padding:6px 4px;text-align:right;">Out Amt</th>
+        <th style="padding:6px 4px;text-align:right;">BALANCE</th>
+        <th style="padding:6px 4px;text-align:center;">Status</th>
       </tr></thead>
       <tbody>${stock.map((r,i)=>`<tr style="background:${i%2===0?'#fff':'#f5f3ff'};border-bottom:1px solid #e5e7eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-        <td style="padding:8px 11px;text-align:center;color:#666;font-size:16px;">${i+1}</td>
-        <td style="padding:8px 11px;font-weight:700;">${r.product}</td>
-        <td style="padding:8px 11px;text-align:right;font-weight:700;color:#15803d;font-family:'Courier New',monospace;">${num(r.inPes)}</td>
-        <td style="padding:8px 11px;text-align:right;color:#16a34a;font-family:'Courier New',monospace;">${inr(r.inAmt)}</td>
-        <td style="padding:8px 11px;text-align:right;font-weight:700;color:#b91c1c;font-family:'Courier New',monospace;">${num(r.outPes)}</td>
-        <td style="padding:8px 11px;text-align:right;color:#dc2626;font-family:'Courier New',monospace;">${inr(r.outAmt)}</td>
-        <td style="padding:8px 11px;text-align:right;font-weight:900;font-family:'Courier New',monospace;font-size:19px;color:${r.balPes>100?'#15803d':r.balPes>0?'#b45309':'#b91c1c'};">${num(r.balPes)}</td>
-        <td style="padding:8px 11px;text-align:center;"><span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:16px;font-weight:700;background:${r.balPes>100?'#dcfce7':r.balPes>0?'#fef9c3':'#fee2e2'};color:${r.balPes>100?'#15803d':r.balPes>0?'#854d0e':'#b91c1c'};-webkit-print-color-adjust:exact;print-color-adjust:exact;">${r.balPes>100?'OK':r.balPes>0?'Aacho':'Khatam'}</span></td>
+        <td style="padding:5px 4px;text-align:center;color:#666;font-size:12px;">${i+1}</td>
+        <td style="padding:5px 4px;font-weight:700;font-size:13px;overflow-wrap:break-word;">${r.product}</td>
+        <td style="padding:5px 4px;text-align:right;color:#c2410c;font-weight:700;font-family:'Courier New',monospace;font-size:12px;">${inr(getProdRate(r.product,'in'))}</td>
+        <td style="padding:5px 4px;text-align:right;font-weight:700;color:#15803d;font-family:'Courier New',monospace;font-size:12px;">${num(r.inPes)}</td>
+        <td style="padding:5px 4px;text-align:right;color:#16a34a;font-family:'Courier New',monospace;font-size:11px;">${inr(r.inAmt)}</td>
+        <td style="padding:5px 4px;text-align:right;font-weight:700;color:#b91c1c;font-family:'Courier New',monospace;font-size:12px;">${num(r.outPes)}</td>
+        <td style="padding:5px 4px;text-align:right;color:#dc2626;font-family:'Courier New',monospace;font-size:11px;">${inr(r.outAmt)}</td>
+        <td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;font-size:14px;color:${r.balPes>100?'#15803d':r.balPes>0?'#b45309':'#b91c1c'};">${num(r.balPes)}</td>
+        <td style="padding:5px 4px;text-align:center;"><span style="display:inline-block;padding:1px 6px;border-radius:20px;font-size:11px;font-weight:700;background:${r.balPes>100?'#dcfce7':r.balPes>0?'#fef9c3':'#fee2e2'};color:${r.balPes>100?'#15803d':r.balPes>0?'#854d0e':'#b91c1c'};-webkit-print-color-adjust:exact;print-color-adjust:exact;">${r.balPes>100?'OK':r.balPes>0?'Aacho':'Khatam'}</span></td>
       </tr>`).join('')}</tbody>
       <tfoot><tr style="background:#fff!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;font-weight:900!important;">
-        <td colspan="2" style="padding:9px 11px;font-size:17px;">KUL TOTAL</td>
-        <td style="padding:9px 11px;text-align:right;font-size:19px;font-family:'Courier New',monospace;">${num(ti)}</td>
-        <td style="padding:9px 11px;text-align:right;font-family:'Courier New',monospace;">${inr(tiA)}</td>
-        <td style="padding:9px 11px;text-align:right;font-size:19px;font-family:'Courier New',monospace;">${num(to)}</td>
-        <td style="padding:9px 11px;text-align:right;font-family:'Courier New',monospace;">${inr(toA)}</td>
-        <td style="padding:9px 11px;text-align:right;font-size:20px;font-family:'Courier New',monospace;">${num(tb)}</td>
+        <td colspan="3" style="padding:6px 4px;font-size:13px;">KUL TOTAL</td>
+        <td style="padding:6px 4px;text-align:right;font-size:13px;font-family:'Courier New',monospace;">${num(ti)}</td>
+        <td style="padding:6px 4px;text-align:right;font-size:11px;font-family:'Courier New',monospace;">${inr(tiA)}</td>
+        <td style="padding:6px 4px;text-align:right;font-size:13px;font-family:'Courier New',monospace;">${num(to)}</td>
+        <td style="padding:6px 4px;text-align:right;font-size:11px;font-family:'Courier New',monospace;">${inr(toA)}</td>
+        <td style="padding:6px 4px;text-align:right;font-size:14px;font-family:'Courier New',monospace;">${num(tb)}</td>
         <td></td>
       </tr></tfoot>
     </table>
@@ -2846,7 +2867,7 @@ function printStock(){
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}
 table{width:100%;border-collapse:collapse;}
-@page{margin:10mm 8mm;size:A4;}
+@page{margin:8mm 7mm;size:A4 landscape;}
 @media print{
   body{background:#fff!important;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
@@ -2934,12 +2955,13 @@ function printSearch(){
       const inAmt=pIn.reduce((s,r)=>s+r.pes*r.rate,0);
       const outAmt=pOut.reduce((s,r)=>s+r.pes*r.rate,0);
       const bal=inPes-outPes;
+      const pRate=getProdRate(pname,'in');
       return `
       <div style="margin-bottom:5px;page-break-inside:avoid;break-inside:avoid-page;border:1.5px solid #e5e7eb;border-radius:7px;">
         <!-- Product header -->
-        <div style="background:#fff!important;border-top:2px solid #1e1b4b;border-bottom:2px solid #1e1b4b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#1e1b4b;padding:4px 10px;display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:16px;font-weight:900;">${i+1}. ${pname}</div>
-          <div style="display:flex;gap:14px;font-size:14px;font-family:'Courier New',monospace;">
+        <div style="background:#fff!important;border-top:2px solid #1e1b4b;border-bottom:2px solid #1e1b4b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#1e1b4b;padding:4px 10px;">
+          <div style="font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i+1}. ${pname} <span style="font-weight:900;">· Rate: ${inr(pRate)}</span></div>
+          <div style="display:flex;gap:14px;font-size:14px;font-family:'Courier New',monospace;margin-top:2px;">
             <span style="color:#15803d;">IN: ${num(inPes)} pcs · ${inr(inAmt)}</span>
             <span style="color:#b91c1c;">OUT: ${num(outPes)} pcs · ${inr(outAmt)}</span>
             <span style="color:${bal>0?'#1d4ed8':bal===0?'#b45309':'#b91c1c'};font-weight:900;">BAL: ${num(bal)}</span>

@@ -883,6 +883,11 @@ function stk(){
     return {product:p,inPes,inAmt,outPes,outAmt,balPes,balAmt};
   });
 }
+// Ek j product no current balance (piece) — entry form ma balance batavva mate
+function getProdBalance(name){
+  const row=stk().find(r=>r.product===name);
+  return row?row.balPes:0;
+}
 
 let _tt=null;
 function toast(msg,bg='#22c55e'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=bg;t.style.display='block';clearTimeout(_tt);_tt=setTimeout(()=>t.style.display='none',2800);}
@@ -3187,6 +3192,7 @@ function buildModal(){
           <div id="prod-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--orange);border-radius:10px;z-index:999;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);margin-top:3px;"></div>
         </div>
         <div id="prod-selected-lbl" style="margin-top:6px;padding:7px 12px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);border-radius:8px;font-size:13px;font-weight:700;color:var(--orange);display:${d.product?'block':'none'};">${d.product||''}</div>
+        ${type==='out'?`<div id="prod-bal-lbl" style="margin-top:6px;padding:7px 12px;background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.3);border-radius:8px;font-size:12.5px;font-weight:700;color:var(--blue);display:${d.product?'block':'none'};">📦 Current Stock Balance: <span id="prod-bal-val">${d.product?num(getProdBalance(d.product)):''}</span> piece</div>`:''}
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;">
         <div>
@@ -3714,6 +3720,8 @@ function prodNumSearch(val){
     // Clear selected label if input cleared
     const lbl=document.getElementById('prod-selected-lbl');
     if(lbl){lbl.style.display='none';lbl.textContent='';}
+    const balEl=document.getElementById('prod-bal-lbl');
+    if(balEl){balEl.style.display='none';}
     if(modal)modal.data.product='';
     const inp=document.getElementById('prod-num-inp');
     if(inp)inp.style.borderColor='';
@@ -3816,6 +3824,18 @@ function selectProd(name){
   }
   const lbl=document.getElementById('prod-selected-lbl');
   if(lbl){lbl.textContent=name;lbl.style.display='block';}
+  if(modal.type==='out'){
+    const balEl=document.getElementById('prod-bal-lbl');
+    const balVal=document.getElementById('prod-bal-val');
+    if(balEl&&balVal){
+      const bal=getProdBalance(name);
+      balVal.textContent=num(bal);
+      balEl.style.display='block';
+      balEl.style.color=bal<=0?'var(--red)':(bal<=100?'var(--gold)':'var(--blue)');
+      balEl.style.borderColor=bal<=0?'rgba(248,113,113,0.4)':(bal<=100?'rgba(251,191,36,0.4)':'rgba(96,165,250,0.3)');
+      balEl.style.background=bal<=0?'rgba(248,113,113,0.10)':(bal<=100?'rgba(251,191,36,0.10)':'rgba(96,165,250,0.10)');
+    }
+  }
   const dd=document.getElementById('prod-dropdown');
   if(dd){dd.style.display='none';}
   ddIdx=-1;
@@ -3826,7 +3846,10 @@ function selectProd(name){
 <script>
 var KP_PASS_KEY='kp_pass';
 var KP_AUTH_KEY='kp_auth_v2';
-function kpGetPass(){return localStorage.getItem(KP_PASS_KEY)||'5090';}
+function kpGetPass(){
+  if(typeof S!=='undefined'&&S&&S.kpPass) return S.kpPass;
+  return localStorage.getItem(KP_PASS_KEY)||'5090';
+}
 var kpVal='';
 
 function kpShowLogin(){
@@ -3956,6 +3979,13 @@ function kpDel(){
 
 // Keyboard thi PIN type kari shakay
 document.addEventListener('keydown',function(e){
+  var otpEl=document.getElementById('kp-otp');
+  if(otpEl){
+    if(e.key>='0'&&e.key<='9'){kpOtpPress(parseInt(e.key));return;}
+    if(e.key==='Backspace'){kpOtpDel();return;}
+    if(e.key==='Enter'&&kpOVal.length===6){kpOtpVerify();return;}
+    return;
+  }
   var loginEl=document.getElementById('kp-login');
   if(!loginEl) return;
   if(e.key>='0'&&e.key<='9'){kpPress(parseInt(e.key));return;}
@@ -3974,22 +4004,201 @@ function kpUpd(){
 }
 function kpCheck(){
   if(kpVal===kpGetPass()){
-    kpLoggedIn=true; // Login successful - app khulse
-    var appEl=document.getElementById('app');if(appEl)appEl.style.visibility='visible';
-    var s=document.getElementById('kp-login');
-    if(s){
-      s.style.opacity='0';
-      s.style.transition='opacity .3s';
-      setTimeout(function(){if(s)s.remove();},300);
-    }
-    tab='dashboard'; // Login pachhi hamesha Dashboard open thay
-    render();
+    kpVal='';
+    // OTP halva mate band chhe — PIN thi j direct login
+    kpFinishLogin();
   } else {
     var e=document.getElementById('kp-err');
     if(e) e.textContent='❌ Galat password! Fari try karo.';
     kpVal='';
     kpUpd();
   }
+}
+function kpFinishLogin(){
+  kpLoggedIn=true; // Login successful - app khulse
+  var appEl=document.getElementById('app');if(appEl)appEl.style.visibility='visible';
+  ['kp-login','kp-otp','kp-wasetup'].forEach(function(id){
+    var s=document.getElementById(id);
+    if(s){
+      s.style.opacity='0';
+      s.style.transition='opacity .3s';
+      setTimeout(function(){if(s)s.remove();},300);
+    }
+  });
+  tab='dashboard'; // Login pachhi hamesha Dashboard open thay
+  render();
+}
+
+// ══════════════════════════════════════════════════════
+// WHATSAPP OTP — CallMeBot API vaparine OTP moklvu
+// ══════════════════════════════════════════════════════
+var KP_WA_PHONE_KEY='kp_wa_phone';
+var KP_WA_APIKEY_KEY='kp_wa_apikey';
+var KP_OTP_KEY='kp_otp_temp';
+var kpOVal='';
+var kpResendTimer=null,kpResendLeft=0;
+function kpGetWaPhone(){return localStorage.getItem(KP_WA_PHONE_KEY)||'';}
+function kpGetWaApikey(){return localStorage.getItem(KP_WA_APIKEY_KEY)||'';}
+
+// ── Setup screen — WhatsApp number + CallMeBot Apikey (ek j vaar) ──
+function kpShowWaSetup(afterLogin){
+  var old=document.getElementById('kp-login');if(old)old.remove();
+  var old2=document.getElementById('kp-otp');if(old2)old2.remove();
+  var d=document.createElement('div');
+  d.id='kp-wasetup';
+  d.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#080e1c 0%,#060b18 50%,#040810 100%);font-family:Sora,Inter,sans-serif;padding:20px;overflow:auto;';
+  var html='<div style="width:100%;max-width:420px;background:rgba(18,22,32,.6);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:26px;">';
+  html+='<div style="font-size:20px;font-weight:900;color:#f97316;margin-bottom:6px;">📲 WhatsApp OTP Setup</div>';
+  html+='<div style="font-size:12.5px;color:#8b9dc3;line-height:1.8;margin-bottom:18px;">Login vakhte OTP tamara WhatsApp par aavshe. Ek j vaar aa setup karvanu chhe:<br>1️⃣ <b style="color:#e8eef8">+34 623 78 64 49</b> aa number ne Phone Contact ma save karo<br>2️⃣ Tene WhatsApp par aa message moklo (English ma j): <b style="color:#e8eef8">I allow callmebot to send me messages</b><br>3️⃣ 1-2 minute ma bot no reply aavshe, ema <b style="color:#e8eef8">APIKEY</b> hashe, e niche nakho.</div>';
+  html+='<label style="font-size:11px;color:#8b9dc3;font-weight:700;">TAMARO WHATSAPP NUMBER (country code sathe, dakh. +91XXXXXXXXXX)</label>';
+  html+='<input type="text" id="kp-wa-phone" class="inp" placeholder="+91XXXXXXXXXX" value="'+kpGetWaPhone()+'" style="margin:6px 0 14px;">';
+  html+='<label style="font-size:11px;color:#8b9dc3;font-weight:700;">CALLMEBOT APIKEY</label>';
+  html+='<input type="text" id="kp-wa-key" class="inp" placeholder="Apikey paste karo" value="'+kpGetWaApikey()+'" style="margin:6px 0 18px;">';
+  html+='<div id="kp-wa-err" style="color:#ef4444;font-size:12px;margin-bottom:10px;min-height:16px;"></div>';
+  html+='<button onclick="kpSaveWaSetup('+(afterLogin?'true':'false')+')" class="btn btn-or" style="width:100%;padding:13px;justify-content:center;font-size:14px;">✅ Save'+(afterLogin?' ane OTP Moklo':'')+'</button>';
+  if(afterLogin){
+    html+='<button onclick="kpSkipWaSetup()" style="width:100%;padding:10px;background:transparent;border:none;color:rgba(130,155,200,.6);font-size:12px;cursor:pointer;margin-top:8px;">Have nahi, PIN thi j login karo (OTP skip)</button>';
+  } else {
+    html+='<button onclick="var s=document.getElementById(\'kp-wasetup\');if(s)s.remove();" style="width:100%;padding:10px;background:transparent;border:none;color:rgba(130,155,200,.6);font-size:12px;cursor:pointer;margin-top:8px;">Cancel</button>';
+  }
+  html+='</div>';
+  d.innerHTML=html;
+  document.body.appendChild(d);
+}
+function kpSaveWaSetup(afterLogin){
+  var phoneEl=document.getElementById('kp-wa-phone'),keyEl=document.getElementById('kp-wa-key');
+  var phone=(phoneEl&&phoneEl.value||'').trim();
+  var key=(keyEl&&keyEl.value||'').trim();
+  var errEl=document.getElementById('kp-wa-err');
+  if(!phone||!key){ if(errEl) errEl.textContent='Banne fields bharo!'; return; }
+  localStorage.setItem(KP_WA_PHONE_KEY,phone);
+  localStorage.setItem(KP_WA_APIKEY_KEY,key);
+  var s=document.getElementById('kp-wasetup');if(s)s.remove();
+  if(afterLogin){ kpStartOtp(); } else { toast('WhatsApp OTP Setting save thai!'); }
+}
+function kpSkipWaSetup(){
+  var s=document.getElementById('kp-wasetup');if(s)s.remove();
+  kpFinishLogin();
+}
+
+// ── OTP generate & WhatsApp par moklvu ──
+function kpSendOtpWA(otp){
+  var phone=kpGetWaPhone(),key=kpGetWaApikey();
+  var msg=encodeURIComponent('Krushnnal Packing Vendor - Tamaru Login OTP: '+otp+' (5 minute valid chhe)');
+  var url='https://api.callmebot.com/whatsapp.php?phone='+encodeURIComponent(phone)+'&text='+msg+'&apikey='+encodeURIComponent(key);
+  fetch(url,{mode:'no-cors'}).catch(function(){});
+}
+function kpStartOtp(){
+  var otp=String(Math.floor(100000+Math.random()*900000));
+  var exp=Date.now()+5*60*1000;
+  localStorage.setItem(KP_OTP_KEY,JSON.stringify({code:otp,exp:exp}));
+  kpSendOtpWA(otp);
+  kpOVal='';
+  kpShowOtpScreen();
+  kpOtpResendCooldown();
+}
+function kpShowOtpScreen(){
+  var old=document.getElementById('kp-login');if(old)old.remove();
+  var old2=document.getElementById('kp-wasetup');if(old2)old2.remove();
+  var d=document.createElement('div');
+  d.id='kp-otp';
+  d.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#080e1c 0%,#060b18 50%,#040810 100%);font-family:Sora,Inter,sans-serif;padding:20px;';
+  var phone=kpGetWaPhone();
+  var masked=phone?(phone.slice(0,-4).replace(/./g,'•')+phone.slice(-4)):'';
+  var html='<div style="width:100%;max-width:360px;">';
+  html+='<div style="text-align:center;margin-bottom:6px;font-size:34px;">📲</div>';
+  html+='<div style="font-size:22px;font-weight:900;color:#e8eef8;text-align:center;margin-bottom:6px;">OTP Verify Karo</div>';
+  html+='<div style="font-size:13px;color:rgba(130,155,200,.7);text-align:center;margin-bottom:28px;">WhatsApp par '+masked+' par 6-digit OTP moklyu chhe</div>';
+  html+='<div style="display:flex;gap:8px;margin-bottom:8px;">';
+  for(var i=0;i<6;i++) html+='<div id="kpo'+i+'" style="flex:1;height:54px;background:rgba(14,20,36,.9);border:1.5px solid rgba(255,255,255,.09);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#ff6b2b;transition:all .2s;box-shadow:inset 0 2px 8px rgba(0,0,0,.3);"></div>';
+  html+='</div>';
+  html+='<div id="kp-otp-err" style="color:#ef4444;font-size:12px;font-weight:600;margin-bottom:14px;min-height:18px;text-align:center;"></div>';
+  var nums=[1,2,3,4,5,6,7,8,9];
+  html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">';
+  for(var n=0;n<nums.length;n++) html+='<button onclick="kpOtpPress('+nums[n]+')" class="kp-num-btn">'+nums[n]+'</button>';
+  html+='</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">';
+  html+='<div></div>';
+  html+='<button onclick="kpOtpPress(0)" class="kp-num-btn">0</button>';
+  html+='<button onclick="kpOtpDel()" style="padding:16px;background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.25);border-radius:12px;color:#ff6b8a;font-size:20px;cursor:pointer;">&#9003;</button>';
+  html+='</div>';
+  html+='<button id="kp-otp-resend" onclick="kpResendOtp()" style="width:100%;padding:12px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:10px;color:#8b9dc3;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:10px;">🔄 OTP Fari Moklo</button>';
+  html+='<button onclick="kpBackToPin()" style="width:100%;padding:10px;background:transparent;border:none;color:rgba(130,155,200,.6);font-size:12px;cursor:pointer;">← PIN screen par pachha jao</button>';
+  html+='</div>';
+  d.innerHTML=html;
+  document.body.appendChild(d);
+}
+function kpOtpPress(n){
+  if(kpOVal.length>=6) return;
+  kpOVal+=String(n);
+  kpOtpUpd();
+  if(kpOVal.length===6) setTimeout(kpOtpVerify,200);
+}
+function kpOtpDel(){
+  kpOVal=kpOVal.slice(0,-1);
+  kpOtpUpd();
+  var e=document.getElementById('kp-otp-err');if(e)e.textContent='';
+}
+function kpOtpUpd(){
+  for(var i=0;i<6;i++){
+    var d=document.getElementById('kpo'+i);
+    if(!d) return;
+    d.textContent=i<kpOVal.length?'●':'';
+    d.style.borderColor=i<kpOVal.length?'#ff6b2b':'rgba(255,255,255,.09)';
+  }
+}
+function kpOtpVerify(){
+  var raw=localStorage.getItem(KP_OTP_KEY);
+  var data=null;
+  try{data=raw?JSON.parse(raw):null;}catch(e){data=null;}
+  var errEl=document.getElementById('kp-otp-err');
+  if(!data||Date.now()>data.exp){
+    if(errEl) errEl.textContent='⏱️ OTP expire thai gayu, "Fari Moklo" dabavo.';
+    kpOVal='';kpOtpUpd();
+    return;
+  }
+  if(kpOVal===data.code){
+    localStorage.removeItem(KP_OTP_KEY);
+    clearInterval(kpResendTimer);
+    kpFinishLogin();
+  } else {
+    if(errEl) errEl.textContent='❌ Galat OTP! Fari try karo.';
+    kpOVal='';kpOtpUpd();
+  }
+}
+function kpOtpResendCooldown(){
+  kpResendLeft=30;
+  kpResendUpdBtn();
+  clearInterval(kpResendTimer);
+  kpResendTimer=setInterval(function(){
+    kpResendLeft--;
+    kpResendUpdBtn();
+    if(kpResendLeft<=0) clearInterval(kpResendTimer);
+  },1000);
+}
+function kpResendUpdBtn(){
+  var b=document.getElementById('kp-otp-resend');
+  if(!b) return;
+  if(kpResendLeft>0){
+    b.disabled=true;b.style.opacity='0.5';
+    b.textContent='🔄 Fari OTP ('+kpResendLeft+'s)';
+  } else {
+    b.disabled=false;b.style.opacity='1';
+    b.textContent='🔄 OTP Fari Moklo';
+  }
+}
+function kpResendOtp(){
+  if(kpResendLeft>0) return;
+  kpStartOtp();
+  var errEl=document.getElementById('kp-otp-err');
+  if(errEl){errEl.style.color='#34d399';errEl.textContent='✅ Navu OTP mokli didhu!';}
+}
+function kpBackToPin(){
+  localStorage.removeItem(KP_OTP_KEY);
+  clearInterval(kpResendTimer);
+  var s=document.getElementById('kp-otp');if(s)s.remove();
+  kpVal='';
+  kpShowLogin();
 }
 
 var kpNVal='';
@@ -4035,11 +4244,15 @@ function kpnUpd(){
   }
 }
 function kpnSave(){
-  localStorage.setItem(KP_PASS_KEY,kpNVal);
+  localStorage.setItem(KP_PASS_KEY,kpNVal); // offline fallback
+  if(typeof S!=='undefined'&&S){
+    S.kpPass=kpNVal;
+    if(typeof persist==='function') persist(); // localStorage + Firebase cloud push — badhe j device par update thai jashe
+  }
   kpNVal='';
   var s=document.getElementById('kp-chpass');
   if(s) s.remove();
-  toast('Password change thayun!');
+  toast('Password change thayun! Badha device par update thai jashe.');
 }
 
 // Login screen - darak vakhte page open thay tyare

@@ -78,9 +78,9 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;fon
 .mn{font-family:'Courier New',monospace;}
 .tst{position:fixed;bottom:20px;right:20px;z-index:999;padding:12px 18px;border-radius:var(--radius-sm);font-weight:700;font-size:14px;color:#fff;pointer-events:none;box-shadow:var(--shadow-md);display:flex;align-items:center;gap:8px;}
 @media print{
-body{background:#fff!important;color:#000!important;overflow:auto!important;height:auto!important;}
+body{background:rgba(255,255,255,.45)!important;color:#000!important;overflow:auto!important;height:auto!important;}
 #app{display:none!important;}
-#pa{display:block!important;padding:10mm!important;background:#fff!important;}
+#pa{display:block!important;padding:10mm!important;background:rgba(255,255,255,.45)!important;}
 @page{margin:0;size:A4;}
 /* thead - drek page par repeat thay */
 #pa table thead{display:table-header-group!important;}
@@ -641,7 +641,7 @@ td:last-child{border-radius:0 9px 9px 0;}
 /* ── Print ── */
 @media print{
   .card,.sc{
-    background:#fff!important;
+    background:rgba(255,255,255,.45)!important;
     border:1px solid #ddd!important;
     box-shadow:none!important;
   }
@@ -900,6 +900,7 @@ let dashMonth=new Date().toISOString().slice(0,7);
 let stkQ='';
 let stkMonth=''; // Stock tab month filter — khali hoy to All Time (cumulative) balance
 let stkOnlyBal=false; // Stock Value double click thay tyare true — ফক্ত balance>0
+let stkSimple=false; // Simple list view — fakt Product naam + Balance Pcs (balance>0 j)
 let inF={p:'',m:'',q:''},outF={p:'',m:'',q:''};
 let repInF={p:'',m:repMonth,d:'',q:''},repOutF={p:'',m:repMonth,d:'',q:''};
 let searchIdx=-1;
@@ -1974,6 +1975,16 @@ function stockHTML(stock){
     ${stkOnlyBal?`<button onclick="stkOnlyBal=false;render()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:#1e3a5f;border:1px solid #2563eb44;color:#60a5fa;border-radius:6px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:700;">✕ Stock Only</button>`:''}
   </div>
 
+  <!-- Simple Balance List toggle -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:13px;">
+    <button onclick="stkSimple=${stkSimple?'false':'true'};render()" style="background:${stkSimple?'#14532d':'#1a1f35'};border:1px solid ${stkSimple?'#16a34a66':'#4f46e544'};color:${stkSimple?'#4ade80':'#818cf8'};border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;">
+      📋 ${stkSimple?'✅ Simple Balance List (ON)':'Simple Balance List batavo'}
+    </button>
+    ${stkSimple?`<button onclick="printStockSimple()" style="background:#1a1f35;border:1px solid #4f46e544;color:#818cf8;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12.5px;font-weight:700;">🖨️ Print Karo</button>
+    <span style="font-size:11px;color:var(--muted);">Fakt e product batave chhe jema balance baki chhe (0 thi vadhu)</span>`:''}
+  </div>
+
+  ${stkSimple?renderStkSimpleList(stock):`
   <div class="dash-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:13px;">
     ${sc(stkMonth?'Month In':'Total In',num(ti),'','var(--green)',IC.inbox)}${sc(stkMonth?'Month Out':'Total Out',num(to),'','var(--red)',IC.outbox)}${sc(stkMonth?'Month Net':'Balance',num(tb),'','var(--blue)',IC.package)}
   </div>
@@ -2005,6 +2016,34 @@ function stockHTML(stock){
       <td style="text-align:right;font-weight:900;color:var(--blue);padding:10px 12px;font-size:15px;" class="mn">${num(tb)}</td>
       <td></td>
     </tfoot>
+  </table></div>`}`;
+}
+
+function renderStkSimpleList(stock){
+  const q=stkQ.trim().toLowerCase();
+  let rows=stock.filter(r=>r.balPes>0);
+  if(q) rows=rows.filter(r=>{const last=r.product.trim().split(' ').pop().toLowerCase();const nums=r.product.match(/\d+/g)||[];return r.product.toLowerCase().includes(q)||last.startsWith(q)||nums.some(n=>n.startsWith(q));});
+  rows=rows.sort((a,b)=>a.product.localeCompare(b.product));
+  const totalPcs=rows.reduce((s,r)=>s+r.balPes,0);
+  return `
+  <div class="dash-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:13px;">
+    ${sc('Products (Balance Baki)',num(rows.length),'','var(--green)',IC.package)}${sc('Kul Balance Pcs',num(totalPcs),'','var(--blue)',IC.inbox)}
+  </div>
+  <div class="card"><table>
+    <thead><tr style="background:var(--surface);border-bottom:2px solid var(--border2);">
+      <th style="text-align:center;color:var(--muted);width:40px;">#</th>
+      <th style="text-align:left;color:var(--muted);">Product</th>
+      <th style="text-align:right;color:var(--blue);">Balance (Pcs)</th>
+    </tr></thead>
+    <tbody>${rows.length?rows.map((r,i)=>`<tr class="rr sr-row" style="background:${i%2===0?'var(--card)':'var(--surface)'};">
+      <td style="text-align:center;color:var(--muted);font-size:12px;">${i+1}</td>
+      <td style="font-weight:800;font-size:14px;">${r.product}</td>
+      <td style="text-align:right;font-weight:900;font-size:16px;color:${r.balPes>100?'var(--green)':'var(--gold)'};" class="mn">${num(r.balPes)}</td>
+    </tr>`).join(''):`<tr><td colspan="3" style="text-align:center;padding:28px;color:var(--muted);">😕 Koi product ma balance nathi</td></tr>`}</tbody>
+    <tfoot><tr style="background:#1a2240;border-top:2px solid var(--blue)44;">
+      <td colspan="2" style="padding:10px 12px;font-weight:900;color:var(--blue);font-size:13px;">KUL — ${rows.length} products</td>
+      <td style="text-align:right;font-weight:900;color:var(--blue);padding:10px 12px;font-size:16px;" class="mn">${num(totalPcs)}</td>
+    </tr></tfoot>
   </table></div>`;
 }
 
@@ -2639,7 +2678,7 @@ function ptbl(rows,color,bg,type){
   const tnet=type==='out'?tp-tdmg-tshrt-tfresh:0;
   const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
   return `<table style="width:100%;border-collapse:collapse;font-size:16px;">
-    <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+    <thead><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
       <th style="padding:7px 8px;text-align:center;width:24px;">#</th>
       <th style="padding:7px 8px;text-align:left;">Tarikh</th>
       <th style="padding:7px 8px;text-align:left;">Product</th>
@@ -2650,7 +2689,7 @@ function ptbl(rows,color,bg,type){
     </tr></thead>
     <tbody>${rows.map((r,i)=>{
       const net=type==='out'?r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0):r.pes;
-      return `<tr style="background:${i%2===0?'#fff':bg};border-bottom:1px solid #e5e7eb;">
+      return `<tr style="background:${i%2===0?'rgba(255,255,255,.45)':bg};border-bottom:1px solid #e5e7eb;">
       <td style="padding:6px 8px;text-align:center;color:#666;font-size:15px;">${i+1}</td>
       <td style="padding:6px 8px;font-family:'Courier New',monospace;font-weight:600;">${fd(r.date)}</td>
       <td style="padding:6px 8px;font-weight:700;">${r.product}</td>
@@ -2659,7 +2698,7 @@ function ptbl(rows,color,bg,type){
       <td style="padding:6px 8px;text-align:right;color:#333;font-family:'Courier New',monospace;">${inr(r.rate)}</td>
       <td style="padding:6px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
     </tr>`;}).join('')}</tbody>
-    <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+    <tfoot><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
       <td colspan="3" style="padding:7px 8px;font-weight:900;font-size:17px;">KUL — ${rows.length}</td>
       <td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${num(tp)}</td>
       ${type==='out'?`<td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tfresh)}</td><td style="padding:7px 8px;text-align:right;font-weight:900;font-size:17px;font-family:'Courier New',monospace;">${num(tp+tdmg+tshrt+tfresh)}</td>`:''}
@@ -2674,7 +2713,12 @@ function ptbl(rows,color,bg,type){
 // Aa "repeating table header" trick chhe — browser print dialog ma "Margins: None"
 // select karo to pan @page CSS ignore thay jay, pan aa real content hoi etle kadi cut nathi thatu.
 function wrapPrintTop(html){
-  return `<table style="width:100%;border-collapse:collapse;">`+
+  const kpLogoSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><rect x='6' y='6' width='288' height='288' rx='58' fill='%23f97316'/><text x='150' y='202' text-anchor='middle' font-family='Georgia,serif' font-weight='900' font-size='168' fill='%23ffffff' letter-spacing='-8'>KP</text></svg>`;
+  const kpLogoUri = `data:image/svg+xml,${kpLogoSvg}`;
+  const watermark = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;overflow:hidden;">
+    <img src="${kpLogoUri}" style="width:60%;max-width:480px;opacity:0.30;transform:rotate(-30deg);-webkit-print-color-adjust:exact;print-color-adjust:exact;object-fit:contain;" />
+  </div>`;
+  return watermark+`<table style="width:100%;border-collapse:collapse;">`+
     `<thead><tr><td style="height:10mm;padding:0;margin:0;border:0;line-height:0;font-size:0;">&nbsp;</td></tr></thead>`+
     `<tbody><tr><td style="padding:0;margin:0;border:0;">`+html+`</td></tr></tbody>`+
   `</table>`;
@@ -2719,14 +2763,14 @@ function printRep(type){
   let body='';
   if(type==='in'||type==='both'){
     body+=`<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:13px;">
-      <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:#fff;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+      <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:rgba(255,255,255,.45);display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div><div style="font-size:15px;color:#15803d;font-weight:800;margin-bottom:3px;">MAAL AAVYO TOTAL</div>
           <div><span style="font-size:15px;color:#333;">Piece: </span><span style="font-size:23px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(tiP)}</span></div></div>
         <div style="text-align:right;"><div style="font-size:15px;color:#333;">Amount</div><div style="font-size:21px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(tiA)}</div><div style="font-size:15px;color:#333;">${inR.length} entries</div></div>
       </div>
     </div>
     <div style="font-size:17px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — Detail</div>
-    <div style="margin-bottom:15px;">${ptbl(inR,'#15803d','#f0fdf4','in')}</div>`;
+    <div style="margin-bottom:15px;">${ptbl(inR,'#15803d','rgba(240,253,244,.45)','in')}</div>`;
   }
   if(type==='both'){body+=`<div style="height:8px;"></div>`;}
   if(type==='out'||type==='both'){
@@ -2735,26 +2779,26 @@ function printRep(type){
     const toFresh=outR.reduce((s,r)=>s+(r.fresh||0),0);
     const toNet=toP-toDmg-toShrt-toFresh;
     body+=`<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:13px;">
-      <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+      <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:rgba(255,255,255,.45);-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <div><div style="font-size:15px;color:#b91c1c;font-weight:800;margin-bottom:3px;">MAAL GAYO TOTAL</div>
             <div><span style="font-size:15px;color:#333;">Piece: </span><span style="font-size:23px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(toP)}</span></div></div>
           <div style="text-align:right;"><div style="font-size:15px;color:#333;">Amount</div><div style="font-size:21px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${inr(toA)}</div><div style="font-size:15px;color:#333;">${outR.length} entries</div></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;border-top:1px solid #fca5a5;padding-top:8px;">
-          <div style="background:#fff;border:1px solid #f59e0b;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+          <div style="background:rgba(255,255,255,.45);border:1px solid #f59e0b;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
             <div style="font-size:14px;color:#b45309;font-weight:800;margin-bottom:2px;">⚠️ DAMAGE</div>
             <div style="font-size:21px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
           </div>
-          <div style="background:#fff;border:1px solid #7c3aed;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+          <div style="background:rgba(255,255,255,.45);border:1px solid #7c3aed;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
             <div style="font-size:14px;color:#7c3aed;font-weight:800;margin-bottom:2px;">📉 SHORT</div>
             <div style="font-size:21px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
           </div>
-          <div style="background:#fff;border:1px solid #059669;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+          <div style="background:rgba(255,255,255,.45);border:1px solid #059669;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
             <div style="font-size:14px;color:#059669;font-weight:800;margin-bottom:2px;">🍃 FRESH</div>
             <div style="font-size:21px;font-weight:900;color:#059669;font-family:'Courier New',monospace;">${num(toFresh)}</div>
           </div>
-          <div style="background:#fff;border:1px solid #2563eb;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+          <div style="background:rgba(255,255,255,.45);border:1px solid #2563eb;border-radius:6px;padding:7px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
             <div style="font-size:14px;color:#1d4ed8;font-weight:800;margin-bottom:2px;">✅ NET PIECE</div>
             <div style="font-size:21px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(toNet)}</div>
           </div>
@@ -2762,9 +2806,9 @@ function printRep(type){
       </div>
     </div>
     <div style="font-size:17px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — Detail</div>
-    <div style="margin-bottom:15px;">${ptbl(outR,'#b91c1c','#fef2f2','out')}</div>`;
+    <div style="margin-bottom:15px;">${ptbl(outR,'#b91c1c','rgba(254,242,242,.45)','out')}</div>`;
   }
-  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:#fff;">
+  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:transparent;">
     ${pHdr(title,pd)}
     ${body}
     <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:8px;page-break-inside:avoid;break-inside:avoid;">
@@ -2781,7 +2825,7 @@ body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}
 table{width:100%;border-collapse:collapse;}
 @page{margin:10mm 8mm;size:A4;}
 @media print{
-  body{background:#fff!important;}
+  body{background:rgba(255,255,255,.45)!important;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   thead{display:table-header-group!important;}
   tfoot{display:table-row-group!important;}
@@ -2794,6 +2838,69 @@ table{width:100%;border-collapse:collapse;}
   document.getElementById('pa').style.display='none';
 }
 
+function printStockSimple(){
+  const stock=stk(stkMonth);
+  const q=stkQ.trim().toLowerCase();
+  let rows=stock.filter(r=>r.balPes>0);
+  if(q) rows=rows.filter(r=>{const last=r.product.trim().split(' ').pop().toLowerCase();const nums=r.product.match(/\d+/g)||[];return r.product.toLowerCase().includes(q)||last.startsWith(q)||nums.some(n=>n.startsWith(q));});
+  rows=rows.sort((a,b)=>a.product.localeCompare(b.product));
+  const totalPcs=rows.reduce((s,r)=>s+r.balPes,0);
+  const pd=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const half=Math.ceil(rows.length/2);
+  const col1=rows.slice(0,half),col2=rows.slice(half);
+  function colTbl(list,startIdx){
+    return `<table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;">
+        <th style="padding:5px 4px;text-align:center;width:26px;">#</th>
+        <th style="padding:5px 4px;text-align:left;">Product</th>
+        <th style="padding:5px 4px;text-align:right;">Balance</th>
+      </tr></thead>
+      <tbody>${list.map((r,i)=>`<tr style="background:${i%2===0?'rgba(255,255,255,.45)':'rgba(245,243,255,.45)'};border-bottom:1px solid #e5e7eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+        <td style="padding:4px 4px;text-align:center;color:#666;font-size:12px;">${startIdx+i+1}</td>
+        <td style="padding:4px 4px;font-weight:700;">${r.product}</td>
+        <td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;font-size:14px;color:#15803d;">${num(r.balPes)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:100%;margin:0 auto;background:transparent;">
+    ${pHdr('📋 STOCK BALANCE LIST'+(stkMonth?(' — '+stkMonth):''),pd)}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="border:2px solid #16a34a;border-radius:8px;padding:10px 14px;background:rgba(255,255,255,.45);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:14px;color:#15803d;font-weight:800;margin-bottom:2px;">KUL PRODUCTS (Balance Baki)</div>
+        <div style="font-size:24px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(rows.length)}</div>
+      </div>
+      <div style="border:2px solid #2563eb;border-radius:8px;padding:10px 14px;background:rgba(255,255,255,.45);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:14px;color:#1d4ed8;font-weight:800;margin-bottom:2px;">KUL BALANCE PCS</div>
+        <div style="font-size:24px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(totalPcs)}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>${colTbl(col1,0)}</div>
+      <div>${colTbl(col2,half)}</div>
+    </div>
+    <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:14px;page-break-inside:avoid;break-inside:avoid;">
+      <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
+      <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
+    </div>
+  </div>`;
+  const printHTML3 = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}
+table{width:100%;border-collapse:collapse;}
+@page{margin:10mm 8mm;size:A4 portrait;}
+@media print{
+  body{background:rgba(255,255,255,.45)!important;}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  thead{display:table-header-group!important;}
+  tr,td,th{page-break-inside:avoid!important;break-inside:avoid-page!important;}
+  table{page-break-inside:auto;}
+}
+</style></head><body>` + wrapPrintTop(document.getElementById('pa').innerHTML) + `</body></html>`;
+  mobilePrint(printHTML3);
+  document.getElementById('pa').style.display='none';
+}
 function printStock(){
   const stock=stk(stkMonth);
   const ti=stock.reduce((s,r)=>s+r.inPes,0),to=stock.reduce((s,r)=>s+r.outPes,0),tb=stock.reduce((s,r)=>s+r.balPes,0);
@@ -2801,20 +2908,20 @@ function printStock(){
   const pd=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
   const MNFLstk=['January','February','March','April','May','June','July','August','September','October','November','December'];
   const stkTitle=stkMonth?('📦 STOCK REGISTER — '+MNFLstk[parseInt(stkMonth.split('-')[1])-1]+' '+stkMonth.split('-')[0]):'📦 STOCK REGISTER (All Time)';
-  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:100%;margin:0 auto;background:#fff;">
+  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:100%;margin:0 auto;background:transparent;">
     ${pHdr(stkTitle,pd)}
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-      <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:#fff;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+      <div style="border:2px solid #16a34a;border-radius:8px;padding:11px 14px;background:rgba(255,255,255,.45);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div style="font-size:15px;color:#15803d;font-weight:800;margin-bottom:3px;">KUL AAVYO</div>
         <div style="font-size:26px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(ti)} pcs</div>
         <div style="font-size:17px;font-weight:700;color:#16a34a;font-family:'Courier New',monospace;">${inr(tiA)}</div>
       </div>
-      <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:#fff;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+      <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:rgba(255,255,255,.45);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div style="font-size:15px;color:#b91c1c;font-weight:800;margin-bottom:3px;">KUL GAYO</div>
         <div style="font-size:26px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(to)} pcs</div>
         <div style="font-size:17px;font-weight:700;color:#dc2626;font-family:'Courier New',monospace;">${inr(toA)}</div>
       </div>
-      <div style="border:2px solid #2563eb;border-radius:8px;padding:11px 14px;background:#fff;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+      <div style="border:2px solid #2563eb;border-radius:8px;padding:11px 14px;background:rgba(255,255,255,.45);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div style="font-size:15px;color:#1d4ed8;font-weight:800;margin-bottom:3px;">KUL BALANCE</div>
         <div style="font-size:26px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(tb)} pcs</div>
         <div style="font-size:17px;font-weight:700;color:#2563eb;font-family:'Courier New',monospace;">${stock.length} products</div>
@@ -2824,7 +2931,7 @@ function printStock(){
       <colgroup>
         <col style="width:4%;"><col style="width:24%;"><col style="width:9%;"><col style="width:10%;"><col style="width:11%;"><col style="width:10%;"><col style="width:11%;"><col style="width:11%;"><col style="width:10%;">
       </colgroup>
-      <thead><tr style="background:#fff!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;">
+      <thead><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;">
         <th style="padding:6px 4px;text-align:center;">#</th>
         <th style="padding:6px 4px;text-align:left;">Product</th>
         <th style="padding:6px 4px;text-align:right;">Rate</th>
@@ -2835,7 +2942,7 @@ function printStock(){
         <th style="padding:6px 4px;text-align:right;">BALANCE</th>
         <th style="padding:6px 4px;text-align:center;">Status</th>
       </tr></thead>
-      <tbody>${stock.map((r,i)=>`<tr style="background:${i%2===0?'#fff':'#f5f3ff'};border-bottom:1px solid #e5e7eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+      <tbody>${stock.map((r,i)=>`<tr style="background:${i%2===0?'rgba(255,255,255,.45)':'rgba(245,243,255,.45)'};border-bottom:1px solid #e5e7eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
         <td style="padding:5px 4px;text-align:center;color:#666;font-size:12px;">${i+1}</td>
         <td style="padding:5px 4px;font-weight:700;font-size:13px;overflow-wrap:break-word;">${r.product}</td>
         <td style="padding:5px 4px;text-align:right;color:#c2410c;font-weight:700;font-family:'Courier New',monospace;font-size:12px;">${inr(getProdRate(r.product,'in'))}</td>
@@ -2846,7 +2953,7 @@ function printStock(){
         <td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;font-size:14px;color:${r.balPes>100?'#15803d':r.balPes>0?'#b45309':'#b91c1c'};">${num(r.balPes)}</td>
         <td style="padding:5px 4px;text-align:center;"><span style="display:inline-block;padding:1px 6px;border-radius:20px;font-size:11px;font-weight:700;background:${r.balPes>100?'#dcfce7':r.balPes>0?'#fef9c3':'#fee2e2'};color:${r.balPes>100?'#15803d':r.balPes>0?'#854d0e':'#b91c1c'};-webkit-print-color-adjust:exact;print-color-adjust:exact;">${r.balPes>100?'OK':r.balPes>0?'Aacho':'Khatam'}</span></td>
       </tr>`).join('')}</tbody>
-      <tfoot><tr style="background:#fff!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;font-weight:900!important;">
+      <tfoot><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid #4c1d95;border-bottom:2px solid #4c1d95;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#4c1d95!important;font-weight:900!important;">
         <td colspan="3" style="padding:6px 4px;font-size:13px;">KUL TOTAL</td>
         <td style="padding:6px 4px;text-align:right;font-size:13px;font-family:'Courier New',monospace;">${num(ti)}</td>
         <td style="padding:6px 4px;text-align:right;font-size:11px;font-family:'Courier New',monospace;">${inr(tiA)}</td>
@@ -2869,7 +2976,7 @@ body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}
 table{width:100%;border-collapse:collapse;}
 @page{margin:8mm 7mm;size:A4 landscape;}
 @media print{
-  body{background:#fff!important;}
+  body{background:rgba(255,255,255,.45)!important;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   thead{display:table-header-group!important;}
   tfoot{display:table-row-group!important;}
@@ -2908,19 +3015,19 @@ function printSearch(){
       const tshrt=type==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
       const tfresh=type==='out'?rows.reduce((s,r)=>s+(r.fresh||0),0):0;
       return `<table style="width:100%;border-collapse:collapse;font-size:14px;">
-        <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+        <thead><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
           <th style="padding:4px 5px;text-align:left;">Tarikh</th>
           <th style="padding:4px 5px;text-align:right;">Pcs</th>
           ${type==='out'?`<th style="padding:4px 4px;text-align:right;">Dmg</th><th style="padding:4px 4px;text-align:right;">Shrt</th><th style="padding:4px 4px;text-align:right;">Fresh</th>`:''}
           <th style="padding:4px 5px;text-align:right;">Amount</th>
         </tr></thead>
-        <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'#fff':bg};border-bottom:1px solid #e5e7eb;">
+        <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'rgba(255,255,255,.45)':bg};border-bottom:1px solid #e5e7eb;">
           <td style="padding:3px 5px;font-family:'Courier New',monospace;font-size:14px;">${fd(r.date)}</td>
           <td style="padding:3px 5px;text-align:right;font-weight:700;font-family:'Courier New',monospace;">${num(r.pes)}</td>
           ${type==='out'?`<td style="padding:3px 4px;text-align:right;color:#b45309;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:3px 4px;text-align:right;color:#7c3aed;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td><td style="padding:3px 4px;text-align:right;color:#059669;font-family:'Courier New',monospace;">${(r.fresh||0)>0?num(r.fresh):'-'}</td>`:''}
           <td style="padding:3px 5px;text-align:right;font-weight:700;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
         </tr>`).join('')}</tbody>
-        <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+        <tfoot><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
           <td style="padding:4px 5px;font-weight:900;font-size:14px;">KUL — ${rows.length}</td>
           <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tp)}</td>
           ${type==='out'?`<td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tfresh)}</td>`:''}
@@ -2932,13 +3039,13 @@ function printSearch(){
     const bodyHTML=`
     <!-- Grand Summary -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-      <div style="border:2px solid #16a34a;border-radius:7px;padding:9px 13px;background:#fff;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+      <div style="border:2px solid #16a34a;border-radius:7px;padding:9px 13px;background:rgba(255,255,255,.45);display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div><div style="font-size:14px;color:#15803d;font-weight:800;margin-bottom:2px;">📥 MAAL AAVYO TOTAL</div>
           <div style="font-size:22px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(totIn)} pcs</div></div>
         <div style="text-align:right;"><div style="font-size:14px;color:#333;">Amount</div>
           <div style="font-size:19px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(totInAmt)}</div></div>
       </div>
-      <div style="border:2px solid #dc2626;border-radius:7px;padding:9px 13px;background:#fff;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+      <div style="border:2px solid #dc2626;border-radius:7px;padding:9px 13px;background:rgba(255,255,255,.45);display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div><div style="font-size:14px;color:#b91c1c;font-weight:800;margin-bottom:2px;">📤 MAAL GAYO TOTAL</div>
           <div style="font-size:22px;font-weight:900;color:#b91c1c;font-family:'Courier New',monospace;">${num(totOut)} pcs</div></div>
         <div style="text-align:right;"><div style="font-size:14px;color:#333;">Amount</div>
@@ -2959,7 +3066,7 @@ function printSearch(){
       return `
       <div style="margin-bottom:5px;page-break-inside:avoid;break-inside:avoid-page;border:1.5px solid #e5e7eb;border-radius:7px;">
         <!-- Product header -->
-        <div style="background:#fff!important;border-top:2px solid #1e1b4b;border-bottom:2px solid #1e1b4b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#1e1b4b;padding:4px 10px;">
+        <div style="background:rgba(255,255,255,.45)!important;border-top:2px solid #1e1b4b;border-bottom:2px solid #1e1b4b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#1e1b4b;padding:4px 10px;">
           <div style="font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i+1}. ${pname} <span style="font-weight:900;">· Rate: ${inr(pRate)}</span></div>
           <div style="display:flex;gap:14px;font-size:14px;font-family:'Courier New',monospace;margin-top:2px;">
             <span style="color:#15803d;">IN: ${num(inPes)} pcs · ${inr(inAmt)}</span>
@@ -2971,23 +3078,23 @@ function printSearch(){
         <div style="display:grid;grid-template-columns:1fr 1fr;align-items:stretch;">
           <div style="border-right:1px solid #e5e7eb;padding:4px 8px;display:flex;flex-direction:column;">
             <div style="font-size:14px;font-weight:800;color:#15803d;margin-bottom:4px;">📥 Maal Aavyo — ${pIn.length} entries</div>
-            ${miniTbl(pIn,'#15803d','#f0fdf4','in')}
+            ${miniTbl(pIn,'#15803d','rgba(240,253,244,.45)','in')}
           </div>
           <div style="padding:4px 8px;display:flex;flex-direction:column;">
             <div style="font-size:14px;font-weight:800;color:#b91c1c;margin-bottom:4px;">📤 Maal Gayo — ${pOut.length} entries</div>
-            ${miniTbl(pOut,'#b91c1c','#fef2f2','out')}
+            ${miniTbl(pOut,'#b91c1c','rgba(254,242,242,.45)','out')}
           </div>
         </div>
       </div>`;
     }).join('')}`;
-    document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:#fff;">
+    document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:transparent;">
       ${pHdr(title,pd)}${bodyHTML}
       <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:10px;page-break-inside:avoid;break-inside:avoid;">
         <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
         <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
         <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
       </div></div>`;
-    const ph=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}table{width:100%;border-collapse:collapse;}@page{margin:10mm 8mm;size:A4 portrait;}@media print{body{background:#fff!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}thead{display:table-header-group!important;}tfoot{display:table-row-group!important;}tr,td,th{page-break-inside:avoid!important;break-inside:avoid-page!important;}.pbox{page-break-inside:avoid!important;break-inside:avoid-page!important;}table{page-break-inside:auto;}}</style></head><body>`+wrapPrintTop(document.getElementById('pa').innerHTML)+`</body></html>`;
+    const ph=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}table{width:100%;border-collapse:collapse;}@page{margin:10mm 8mm;size:A4 portrait;}@media print{body{background:rgba(255,255,255,.45)!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}thead{display:table-header-group!important;}tfoot{display:table-row-group!important;}tr,td,th{page-break-inside:avoid!important;break-inside:avoid-page!important;}.pbox{page-break-inside:avoid!important;break-inside:avoid-page!important;}table{page-break-inside:auto;}}</style></head><body>`+wrapPrintTop(document.getElementById('pa').innerHTML)+`</body></html>`;
     mobilePrint(ph);
     document.getElementById('pa').style.display='none';
     return;
@@ -3036,7 +3143,7 @@ function printSearch(){
     const tfresh=type==='out'?rows.reduce((s,r)=>s+(r.fresh||0),0):0;
     const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
     return `<table style="width:100%;border-collapse:collapse;font-size:15px;">
-      <thead><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+      <thead><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
         <th style="padding:5px 5px;text-align:center;width:18px;">#</th>
         <th style="padding:5px 5px;text-align:left;">Tarikh</th>
         ${hideProd?'':'<th style="padding:5px 5px;text-align:left;">Product</th>'}
@@ -3045,7 +3152,7 @@ function printSearch(){
         <th style="padding:5px 5px;text-align:right;">Rate</th>
         <th style="padding:5px 5px;text-align:right;">Amount</th>
       </tr></thead>
-      <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'#fff':bg};border-bottom:1px solid #e5e7eb;">
+      <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'rgba(255,255,255,.45)':bg};border-bottom:1px solid #e5e7eb;">
         <td style="padding:4px 5px;text-align:center;color:#666;font-size:14px;">${i+1}</td>
         <td style="padding:4px 5px;font-family:'Courier New',monospace;font-weight:600;font-size:14px;">${fd(r.date)}</td>
         ${hideProd?'':`<td style="padding:4px 5px;font-weight:700;font-size:15px;">${r.product}</td>`}
@@ -3054,7 +3161,7 @@ function printSearch(){
         <td style="padding:4px 5px;text-align:right;color:#333;font-family:'Courier New',monospace;">${inr(r.rate)}</td>
         <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
       </tr>`).join('')}</tbody>
-      <tfoot><tr style="background:#fff!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+      <tfoot><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
         <td colspan="${hideProd?2:3}" style="padding:5px 5px;font-weight:900;font-size:15px;">KUL — ${rows.length}</td>
         <td style="padding:5px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tp)}</td>
         ${type==='out'?`<td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:5px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tfresh)}</td>`:''}
@@ -3067,7 +3174,7 @@ function printSearch(){
   // Summary row (side-by-side)
   const summaryRow=`
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-    <div style="border:2px solid #16a34a;border-radius:8px;padding:10px 14px;background:#fff;display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+    <div style="border:2px solid #16a34a;border-radius:8px;padding:10px 14px;background:rgba(255,255,255,.45);display:flex;justify-content:space-between;align-items:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
       <div>
         <div style="font-size:15px;color:#15803d;font-weight:800;margin-bottom:2px;">📥 MAAL AAVYO TOTAL</div>
         <div style="font-size:23px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(tiP)} pcs</div>
@@ -3078,7 +3185,7 @@ function printSearch(){
         <div style="font-size:15px;color:#333;">${inR.length} entries</div>
       </div>
     </div>
-    <div style="border:2px solid #dc2626;border-radius:8px;padding:10px 14px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+    <div style="border:2px solid #dc2626;border-radius:8px;padding:10px 14px;background:rgba(255,255,255,.45);-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <div>
           <div style="font-size:15px;color:#b91c1c;font-weight:800;margin-bottom:2px;">📤 MAAL GAYO TOTAL</div>
@@ -3091,19 +3198,19 @@ function printSearch(){
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;border-top:1px solid #fca5a5;padding-top:5px;">
-        <div style="background:#fff;border:1px solid #f59e0b;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="background:rgba(255,255,255,.45);border:1px solid #f59e0b;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
           <div style="font-size:14px;color:#b45309;font-weight:800;">⚠️ DMG</div>
           <div style="font-size:17px;font-weight:900;color:#b45309;font-family:'Courier New',monospace;">${num(toDmg)}</div>
         </div>
-        <div style="background:#fff;border:1px solid #7c3aed;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="background:rgba(255,255,255,.45);border:1px solid #7c3aed;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
           <div style="font-size:14px;color:#7c3aed;font-weight:800;">📉 SHRT</div>
           <div style="font-size:17px;font-weight:900;color:#7c3aed;font-family:'Courier New',monospace;">${num(toShrt)}</div>
         </div>
-        <div style="background:#fff;border:1px solid #059669;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="background:rgba(255,255,255,.45);border:1px solid #059669;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
           <div style="font-size:14px;color:#059669;font-weight:800;">🍃 FRESH</div>
           <div style="font-size:17px;font-weight:900;color:#059669;font-family:'Courier New',monospace;">${num(toFresh)}</div>
         </div>
-        <div style="background:#fff;border:1px solid #2563eb;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
+        <div style="background:rgba(255,255,255,.45);border:1px solid #2563eb;border-radius:5px;padding:4px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
           <div style="font-size:14px;color:#1d4ed8;font-weight:800;">✅ NET</div>
           <div style="font-size:17px;font-weight:900;color:#1d4ed8;font-family:'Courier New',monospace;">${num(toNet)}</div>
         </div>
@@ -3116,7 +3223,7 @@ function printSearch(){
   const singleProd=distinctProds.length===1?distinctProds[0]:null;
   const prodHeaderHTML=singleProd?`
   <div style="border:1.5px solid #e5e7eb;border-radius:7px;margin-bottom:10px;overflow:hidden;">
-    <div style="background:#fff!important;border-top:2px solid #1e1b4b;border-bottom:2px solid #1e1b4b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#1e1b4b;padding:6px 12px;">
+    <div style="background:rgba(255,255,255,.45)!important;border-top:2px solid #1e1b4b;border-bottom:2px solid #1e1b4b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#1e1b4b;padding:6px 12px;">
       <div style="font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${singleProd} <span style="font-weight:900;">· Rate: ${inr(getProdRate(singleProd,'in'))}</span></div>
     </div>
   </div>`:'';
@@ -3126,17 +3233,17 @@ function printSearch(){
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch;">
     <div style="display:flex;flex-direction:column;">
       <div style="font-size:17px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — ${inR.length} entries</div>
-      ${mkTbl(inR,'#15803d','#f0fdf4','in',!!singleProd)}
+      ${mkTbl(inR,'#15803d','rgba(240,253,244,.45)','in',!!singleProd)}
     </div>
     <div style="display:flex;flex-direction:column;">
       <div style="font-size:17px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — ${outR.length} entries</div>
-      ${mkTbl(outR,'#b91c1c','#fef2f2','out',!!singleProd)}
+      ${mkTbl(outR,'#b91c1c','rgba(254,242,242,.45)','out',!!singleProd)}
     </div>
   </div>`;
 
   const bodyHTML=prodHeaderHTML+summaryRow+bothTablesBody;
 
-  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:900px;margin:0 auto;background:#fff;">
+  document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:900px;margin:0 auto;background:transparent;">
     ${pHdr(title,pd)}
     ${bodyHTML}
     <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:10px;page-break-inside:avoid;break-inside:avoid;">
@@ -3153,7 +3260,7 @@ body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;font-si
 table{width:100%;border-collapse:collapse;}
 @page{margin:10mm 8mm;size:A4 portrait;}
 @media print{
-  body{background:#fff!important;}
+  body{background:rgba(255,255,255,.45)!important;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   thead{display:table-header-group!important;}
   tfoot{display:table-row-group!important;}
@@ -4062,32 +4169,40 @@ function kpFinishLogin(){
 }
 
 // ══════════════════════════════════════════════════════
-// WHATSAPP OTP — CallMeBot API vaparine OTP moklvu
+// EMAIL OTP — EmailJS (free) vaparine OTP moklvu
 // ══════════════════════════════════════════════════════
-var KP_WA_PHONE_KEY='kp_wa_phone';
-var KP_WA_APIKEY_KEY='kp_wa_apikey';
+var KP_EMAIL_KEY='kp_email_to';
+var KP_EJS_SERVICE_KEY='kp_ejs_service';
+var KP_EJS_TEMPLATE_KEY='kp_ejs_template';
+var KP_EJS_PUBKEY_KEY='kp_ejs_pubkey';
 var KP_OTP_KEY='kp_otp_temp';
 var kpOVal='';
 var kpResendTimer=null,kpResendLeft=0;
-function kpGetWaPhone(){return localStorage.getItem(KP_WA_PHONE_KEY)||'';}
-function kpGetWaApikey(){return localStorage.getItem(KP_WA_APIKEY_KEY)||'';}
+function kpGetEmail(){return localStorage.getItem(KP_EMAIL_KEY)||'';}
+function kpGetEjsService(){return localStorage.getItem(KP_EJS_SERVICE_KEY)||'';}
+function kpGetEjsTemplate(){return localStorage.getItem(KP_EJS_TEMPLATE_KEY)||'';}
+function kpGetEjsPubkey(){return localStorage.getItem(KP_EJS_PUBKEY_KEY)||'';}
 
-// ── Setup screen — WhatsApp number + CallMeBot Apikey (ek j vaar) ──
-function kpShowWaSetup(afterLogin){
+// ── Setup screen — Email + EmailJS Service/Template/PublicKey (ek j vaar) ──
+function kpShowEmailSetup(afterLogin){
   var old=document.getElementById('kp-login');if(old)old.remove();
   var old2=document.getElementById('kp-otp');if(old2)old2.remove();
   var d=document.createElement('div');
   d.id='kp-wasetup';
   d.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#080e1c 0%,#060b18 50%,#040810 100%);font-family:Sora,Inter,sans-serif;padding:20px;overflow:auto;';
-  var html='<div style="width:100%;max-width:420px;background:rgba(18,22,32,.6);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:26px;">';
-  html+='<div style="font-size:20px;font-weight:900;color:#f97316;margin-bottom:6px;">📲 WhatsApp OTP Setup</div>';
-  html+='<div style="font-size:12.5px;color:#8b9dc3;line-height:1.8;margin-bottom:18px;">Login vakhte OTP tamara WhatsApp par aavshe. Ek j vaar aa setup karvanu chhe:<br>1️⃣ <b style="color:#e8eef8">+34 623 78 64 49</b> aa number ne Phone Contact ma save karo<br>2️⃣ Tene WhatsApp par aa message moklo (English ma j): <b style="color:#e8eef8">I allow callmebot to send me messages</b><br>3️⃣ 1-2 minute ma bot no reply aavshe, ema <b style="color:#e8eef8">APIKEY</b> hashe, e niche nakho.</div>';
-  html+='<label style="font-size:11px;color:#8b9dc3;font-weight:700;">TAMARO WHATSAPP NUMBER (country code sathe, dakh. +91XXXXXXXXXX)</label>';
-  html+='<input type="text" id="kp-wa-phone" class="inp" placeholder="+91XXXXXXXXXX" value="'+kpGetWaPhone()+'" style="margin:6px 0 14px;">';
-  html+='<label style="font-size:11px;color:#8b9dc3;font-weight:700;">CALLMEBOT APIKEY</label>';
-  html+='<input type="text" id="kp-wa-key" class="inp" placeholder="Apikey paste karo" value="'+kpGetWaApikey()+'" style="margin:6px 0 18px;">';
+  var html='<div style="width:100%;max-width:440px;background:rgba(18,22,32,.6);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:26px;">';
+  html+='<div style="font-size:20px;font-weight:900;color:#f97316;margin-bottom:6px;">📧 Email OTP Setup</div>';
+  html+='<div style="font-size:12.5px;color:#8b9dc3;line-height:1.8;margin-bottom:16px;">Login vakhte OTP tamara Email par aavshe (EmailJS free service — server ni jarur nathi). Ek j vaar aa setup karvanu chhe:<br>1️⃣ <b style="color:#e8eef8">emailjs.com</b> par free account banavo<br>2️⃣ "Email Services" ma jaine Gmail/Outlook connect karo → <b style="color:#e8eef8">Service ID</b> male<br>3️⃣ "Email Templates" ma navu template banavo, ema <b style="color:#e8eef8">{{to_email}}</b> ane <b style="color:#e8eef8">{{otp_code}}</b> variables vaparo → <b style="color:#e8eef8">Template ID</b> male<br>4️⃣ "Account" → "General" ma <b style="color:#e8eef8">Public Key</b> male.</div>';
+  html+='<label style="font-size:11px;color:#8b9dc3;font-weight:700;">TAMARO EMAIL (jya OTP avshe)</label>';
+  html+='<input type="email" id="kp-em-to" class="inp" placeholder="youremail@gmail.com" value="'+kpGetEmail()+'" style="margin:6px 0 12px;">';
+  html+='<label style="font-size:11px;color:#8b9dc3;font-weight:700;">EMAILJS SERVICE ID</label>';
+  html+='<input type="text" id="kp-em-service" class="inp" placeholder="service_xxxxxxx" value="'+kpGetEjsService()+'" style="margin:6px 0 12px;">';
+  html+='<label style="font-size:11px;color:#8b9dc3;font-weight:700;">EMAILJS TEMPLATE ID</label>';
+  html+='<input type="text" id="kp-em-template" class="inp" placeholder="template_xxxxxxx" value="'+kpGetEjsTemplate()+'" style="margin:6px 0 12px;">';
+  html+='<label style="font-size:11px;color:#8b9dc3;font-weight:700;">EMAILJS PUBLIC KEY</label>';
+  html+='<input type="text" id="kp-em-pubkey" class="inp" placeholder="Public Key paste karo" value="'+kpGetEjsPubkey()+'" style="margin:6px 0 18px;">';
   html+='<div id="kp-wa-err" style="color:#ef4444;font-size:12px;margin-bottom:10px;min-height:16px;"></div>';
-  html+='<button onclick="kpSaveWaSetup('+(afterLogin?'true':'false')+')" class="btn btn-or" style="width:100%;padding:13px;justify-content:center;font-size:14px;">✅ Save'+(afterLogin?' ane OTP Moklo':'')+'</button>';
+  html+='<button onclick="kpSaveEmailSetup('+(afterLogin?'true':'false')+')" class="btn btn-or" style="width:100%;padding:13px;justify-content:center;font-size:14px;">✅ Save'+(afterLogin?' ane OTP Moklo':'')+'</button>';
   if(afterLogin){
     html+='<button onclick="kpSkipWaSetup()" style="width:100%;padding:10px;background:transparent;border:none;color:rgba(130,155,200,.6);font-size:12px;cursor:pointer;margin-top:8px;">Have nahi, PIN thi j login karo (OTP skip)</button>';
   } else {
@@ -4097,34 +4212,50 @@ function kpShowWaSetup(afterLogin){
   d.innerHTML=html;
   document.body.appendChild(d);
 }
-function kpSaveWaSetup(afterLogin){
-  var phoneEl=document.getElementById('kp-wa-phone'),keyEl=document.getElementById('kp-wa-key');
-  var phone=(phoneEl&&phoneEl.value||'').trim();
-  var key=(keyEl&&keyEl.value||'').trim();
+function kpSaveEmailSetup(afterLogin){
+  var toEl=document.getElementById('kp-em-to'),svEl=document.getElementById('kp-em-service'),tpEl=document.getElementById('kp-em-template'),pkEl=document.getElementById('kp-em-pubkey');
+  var to=(toEl&&toEl.value||'').trim();
+  var sv=(svEl&&svEl.value||'').trim();
+  var tp=(tpEl&&tpEl.value||'').trim();
+  var pk=(pkEl&&pkEl.value||'').trim();
   var errEl=document.getElementById('kp-wa-err');
-  if(!phone||!key){ if(errEl) errEl.textContent='Banne fields bharo!'; return; }
-  localStorage.setItem(KP_WA_PHONE_KEY,phone);
-  localStorage.setItem(KP_WA_APIKEY_KEY,key);
+  if(!to||!sv||!tp||!pk){ if(errEl) errEl.textContent='Badha fields bharo!'; return; }
+  localStorage.setItem(KP_EMAIL_KEY,to);
+  localStorage.setItem(KP_EJS_SERVICE_KEY,sv);
+  localStorage.setItem(KP_EJS_TEMPLATE_KEY,tp);
+  localStorage.setItem(KP_EJS_PUBKEY_KEY,pk);
   var s=document.getElementById('kp-wasetup');if(s)s.remove();
-  if(afterLogin){ kpStartOtp(); } else { toast('WhatsApp OTP Setting save thai!'); }
+  if(afterLogin){ kpStartOtp(); } else { toast('Email OTP Setting save thai!'); }
 }
 function kpSkipWaSetup(){
   var s=document.getElementById('kp-wasetup');if(s)s.remove();
   kpFinishLogin();
 }
 
-// ── OTP generate & WhatsApp par moklvu ──
-function kpSendOtpWA(otp){
-  var phone=kpGetWaPhone(),key=kpGetWaApikey();
-  var msg=encodeURIComponent('Krushnnal Packing Vendor - Tamaru Login OTP: '+otp+' (5 minute valid chhe)');
-  var url='https://api.callmebot.com/whatsapp.php?phone='+encodeURIComponent(phone)+'&text='+msg+'&apikey='+encodeURIComponent(key);
-  fetch(url,{mode:'no-cors'}).catch(function(){});
+// ── OTP generate & Email par moklvu (EmailJS REST API) ──
+function kpSendOtpEmail(otp){
+  var to=kpGetEmail(),sv=kpGetEjsService(),tp=kpGetEjsTemplate(),pk=kpGetEjsPubkey();
+  var body={
+    service_id:sv,
+    template_id:tp,
+    user_id:pk,
+    template_params:{
+      to_email:to,
+      otp_code:otp,
+      message:'Krushnnal Packing Vendor - Tamaru Login OTP: '+otp+' (5 minute valid chhe)'
+    }
+  };
+  fetch('https://api.emailjs.com/api/v1.0/email/send',{
+    method:'POST',
+    headers:{'Content-type':'application/json'},
+    body:JSON.stringify(body)
+  }).catch(function(){});
 }
 function kpStartOtp(){
   var otp=String(Math.floor(100000+Math.random()*900000));
   var exp=Date.now()+5*60*1000;
   localStorage.setItem(KP_OTP_KEY,JSON.stringify({code:otp,exp:exp}));
-  kpSendOtpWA(otp);
+  kpSendOtpEmail(otp);
   kpOVal='';
   kpShowOtpScreen();
   kpOtpResendCooldown();
@@ -4135,12 +4266,13 @@ function kpShowOtpScreen(){
   var d=document.createElement('div');
   d.id='kp-otp';
   d.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#080e1c 0%,#060b18 50%,#040810 100%);font-family:Sora,Inter,sans-serif;padding:20px;';
-  var phone=kpGetWaPhone();
-  var masked=phone?(phone.slice(0,-4).replace(/./g,'•')+phone.slice(-4)):'';
+  var email=kpGetEmail();
+  var atIdx=email.indexOf('@');
+  var masked=atIdx>1?(email.slice(0,2)+'•••'+email.slice(atIdx)):email;
   var html='<div style="width:100%;max-width:360px;">';
   html+='<div style="text-align:center;margin-bottom:6px;font-size:34px;">📲</div>';
   html+='<div style="font-size:22px;font-weight:900;color:#e8eef8;text-align:center;margin-bottom:6px;">OTP Verify Karo</div>';
-  html+='<div style="font-size:13px;color:rgba(130,155,200,.7);text-align:center;margin-bottom:28px;">WhatsApp par '+masked+' par 6-digit OTP moklyu chhe</div>';
+  html+='<div style="font-size:13px;color:rgba(130,155,200,.7);text-align:center;margin-bottom:28px;">Email par '+masked+' par 6-digit OTP moklyu chhe</div>';
   html+='<div style="display:flex;gap:8px;margin-bottom:8px;">';
   for(var i=0;i<6;i++) html+='<div id="kpo'+i+'" style="flex:1;height:54px;background:rgba(14,20,36,.9);border:1.5px solid rgba(255,255,255,.09);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#ff6b2b;transition:all .2s;box-shadow:inset 0 2px 8px rgba(0,0,0,.3);"></div>';
   html+='</div>';

@@ -2268,7 +2268,7 @@ function reportHTML(){
   const toDmg=outR.reduce((s,r)=>s+(r.damage||0),0);
   const toShrt=outR.reduce((s,r)=>s+(r.short||0),0);
   const toFresh=outR.reduce((s,r)=>s+(r.fresh||0),0);
-  const toNet=toP-toDmg-toShrt-toFresh;
+  const toNet=toP+toDmg+toShrt+toFresh;
   return `
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px;">
     <div>
@@ -2782,6 +2782,37 @@ function printRep(type){
   if(type==='in') title='📥 Maal Aavyo Report ('+inLabel(repInF)+')';
   else if(type==='out') title='📤 Maal Gayo Report ('+inLabel(repOutF)+')';
   else title='📊 Report (IN: '+inLabel(repInF)+' | OUT: '+inLabel(repOutF)+')';
+
+  // Helper: mini table for IN or OUT rows — same style as "All Products" search print
+  function miniTbl(rows,color,bg,type2){
+    if(!rows.length) return `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#888;font-size:15px;font-style:italic;padding:10px 0;min-height:40px;">Koi entry nathi</div>`;
+    const tp=rows.reduce((s,r)=>s+r.pes,0);
+    const ta=rows.reduce((s,r)=>s+r.pes*r.rate,0);
+    const tdmg=type2==='out'?rows.reduce((s,r)=>s+(r.damage||0),0):0;
+    const tshrt=type2==='out'?rows.reduce((s,r)=>s+(r.short||0),0):0;
+    const tfresh=type2==='out'?rows.reduce((s,r)=>s+(r.fresh||0),0):0;
+    return `<table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+        <th style="padding:4px 5px;text-align:left;">Tarikh</th>
+        <th style="padding:4px 5px;text-align:right;">Pcs</th>
+        ${type2==='out'?`<th style="padding:4px 4px;text-align:right;">Dmg</th><th style="padding:4px 4px;text-align:right;">Shrt</th><th style="padding:4px 4px;text-align:right;">Fresh</th>`:''}
+        <th style="padding:4px 5px;text-align:right;">Amount</th>
+      </tr></thead>
+      <tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'rgba(255,255,255,.45)':bg};border-bottom:1px solid #e5e7eb;">
+        <td style="padding:3px 5px;font-family:'Courier New',monospace;font-size:14px;">${fd(r.date)}</td>
+        <td style="padding:3px 5px;text-align:right;font-weight:700;font-family:'Courier New',monospace;">${num(r.pes)}</td>
+        ${type2==='out'?`<td style="padding:3px 4px;text-align:right;color:#b45309;font-family:'Courier New',monospace;">${(r.damage||0)>0?num(r.damage):'-'}</td><td style="padding:3px 4px;text-align:right;color:#7c3aed;font-family:'Courier New',monospace;">${(r.short||0)>0?num(r.short):'-'}</td><td style="padding:3px 4px;text-align:right;color:#059669;font-family:'Courier New',monospace;">${(r.fresh||0)>0?num(r.fresh):'-'}</td>`:''}
+        <td style="padding:3px 5px;text-align:right;font-weight:700;font-family:'Courier New',monospace;">${inr(r.pes*r.rate)}</td>
+      </tr>`).join('')}</tbody>
+      <tfoot><tr style="background:rgba(255,255,255,.45)!important;border-top:2px solid ${color};border-bottom:2px solid ${color};-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:${color}!important;">
+        <td style="padding:4px 5px;font-weight:900;font-size:14px;">KUL — ${rows.length}</td>
+        <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tp)}</td>
+        ${type2==='out'?`<td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tdmg)}</td><td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tshrt)}</td><td style="padding:4px 4px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${num(tfresh)}</td>`:''}
+        <td style="padding:4px 5px;text-align:right;font-weight:900;font-family:'Courier New',monospace;">${inr(ta)}</td>
+      </tr></tfoot>
+    </table>`;
+  }
+
   let body='';
   if(type==='in'||type==='both'){
     body+=`<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:13px;">
@@ -2790,16 +2821,14 @@ function printRep(type){
           <div><span style="font-size:15px;color:#333;">Piece: </span><span style="font-size:23px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${num(tiP)}</span></div></div>
         <div style="text-align:right;"><div style="font-size:15px;color:#333;">Amount</div><div style="font-size:21px;font-weight:900;color:#15803d;font-family:'Courier New',monospace;">${inr(tiA)}</div><div style="font-size:15px;color:#333;">${inR.length} entries</div></div>
       </div>
-    </div>
-    <div style="font-size:17px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — Detail</div>
-    <div style="margin-bottom:15px;">${ptbl(inR,'#15803d','rgba(240,253,244,.45)','in')}</div>`;
+    </div>`;
   }
   if(type==='both'){body+=`<div style="height:8px;"></div>`;}
   if(type==='out'||type==='both'){
     const toDmg=outR.reduce((s,r)=>s+(r.damage||0),0);
     const toShrt=outR.reduce((s,r)=>s+(r.short||0),0);
     const toFresh=outR.reduce((s,r)=>s+(r.fresh||0),0);
-    const toNet=toP-toDmg-toShrt-toFresh;
+    const toNet=toP+toDmg+toShrt+toFresh;
     body+=`<div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:13px;">
       <div style="border:2px solid #dc2626;border-radius:8px;padding:11px 14px;background:rgba(255,255,255,.45);-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;break-inside:avoid;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -2826,10 +2855,53 @@ function printRep(type){
           </div>
         </div>
       </div>
-    </div>
-    <div style="font-size:17px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — Detail</div>
+    </div>`;
+  }
+
+  // ── Per-product detail — same grouped style as "All Products" search print ──
+  if(type==='both'){
+    const allProds=[...new Set([...inR.map(r=>r.product),...outR.map(r=>r.product)])].sort();
+    body+=allProds.map((pname,i)=>{
+      const pIn=inR.filter(r=>r.product===pname).sort((a,b)=>a.date.localeCompare(b.date));
+      const pOut=outR.filter(r=>r.product===pname).sort((a,b)=>a.date.localeCompare(b.date));
+      const inPes=pIn.reduce((s,r)=>s+r.pes,0);
+      const outPes=pOut.reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0),0);
+      const inAmt=pIn.reduce((s,r)=>s+r.pes*r.rate,0);
+      const outAmt=pOut.reduce((s,r)=>s+r.pes*r.rate,0);
+      const bal=inPes-outPes;
+      const pRate=getProdRate(pname,'in');
+      return `
+      <div style="margin-bottom:5px;page-break-inside:avoid;break-inside:avoid-page;border:1.5px solid #e5e7eb;border-radius:7px;">
+        <!-- Product header -->
+        <div style="background:rgba(255,255,255,.45)!important;border-top:2px solid #1e1b4b;border-bottom:2px solid #1e1b4b;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#1e1b4b;padding:4px 10px;">
+          <div style="font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i+1}. ${pname} <span style="font-weight:900;color:#c2410c;">· Rate: ${inr(pRate)}</span></div>
+          <div style="display:flex;gap:14px;font-size:14px;font-family:'Courier New',monospace;margin-top:2px;">
+            <span style="color:#15803d;">IN: ${num(inPes)} pcs · ${inr(inAmt)}</span>
+            <span style="color:#b91c1c;">OUT: ${num(outPes)} pcs · ${inr(outAmt)}</span>
+            <span style="color:${bal>0?'#1d4ed8':bal===0?'#b45309':'#b91c1c'};font-weight:900;">BAL: ${num(bal)}</span>
+          </div>
+        </div>
+        <!-- Side-by-side tables -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;align-items:stretch;">
+          <div style="border-right:1px solid #e5e7eb;padding:4px 8px;display:flex;flex-direction:column;">
+            <div style="font-size:14px;font-weight:800;color:#15803d;margin-bottom:4px;">📥 Maal Aavyo — ${pIn.length} entries</div>
+            ${miniTbl(pIn,'#15803d','rgba(240,253,244,.45)','in')}
+          </div>
+          <div style="padding:4px 8px;display:flex;flex-direction:column;">
+            <div style="font-size:14px;font-weight:800;color:#b91c1c;margin-bottom:4px;">📤 Maal Gayo — ${pOut.length} entries</div>
+            ${miniTbl(pOut,'#b91c1c','rgba(254,242,242,.45)','out')}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } else if(type==='in'){
+    body+=`<div style="font-size:17px;font-weight:900;color:#15803d;margin-bottom:5px;border-bottom:2px solid #16a34a44;padding-bottom:3px;">📥 MAAL AAVYO — Detail</div>
+    <div style="margin-bottom:15px;">${ptbl(inR,'#15803d','rgba(240,253,244,.45)','in')}</div>`;
+  } else if(type==='out'){
+    body+=`<div style="font-size:17px;font-weight:900;color:#b91c1c;margin-bottom:5px;border-bottom:2px solid #dc262644;padding-bottom:3px;">📤 MAAL GAYO — Detail</div>
     <div style="margin-bottom:15px;">${ptbl(outR,'#b91c1c','rgba(254,242,242,.45)','out')}</div>`;
   }
+
   document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:transparent;">
     ${pHdr(title,pd)}
     ${body}
@@ -3147,7 +3219,7 @@ function printSearch(){
   const toDmg=outR.reduce((s,r)=>s+(r.damage||0),0);
   const toShrt=outR.reduce((s,r)=>s+(r.short||0),0);
   const toFresh=outR.reduce((s,r)=>s+(r.fresh||0),0);
-  const toNet=toP-toDmg-toShrt-toFresh;
+  const toNet=toP+toDmg+toShrt+toFresh;
 
   // Title banavo
   let filterLabel='';

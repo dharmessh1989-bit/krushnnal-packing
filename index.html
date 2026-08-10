@@ -691,7 +691,145 @@ const IC={
   sad:`<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".4"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
   filter:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>`,
 };
-const SK='kpv10';
+const SK_BASE='kpv10';
+const FB_BASE='https://krushnnal-packing-default-rtdb.asia-southeast1.firebasedatabase.app';
+const FIRMS_KEY='kp_firms_v1';
+const CUR_FIRM_KEY='kp_current_firm';
+const DEFAULT_FIRM_ID='default';
+
+// ── Firm registry ──
+function getFirms(){
+  try{
+    const s=localStorage.getItem(FIRMS_KEY);
+    if(s){const arr=JSON.parse(s);if(Array.isArray(arr)&&arr.length)return arr;}
+  }catch(e){}
+  // Pehli vaar — existing data ne "Krushnnal Packing Vendor" firm tarike register karo
+  const def=[{id:DEFAULT_FIRM_ID,name:'Krushnnal Packing Vendor',address:'Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210',phone:'9724589469'}];
+  try{localStorage.setItem(FIRMS_KEY,JSON.stringify(def));}catch(e){}
+  return def;
+}
+function saveFirms(arr){try{localStorage.setItem(FIRMS_KEY,JSON.stringify(arr));}catch(e){}}
+function getCurFirmId(){
+  try{return localStorage.getItem(CUR_FIRM_KEY)||DEFAULT_FIRM_ID;}catch(e){return DEFAULT_FIRM_ID;}
+}
+function setCurFirmId(id){try{localStorage.setItem(CUR_FIRM_KEY,id);}catch(e){}}
+function getCurFirm(){
+  const firms=getFirms();
+  return firms.find(f=>f.id===getCurFirmId())||firms[0];
+}
+function getFirmInitials(){
+  const name=(getCurFirm().name||'KP').trim();
+  const words=name.split(/\s+/).filter(Boolean);
+  if(!words.length) return 'KP';
+  if(words.length===1) return words[0].slice(0,2).toUpperCase();
+  return (words[0][0]+words[1][0]).toUpperCase();
+}
+function getFirmWordmark(){
+  const name=(getCurFirm().name||'Krushnnal Packing Vendor').trim();
+  const words=name.split(/\s+/).filter(Boolean);
+  const line1=(words[0]||'FIRM').toUpperCase();
+  const line2=(words.slice(1).join(' ')||' ').toUpperCase();
+  return {line1,line2};
+}
+// Default firm mate junu j SK/URL vaparo (existing data safe rahe), navi firm mate firm-specific
+function getSK(){
+  const id=getCurFirmId();
+  return id===DEFAULT_FIRM_ID?SK_BASE:(SK_BASE+'_'+id);
+}
+function getFbUrl(){
+  const id=getCurFirmId();
+  return id===DEFAULT_FIRM_ID?(FB_BASE+'/data.json'):(FB_BASE+'/firms/'+id+'.json');
+}
+function addFirm(name,address,phone){
+  const firms=getFirms();
+  const id='f'+Date.now();
+  firms.push({id,name:name.trim(),address:(address||'').trim(),phone:(phone||'').trim()});
+  saveFirms(firms);
+  return id;
+}
+function switchFirm(id){
+  setCurFirmId(id);
+  S=load();
+  render();
+  fbPull();
+  try{document.title=getCurFirm().name;}catch(e){}
+  const d=document.getElementById('firm-switch-dd');if(d)d.style.display='none';
+}
+function deleteFirm(id,ev){
+  if(ev){ev.stopPropagation();}
+  const firms=getFirms();
+  if(firms.length<=1){toast('Ochhi ma ochhi ek firm rakhvi j padse!','#ef4444');return;}
+  const f=firms.find(x=>x.id===id);
+  if(!f) return;
+  confirmQ={msg:`"${f.name}" firm delete karvi chhe? Aani badhi entries/products PERMANENTLY delete thai jashe — pachi pacho nahi male!`,
+    onYes:()=>{
+      const newFirms=firms.filter(x=>x.id!==id);
+      saveFirms(newFirms);
+      try{localStorage.removeItem(id===DEFAULT_FIRM_ID?SK_BASE:(SK_BASE+'_'+id));}catch(e){}
+      confirmQ=null;
+      if(getCurFirmId()===id){
+        switchFirm(newFirms[0].id);
+      } else {
+        render();
+      }
+      toast('Firm delete thai gai!','#ef4444');
+    }
+  };
+  render();
+}
+function toggleFirmDD(id){
+  const d=document.getElementById(id);
+  if(!d) return;
+  d.style.display=d.style.display==='block'?'none':'block';
+}
+function firmSwitcherHTML(ddId){
+  const cur=getCurFirm();
+  const firms=getFirms();
+  return `<div style="padding:8px 12px 4px;position:relative;">
+    <button onclick="toggleFirmDD('${ddId}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;background:#1a1f35;border:1px solid #f9731655;border-radius:8px;padding:8px 10px;cursor:pointer;color:#f97316;font-size:12px;font-weight:700;">
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">🏢 ${cur.name}</span>
+      <span style="flex-shrink:0;">▾</span>
+    </button>
+    <div id="${ddId}" style="display:none;position:absolute;top:100%;left:12px;right:12px;background:#12162a;border:1px solid #f9731655;border-radius:8px;margin-top:4px;z-index:999;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5);">
+      ${firms.map(f=>`<div style="display:flex;align-items:center;gap:6px;padding:9px 8px 9px 12px;border-bottom:1px solid #ffffff11;">
+        <div onclick="switchFirm('${f.id}')" style="flex:1;cursor:pointer;font-size:12px;color:${f.id===cur.id?'#f97316':'#e2e8f0'};font-weight:${f.id===cur.id?'800':'500'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.id===cur.id?'✓ ':''}${f.name}</div>
+        ${firms.length>1?`<button onclick="deleteFirm('${f.id}',event)" title="Firm delete karo" style="background:#7f1d1d18;border:1px solid #7f1d1d44;color:#f87171;border-radius:5px;padding:3px 6px;cursor:pointer;font-size:11px;flex-shrink:0;">🗑️</button>`:''}
+      </div>`).join('')}
+      <div onclick="openAddFirmModal()" style="padding:9px 12px;cursor:pointer;font-size:12px;color:#4ade80;font-weight:700;">➕ Navi Firm Umero</div>
+    </div>
+  </div>`;
+}
+function openAddFirmModal(){
+  const d=document.getElementById('firm-switch-dd');if(d)d.style.display='none';
+  const d2=document.getElementById('firm-switch-dd-mob');if(d2)d2.style.display='none';
+  const old=document.getElementById('kp-firm-modal');if(old)old.remove();
+  const m=document.createElement('div');
+  m.id='kp-firm-modal';
+  m.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:20px;';
+  m.innerHTML=`<div style="width:100%;max-width:400px;background:#12162a;border:1px solid #f9731644;border-radius:14px;padding:22px;">
+    <div style="font-size:18px;font-weight:900;color:#f97316;margin-bottom:14px;">➕ Navi Firm Banavo</div>
+    <label style="font-size:11px;color:#8b9dc3;font-weight:700;">FIRM / COMPANY NAAM *</label>
+    <input type="text" id="nf-name" class="inp" placeholder="jem ke Divya Packing" style="margin:6px 0 12px;">
+    <label style="font-size:11px;color:#8b9dc3;font-weight:700;">ADDRESS</label>
+    <input type="text" id="nf-addr" class="inp" placeholder="Address (optional)" style="margin:6px 0 12px;">
+    <label style="font-size:11px;color:#8b9dc3;font-weight:700;">MOBILE NUMBER</label>
+    <input type="text" id="nf-phone" class="inp" placeholder="Mobile (optional)" style="margin:6px 0 16px;">
+    <div id="nf-err" style="color:#ef4444;font-size:12px;margin-bottom:10px;min-height:16px;"></div>
+    <button onclick="saveNewFirm()" class="btn btn-or" style="width:100%;padding:12px;justify-content:center;font-size:14px;">✅ Firm Banavo ane Switch Karo</button>
+    <button onclick="document.getElementById('kp-firm-modal').remove()" style="width:100%;padding:10px;background:transparent;border:none;color:rgba(130,155,200,.6);font-size:12px;cursor:pointer;margin-top:8px;">Cancel</button>
+  </div>`;
+  document.body.appendChild(m);
+  setTimeout(()=>document.getElementById('nf-name')?.focus(),50);
+}
+function saveNewFirm(){
+  const nameEl=document.getElementById('nf-name'),addrEl=document.getElementById('nf-addr'),phEl=document.getElementById('nf-phone');
+  const name=(nameEl&&nameEl.value||'').trim();
+  if(!name){const e=document.getElementById('nf-err');if(e)e.textContent='Firm naam bharo!';return;}
+  const id=addFirm(name,addrEl&&addrEl.value,phEl&&phEl.value);
+  const m=document.getElementById('kp-firm-modal');if(m)m.remove();
+  switchFirm(id);
+  toast('Navi firm "'+name+'" banai gai! Have aa firm nu data alag chhe.');
+}
 const DF={
   products:[
     {name:"Plastic Bag 5kg",rate:2.50,inRate:2.50,outRate:2.50},
@@ -745,14 +883,40 @@ const FB_URL='https://krushnnal-packing-default-rtdb.asia-southeast1.firebasedat
 let fbSyncTimeout=null;
 let fbPushPending=false; // Entry save thayi, push pending chhe — pull nai karvani
 
+const GLOBAL_PRODUCTS_KEY='kp_global_products';
+function loadGlobalProducts(){
+  try{
+    const s=localStorage.getItem(GLOBAL_PRODUCTS_KEY);
+    if(s){const arr=JSON.parse(s);if(Array.isArray(arr))return arr;}
+  }catch(e){}
+  return null;
+}
+function saveGlobalProducts(products){
+  try{localStorage.setItem(GLOBAL_PRODUCTS_KEY,JSON.stringify(products||[]));}catch(e){}
+}
+function getGlobalProductsUrl(){return FB_BASE+'/global_products.json';}
+
 function load(){
-  try{const s=localStorage.getItem(SK);if(s)return JSON.parse(s);}catch(e){}
-  return JSON.parse(JSON.stringify(DF));
+  let firmData;
+  try{const s=localStorage.getItem(getSK());if(s)firmData=JSON.parse(s);}catch(e){}
+  if(!firmData){
+    // Navi firm mate khali entries (products shared hovathi khali nahi rakhvana)
+    firmData = getCurFirmId()!==DEFAULT_FIRM_ID ? {products:[],inData:[],outData:[],nextInId:1,nextOutId:1} : JSON.parse(JSON.stringify(DF));
+  }
+  // Products badhi firms ma SHARED chhe — global store thi override karo
+  let gp=loadGlobalProducts();
+  if(!gp){
+    gp=firmData.products||[];
+    saveGlobalProducts(gp); // Pehli vaar seed karo
+  }
+  firmData.products=gp;
+  return firmData;
 }
 let S=load();
 
 function persist(){
-  try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
+  try{localStorage.setItem(getSK(),JSON.stringify(S));}catch(e){}
+  saveGlobalProducts(S.products); // Products global rite pan save karo — badhi firms ma common
   clearTimeout(fbSyncTimeout);
   fbPushPending=true;
   fbSyncTimeout=setTimeout(()=>{fbPush();},1500);
@@ -761,12 +925,11 @@ function persist(){
 async function fbPush(){
   try{
     updateSyncBadge('syncing');
-    const res=await fetch(FB_URL,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(S)
-    });
-    if(res.ok){updateSyncBadge('synced');fbPushPending=false;}
+    const [r1,r2]=await Promise.all([
+      fetch(getFbUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)}),
+      fetch(getGlobalProductsUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S.products)})
+    ]);
+    if(r1.ok&&r2.ok){updateSyncBadge('synced');fbPushPending=false;}
     else{updateSyncBadge('offline');}
   }catch(e){updateSyncBadge('offline');}
 }
@@ -774,32 +937,50 @@ async function fbPush(){
 async function fbPull(){
   try{
     updateSyncBadge('syncing');
-    const res=await fetch(FB_URL);
-    if(res.ok){
-      const d=await res.json();
+    const [r1,r2]=await Promise.all([fetch(getFbUrl()),fetch(getGlobalProductsUrl())]);
+    let changed=false;
+    if(r1.ok){
+      const d=await r1.json();
       if(d&&d.inData&&d.outData){
-        // Push pending hoy to local data overwrite NAHI karvo (entry lost bug fix)
-        if(fbPushPending){updateSyncBadge('synced');return true;}
-        // Data same chhe to render NAHI karvo — screen jump nahi
-        const newJson=JSON.stringify(d);
-        const curJson=JSON.stringify(S);
-        if(newJson!==curJson){
-          S=d;
-          try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
-          // Modal open hoy ya input focus hoy to render nahi — keyboard break nai thay
-          const _fTag=document.activeElement?document.activeElement.tagName:'';
-          const _inputFocused=_fTag==='INPUT'||_fTag==='SELECT'||_fTag==='TEXTAREA';
-          if(!modal && !_inputFocused){
-            render();
+        // Push pending hoy to local firm-data overwrite NAHI karvo (entry lost bug fix)
+        if(!fbPushPending){
+          const newJson=JSON.stringify({inData:d.inData,outData:d.outData,nextInId:d.nextInId,nextOutId:d.nextOutId});
+          const curJson=JSON.stringify({inData:S.inData,outData:S.outData,nextInId:S.nextInId,nextOutId:S.nextOutId});
+          if(newJson!==curJson){
+            S.inData=d.inData;S.outData=d.outData;S.nextInId=d.nextInId;S.nextOutId=d.nextOutId;
+            changed=true;
           }
         }
-        updateSyncBadge('synced');
-        return true;
       } else {
-        await fbPush();
-        return true;
+        await fetch(getFbUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)});
       }
     }
+    if(r2.ok){
+      const gp=await r2.json();
+      if(Array.isArray(gp)){
+        const newPJson=JSON.stringify(gp);
+        const curPJson=JSON.stringify(S.products);
+        if(newPJson!==curPJson){
+          S.products=gp;
+          changed=true;
+        }
+      } else {
+        // Global products server par khali chhe — halna products upload kari devo
+        await fetch(getGlobalProductsUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S.products)});
+      }
+    }
+    if(changed){
+      try{localStorage.setItem(getSK(),JSON.stringify(S));}catch(e){}
+      saveGlobalProducts(S.products);
+      // Modal open hoy ya input focus hoy to render nahi — keyboard break nai thay
+      const _fTag=document.activeElement?document.activeElement.tagName:'';
+      const _inputFocused=_fTag==='INPUT'||_fTag==='SELECT'||_fTag==='TEXTAREA';
+      if(!modal && !_inputFocused){
+        render();
+      }
+    }
+    updateSyncBadge('synced');
+    return true;
   }catch(e){}
   updateSyncBadge('offline');
   return false;
@@ -894,8 +1075,10 @@ function stk(month){
     // OUT amount = pes*rate ONLY — damage/short/fresh ne rate thi ganva nathi, khali stock ma thi ochha karva
     const outAmt=outR.reduce((s,r)=>s+r.pes*r.rate,0);
     const balPes=inPes-outPes;
-    // Stock value = inAmt - outAmt (outAmt = pes*rate only)
-    const balAmt=inAmt-outAmt;
+    // Stock value = balance PIECES × average purchase rate (jethi 0 pieces hoy tyare 0 value j dekhay,
+    // damage/short/fresh na lidhe khoti rite value na dekhay)
+    const avgRate=inPes>0?(inAmt/inPes):getProdRate(p,'in');
+    const balAmt=balPes*avgRate;
     return {product:p,inPes,inAmt,outPes,outAmt,balPes,balAmt};
   });
 }
@@ -1229,13 +1412,14 @@ function _doRender(){
         <g class="kp-badge-group">
           <rect x="40" y="40" width="82" height="82" rx="17" fill="url(#mob-kp)"/>
           <rect x="40" y="40" width="82" height="82" rx="17" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>
-          <text x="81" y="96" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="46" fill="#ffffff" letter-spacing="-2">KP</text>
+          <text x="81" y="96" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="46" fill="#ffffff" letter-spacing="-2">${getFirmInitials()}</text>
         </g>
         <!-- Still text -->
-        <text x="136" y="68" font-family="Inter,sans-serif" font-weight="900" font-size="34" fill="#f8fafc" letter-spacing="-1">KRUSHNNAL</text>
-        <text x="136" y="104" font-family="Inter,sans-serif" font-weight="900" font-size="32" fill="#f97316" letter-spacing="-1">PACKING</text>
+        <text x="136" y="68" font-family="Inter,sans-serif" font-weight="900" font-size="34" fill="#f8fafc" letter-spacing="-1">${getFirmWordmark().line1}</text>
+        <text x="136" y="104" font-family="Inter,sans-serif" font-weight="900" font-size="32" fill="#f97316" letter-spacing="-1">${getFirmWordmark().line2}</text>
         <text x="137" y="126" font-family="Inter,sans-serif" font-size="12" font-weight="400" fill="#8b9dc3" letter-spacing="1">Dharmessh Bhai · Stock Mgmt</text>
       </svg>
+      ${firmSwitcherHTML('firm-switch-dd-mob')}
     </div>
     <nav style="flex:1;padding:8px 7px;display:flex;flex-direction:column;gap:2px;">
       ${NAV.map(n=>`<button class="nb${tab===n.id?' act':''}" onclick="tab='${n.id}';render();closeMobSidebar()" aria-label="${n.l}">
@@ -1277,14 +1461,15 @@ function _doRender(){
           <g class="kp-badge-group">
             <rect x="44" y="54" width="108" height="108" rx="22" fill="url(#sb-kp)"/>
             <rect x="44" y="54" width="108" height="108" rx="22" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>
-            <text x="98" y="128" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="62" fill="#ffffff" letter-spacing="-3">KP</text>
+            <text x="98" y="128" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="62" fill="#ffffff" letter-spacing="-3">${getFirmInitials()}</text>
           </g>
           <!-- Still text -->
-          <text x="168" y="94" font-family="Inter,sans-serif" font-weight="900" font-size="46" fill="#f8fafc" letter-spacing="-2">KRUSHNNAL</text>
-          <text x="168" y="142" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#f97316" letter-spacing="-1">PACKING</text>
+          <text x="168" y="94" font-family="Inter,sans-serif" font-weight="900" font-size="46" fill="#f8fafc" letter-spacing="-2">${getFirmWordmark().line1}</text>
+          <text x="168" y="142" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#f97316" letter-spacing="-1">${getFirmWordmark().line2}</text>
           <rect x="168" y="158" width="450" height="1.5" fill="url(#sb-al)" opacity="0.6"/>
           <text x="170" y="178" font-family="Inter,sans-serif" font-size="13" font-weight="400" fill="#8b9dc3" letter-spacing="1">Dharmessh Bhai · Stock Mgmt</text>
         </svg>
+        ${firmSwitcherHTML('firm-switch-dd')}
       </div>
       <nav style="flex:1;padding:8px 7px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;" aria-label="Main navigation">
         ${NAV.map(n=>`<button class="nb${tab===n.id?' act':''}" onclick="tab='${n.id}';render()" aria-label="${n.l}"${tab===n.id?' aria-current="page"':''}>
@@ -1331,7 +1516,7 @@ function _doRender(){
     <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
       </div>
       <div style="padding:6px 12px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);flex-shrink:0;">
-        <div style="font-weight:800;color:var(--orange);font-size:10px;">Dharmessh Bhai · Krushnnal Packing</div>
+        <div style="font-weight:800;color:var(--orange);font-size:10px;">Dharmessh Bhai · ${getCurFirm().name}</div>
         <div style="color:var(--border2);">© 2026 • Fully Offline</div>
       </div>
     </div>
@@ -1574,11 +1759,11 @@ function dashHTML(stock){
       <g class="kp-badge-group">
         <rect x="22" y="46" width="88" height="88" rx="18" fill="url(#db-kp)"/>
         <rect x="22" y="46" width="88" height="88" rx="18" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>
-        <text x="66" y="108" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="48" fill="#ffffff" letter-spacing="-2">KP</text>
+        <text x="66" y="108" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="48" fill="#ffffff" letter-spacing="-2">${getFirmInitials()}</text>
       </g>
       <!-- Still text -->
-      <text x="124" y="82" font-family="Inter,sans-serif" font-weight="900" font-size="38" fill="#f8fafc" letter-spacing="-1">KRUSHNNAL</text>
-      <text x="124" y="122" font-family="Inter,sans-serif" font-weight="900" font-size="36" fill="#f97316" letter-spacing="-1">PACKING</text>
+      <text x="124" y="82" font-family="Inter,sans-serif" font-weight="900" font-size="38" fill="#f8fafc" letter-spacing="-1">${getFirmWordmark().line1}</text>
+      <text x="124" y="122" font-family="Inter,sans-serif" font-weight="900" font-size="36" fill="#f97316" letter-spacing="-1">${getFirmWordmark().line2}</text>
       <rect x="124" y="136" width="510" height="1.5" fill="url(#db-al)" opacity="0.6"/>
       <text x="126" y="154" font-family="Inter,sans-serif" font-size="13" font-weight="400" fill="#8b9dc3" letter-spacing="1">Packing &amp; Stock Management  ·  Dharmessh Bhai</text>
     </svg>
@@ -2672,10 +2857,11 @@ function prodHTML(stock){
 
 // ═══ PRINT FUNCTIONS ═══
 function pHdr(title,pd){
+  const firm=getCurFirm();
   return `<div style="border-bottom:3px double #c2410c;padding-bottom:13px;margin-bottom:16px;display:flex;align-items:center;gap:12px;page-break-inside:avoid;break-inside:avoid;page-break-after:avoid;"><img src="${window._KPIMG||_KPIMG}" style="width:80px;height:95px;object-fit:cover;object-position:center top;border-radius:8px;border:2px solid #c2410c;flex-shrink:0;" /><div style="flex:1;text-align:center;">
     <div style="font-size:20px;font-weight:900;color:#c2410c;letter-spacing:3px;margin-bottom:6px;">॥ ॐ શ્રી ગણેશાય નમઃ ॥</div>
-    <div style="font-size:30px;font-weight:900;color:#000;letter-spacing:.5px;margin-bottom:3px;">KRUSHNNAL PACKING VENDOR</div>
-    <div style="font-size:17px;color:#444;line-height:1.8;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop,<br>Udhana, Surat - 394210 &nbsp;·&nbsp; Mo : 9724589469</div>
+    <div style="font-size:30px;font-weight:900;color:#000;letter-spacing:.5px;margin-bottom:3px;">${(firm.name||'').toUpperCase()}</div>
+    <div style="font-size:17px;color:#444;line-height:1.8;">${firm.address||''}${firm.phone?' &nbsp;·&nbsp; Mo : '+firm.phone:''}</div>
     <div style="margin-top:8px;display:inline-block;background:#fff3e0;border:1px solid #f97316;border-radius:7px;padding:4px 14px;">
       <span style="font-size:17px;color:#c2410c;font-weight:700;">${title} &nbsp;·&nbsp; Date : ${pd}</span>
     </div>
@@ -2734,7 +2920,7 @@ function wrapPrintTop(html){
     <g fill='#d4af37'>${petals}</g>
     <circle cx='200' cy='200' r='115' stroke='#d4af37' stroke-width='2.5' fill='none'/>
     <circle cx='200' cy='200' r='98' stroke='#d4af37' stroke-width='2' fill='none' stroke-dasharray='1 6' stroke-linecap='round'/>
-    <text x='200' y='240' text-anchor='middle' font-family='Georgia, serif' font-weight='700' font-size='90' fill='#d4af37'>KP</text>
+    <text x='200' y='240' text-anchor='middle' font-family='Georgia, serif' font-weight='700' font-size='90' fill='#d4af37'>${getFirmInitials()}</text>
   </svg>`;
   const kpLogoUri = `data:image/svg+xml,${encodeURIComponent(kpLogoSvg)}`;
   const watermark = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;overflow:hidden;">
@@ -2906,8 +3092,8 @@ function printRep(type){
     ${pHdr(title,pd)}
     ${body}
     <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:8px;page-break-inside:avoid;break-inside:avoid;">
-      <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:16px;font-weight:700;color:#c2410c;">${(getCurFirm().name||'').toUpperCase()}</div>
+      <div style="font-size:15px;color:#444;margin-top:1px;">${getCurFirm().address||''}${getCurFirm().phone?' · Mo: '+getCurFirm().phone:''}</div>
       <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
     </div>
   </div>`;
@@ -2973,8 +3159,8 @@ function printStockSimple(){
       <div>${colTbl(col2,half)}</div>
     </div>
     <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:14px;page-break-inside:avoid;break-inside:avoid;">
-      <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:16px;font-weight:700;color:#c2410c;">${(getCurFirm().name||'').toUpperCase()}</div>
+      <div style="font-size:15px;color:#444;margin-top:1px;">${getCurFirm().address||''}${getCurFirm().phone?' · Mo: '+getCurFirm().phone:''}</div>
       <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
     </div>
   </div>`;
@@ -3058,8 +3244,8 @@ function printStock(){
       </tr></tfoot>
     </table>
     <div style="border-top:2px solid #6d28d9;padding-top:9px;text-align:center;margin-top:12px;page-break-inside:avoid;break-inside:avoid;">
-      <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:16px;font-weight:700;color:#c2410c;">${(getCurFirm().name||'').toUpperCase()}</div>
+      <div style="font-size:15px;color:#444;margin-top:1px;">${getCurFirm().address||''}${getCurFirm().phone?' · Mo: '+getCurFirm().phone:''}</div>
       <div style="font-size:14px;color:#333;margin-top:1px;">Stock Print Date: ${pd}</div>
     </div>
   </div>`;
@@ -3184,8 +3370,8 @@ function printSearch(){
     document.getElementById('pa').innerHTML=`<div style="font-family:'Segoe UI',Tahoma,sans-serif;color:#000;max-width:760px;margin:0 auto;background:transparent;">
       ${pHdr(title,pd)}${bodyHTML}
       <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:10px;page-break-inside:avoid;break-inside:avoid;">
-        <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-        <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+        <div style="font-size:16px;font-weight:700;color:#c2410c;">${(getCurFirm().name||'').toUpperCase()}</div>
+        <div style="font-size:15px;color:#444;margin-top:1px;">${getCurFirm().address||''}${getCurFirm().phone?' · Mo: '+getCurFirm().phone:''}</div>
         <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
       </div></div>`;
     const ph=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;color:#000;font-family:'Segoe UI',Tahoma,sans-serif;}table{width:100%;border-collapse:collapse;}@page{margin:10mm 8mm;size:A4 portrait;}@media print{body{background:rgba(255,255,255,.45)!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}thead{display:table-header-group!important;}tfoot{display:table-row-group!important;}tr,td,th{page-break-inside:avoid!important;break-inside:avoid-page!important;}.pbox{page-break-inside:avoid!important;break-inside:avoid-page!important;}table{page-break-inside:auto;}}</style></head><body>`+wrapPrintTop(document.getElementById('pa').innerHTML)+`</body></html>`;
@@ -3341,8 +3527,8 @@ function printSearch(){
     ${pHdr(title,pd)}
     ${bodyHTML}
     <div style="border-top:2px solid #f97316;padding-top:8px;text-align:center;margin-top:10px;page-break-inside:avoid;break-inside:avoid;">
-      <div style="font-size:16px;font-weight:700;color:#c2410c;">KRUSHNNAL PACKING VENDOR</div>
-      <div style="font-size:15px;color:#444;margin-top:1px;">Plot No. 9/10, Shiv Nagar Society, Behind Udhana Bus Stop, Udhana, Surat - 394210 · Mo: 9724589469</div>
+      <div style="font-size:16px;font-weight:700;color:#c2410c;">${(getCurFirm().name||'').toUpperCase()}</div>
+      <div style="font-size:15px;color:#444;margin-top:1px;">${getCurFirm().address||''}${getCurFirm().phone?' · Mo: '+getCurFirm().phone:''}</div>
       <div style="font-size:14px;color:#333;margin-top:1px;">Print Date: ${pd}</div>
     </div>
   </div>`;
@@ -4115,10 +4301,10 @@ function kpShowLogin(){
   html+='<g class="kp-badge-group">';
   html+='<rect x="44" y="60" width="110" height="110" rx="22" fill="url(#lg-kp)"/>';
   html+='<rect x="44" y="60" width="110" height="110" rx="22" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.6"/>';
-  html+='<text x="99" y="132" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="64" fill="#ffffff" letter-spacing="-3">KP</text>';
+  html+='<text x="99" y="132" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="64" fill="#ffffff" letter-spacing="-3">'+getFirmInitials()+'</text>';
   html+='</g>';
-  html+='<text x="172" y="100" font-family="Inter,sans-serif" font-weight="900" font-size="46" fill="#f8fafc" letter-spacing="-2">KRUSHNNAL</text>';
-  html+='<text x="172" y="148" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#f97316" letter-spacing="-1">PACKING</text>';
+  html+='<text x="172" y="100" font-family="Inter,sans-serif" font-weight="900" font-size="46" fill="#f8fafc" letter-spacing="-2">'+getFirmWordmark().line1+'</text>';
+  html+='<text x="172" y="148" font-family="Inter,sans-serif" font-weight="900" font-size="44" fill="#f97316" letter-spacing="-1">'+getFirmWordmark().line2+'</text>';
   html+='<rect x="172" y="163" width="460" height="1.5" fill="url(#lg-al)" opacity="0.6"/>';
   html+='<text x="174" y="184" font-family="Inter,sans-serif" font-size="14" font-weight="400" fill="#8b9dc3" letter-spacing="1">Packing &amp; Stock Management</text>';
   html+='</svg>';

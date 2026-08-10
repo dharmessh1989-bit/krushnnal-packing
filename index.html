@@ -708,7 +708,36 @@ function getFirms(){
   try{localStorage.setItem(FIRMS_KEY,JSON.stringify(def));}catch(e){}
   return def;
 }
-function saveFirms(arr){try{localStorage.setItem(FIRMS_KEY,JSON.stringify(arr));}catch(e){}}
+function getFirmsListUrl(){return FB_BASE+'/firms_list.json';}
+function saveFirms(arr){
+  try{localStorage.setItem(FIRMS_KEY,JSON.stringify(arr));}catch(e){}
+  // Firm list ne cloud par pan save karo — jethi biju device/browser par pan e j list dekhay
+  fetch(getFirmsListUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)}).catch(()=>{});
+}
+async function pullFirmsList(){
+  try{
+    const res=await fetch(getFirmsListUrl());
+    if(res.ok){
+      const cloud=await res.json();
+      if(Array.isArray(cloud)&&cloud.length){
+        const local=getFirms();
+        // Cloud ane local ni firms merge karo (id thi duplicate na thay)
+        const merged=[...cloud];
+        local.forEach(lf=>{if(!merged.find(f=>f.id===lf.id)) merged.push(lf);});
+        const changed=JSON.stringify(merged)!==JSON.stringify(local);
+        if(changed){
+          try{localStorage.setItem(FIRMS_KEY,JSON.stringify(merged));}catch(e){}
+          const _fTag=document.activeElement?document.activeElement.tagName:'';
+          const _inputFocused=_fTag==='INPUT'||_fTag==='SELECT'||_fTag==='TEXTAREA';
+          if(!modal && !_inputFocused){render();}
+        }
+      } else {
+        // Cloud khali chhe — local list upload kari devo
+        fetch(getFirmsListUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(getFirms())}).catch(()=>{});
+      }
+    }
+  }catch(e){}
+}
 function getCurFirmId(){
   try{return localStorage.getItem(CUR_FIRM_KEY)||DEFAULT_FIRM_ID;}catch(e){return DEFAULT_FIRM_ID;}
 }
@@ -780,7 +809,9 @@ function deleteFirm(id,ev){
 function toggleFirmDD(id){
   const d=document.getElementById(id);
   if(!d) return;
-  d.style.display=d.style.display==='block'?'none':'block';
+  const opening=d.style.display!=='block';
+  d.style.display=opening?'block':'none';
+  if(opening) pullFirmsList();
 }
 function firmSwitcherHTML(ddId){
   const cur=getCurFirm();
@@ -1010,11 +1041,13 @@ function reapplyBadge(){
 // Page load thay tyare turant pull karo
 window.addEventListener('load', async()=>{
   await fbPull();
+  await pullFirmsList();
 });
 // Fallback
-setTimeout(async()=>{ await fbPull(); },500);
+setTimeout(async()=>{ await fbPull(); await pullFirmsList(); },500);
 // Daro 60 second e pull karo (ochhu polling = fast UI)
 setInterval(()=>{ fbPull(); },60000);
+setInterval(()=>{ pullFirmsList(); },60000);
 
 // Product rate lookup — product object thi rate laavo
 function getProdRate(productName, type){

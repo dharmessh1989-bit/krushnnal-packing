@@ -729,7 +729,7 @@ async function pullFirmsList(){
           try{localStorage.setItem(FIRMS_KEY,JSON.stringify(merged));}catch(e){}
           const _fTag=document.activeElement?document.activeElement.tagName:'';
           const _inputFocused=_fTag==='INPUT'||_fTag==='SELECT'||_fTag==='TEXTAREA';
-          if(!modal && !_inputFocused){render();}
+          if(!modal && !_inputFocused){_shellBuilt=false;render();}
         }
       } else {
         // Cloud khali chhe — local list upload kari devo
@@ -779,6 +779,7 @@ function addFirm(name,address,phone){
 function switchFirm(id){
   setCurFirmId(id);
   S=load();
+  _shellBuilt=false; // Sidebar ne pan fari banavo — firm switcher button update thay
   render();
   fbPull();
   try{document.title=getCurFirm().name;}catch(e){}
@@ -799,6 +800,7 @@ function deleteFirm(id,ev){
       if(getCurFirmId()===id){
         switchFirm(newFirms[0].id);
       } else {
+        _shellBuilt=false; // Sidebar dropdown ni list update thay mate
         render();
       }
       toast('Firm delete thai gai!','#ef4444');
@@ -4298,8 +4300,12 @@ function selectProd(name){
 <script>
 var KP_PASS_KEY='kp_pass';
 var KP_AUTH_KEY='kp_auth_v2';
+function kpGetPassUrl(){
+  // FB_BASE define thai gayu hoy to j vaparo, nahi to local-only fallback
+  return (typeof FB_BASE!=='undefined'?FB_BASE:'https://krushnnal-packing-default-rtdb.asia-southeast1.firebasedatabase.app')+'/global_password.json';
+}
 function kpGetPass(){
-  if(typeof S!=='undefined'&&S&&S.kpPass) return S.kpPass;
+  // Password have GLOBAL chhe — badhi firms ane badha PC ma j chhe, koi firm sathe bandhayel nathi
   return localStorage.getItem(KP_PASS_KEY)||'5090';
 }
 var kpVal='';
@@ -4455,6 +4461,21 @@ function kpUpd(){
   }
 }
 function kpCheck(){
+  var e=document.getElementById('kp-err');
+  // Fresh device par cloud sync thava dai devo, nahi to purani/default password thi galat match thai jay
+  if(!window._kpSyncDone){
+    if(e) e.textContent='⏳ Sync thai rahyu chhe, ek second raho...';
+    var maxWait=new Promise(function(res){setTimeout(res,3000);});
+    Promise.race([window._kpSyncPromise||Promise.resolve(),maxWait]).then(function(){
+      window._kpSyncDone=true;
+      if(e) e.textContent='';
+      kpCheckNow();
+    });
+    return;
+  }
+  kpCheckNow();
+}
+function kpCheckNow(){
   if(kpVal===kpGetPass()){
     kpVal='';
     // OTP halva mate band chhe — PIN thi j direct login
@@ -4721,11 +4742,9 @@ function kpnUpd(){
   }
 }
 function kpnSave(){
-  localStorage.setItem(KP_PASS_KEY,kpNVal); // offline fallback
-  if(typeof S!=='undefined'&&S){
-    S.kpPass=kpNVal;
-    if(typeof persist==='function') persist(); // localStorage + Firebase cloud push — badhe j device par update thai jashe
-  }
+  localStorage.setItem(KP_PASS_KEY,kpNVal); // local save — tarat j chalu thai jay
+  // Global cloud sync — badhi firms ane badha PC ma j password update thashe
+  fetch(kpGetPassUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(kpNVal)}).catch(function(){});
   kpNVal='';
   var s=document.getElementById('kp-chpass');
   if(s) s.remove();
@@ -4733,6 +4752,23 @@ function kpnSave(){
 }
 
 // Login screen - darak vakhte page open thay tyare
+// Password fresh device par sync thai jay mate turant sync shroo kari devo (login screen ni raah nathi jovi)
+window._kpSyncDone=false;
+function kpPullPassword(){
+  return fetch(kpGetPassUrl()).then(function(res){
+    if(res.ok) return res.json();
+    return null;
+  }).then(function(p){
+    if(p&&typeof p==='string'){
+      localStorage.setItem(KP_PASS_KEY,p);
+    } else {
+      // Cloud ma password haju set nathi thayu — local (juna system nu) value upload kari devo
+      var local=localStorage.getItem(KP_PASS_KEY)||'5090';
+      fetch(kpGetPassUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(local)}).catch(function(){});
+    }
+  }).catch(function(){});
+}
+window._kpSyncPromise=kpPullPassword().then(function(){window._kpSyncDone=true;});
 
 kpShowLogin();
 </script>

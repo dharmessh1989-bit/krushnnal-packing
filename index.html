@@ -1127,6 +1127,12 @@ let _tt=null;
 function toast(msg,bg='#22c55e'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=bg;t.style.display='block';clearTimeout(_tt);_tt=setTimeout(()=>t.style.display='none',2800);}
 
 let tab='dashboard',prevTab='dashboard',modal=null,confirmQ=null,searchQ='',repMonth=new Date().toISOString().slice(0,7);
+let toolsOpen=false; // Sidebar ma Tools/Settings section collapsed by default — jagya bachave
+function toggleToolsSection(){
+  toolsOpen=!toolsOpen;
+  _shellBuilt=false; // Sidebar fari banavo — nahi to toggle no farak screen par nahi dekhay
+  render();
+}
 let kpLoggedIn=false; // Login thay pachhi j app render thay
 let dashMonth=new Date().toISOString().slice(0,7);
 let stkQ='';
@@ -1465,12 +1471,18 @@ function _doRender(){
     </nav>
     <div style="padding:7px 8px;border-top:1px solid var(--border);">
       <div style="margin-bottom:5px;"><div id="sync-badge-mob" style="width:100%;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;text-align:center;background:#1e3a5f;color:#93c5fd;">⟳ Connecting...</div></div>
+      <button onclick="toggleToolsSection()" style="width:100%;padding:6px 10px;background:${toolsOpen?'#1a1f35':'var(--surface)'};border:1px solid var(--border2);border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:space-between;color:var(--muted);margin-bottom:${toolsOpen?'4':'0'}px;">
+        <span style="display:flex;align-items:center;gap:6px;">⚙️ Tools / Settings</span>
+        <span style="font-size:10px;">${toolsOpen?'▲':'▼'}</span>
+      </button>
+      ${toolsOpen?`
       <button onclick="sheetPull()" style="width:100%;padding:6px 10px;background:#1a1f35;color:#818cf8;border:1px solid #4f46e533;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:4px;display:flex;align-items:center;gap:6px;">↓ Refresh (Cloud)</button>
       <button onclick="exportData()" style="width:100%;padding:6px 10px;background:#1a2a40;border:1px solid #2563eb33;color:#60a5fa;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.download} Download Backup</button>
       <button onclick="importData()" style="width:100%;padding:6px 10px;background:#152218;border:1px solid #16a34a33;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.upload} Restore Backup</button>
       <button onclick="openDelModal()" style="width:100%;padding:6px 10px;background:#2a0a0a;border:1px solid #ef444433;color:#f87171;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;">${IC.trash} Purano Data Delete</button>
       <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#1a1a2e;border:1px solid #f9731633;color:#f97316;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🔐 Password Change</button>
-    <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
+      <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
+      `:''}
     </div>
   </div>
   <div class="main-wrap" style="display:flex;height:100vh;overflow:hidden;">
@@ -1542,13 +1554,19 @@ function _doRender(){
       </div>
       <div style="padding:7px 8px;border-top:1px solid var(--border);flex-shrink:0;">
         <div style="margin-bottom:5px;"><div id="sync-badge" style="width:100%;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;text-align:center;background:#1e3a5f;color:#93c5fd;">⟳ Connecting...</div></div>
+        <button onclick="toggleToolsSection()" style="width:100%;padding:6px 10px;background:${toolsOpen?'#1a1f35':'var(--surface)'};border:1px solid var(--border2);border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:space-between;color:var(--muted);margin-bottom:${toolsOpen?'5':'0'}px;">
+          <span style="display:flex;align-items:center;gap:6px;">⚙️ Tools / Settings</span>
+          <span style="font-size:10px;">${toolsOpen?'▲':'▼'}</span>
+        </button>
+        ${toolsOpen?`
         <button onclick="sheetPull()" style="width:100%;padding:6px 10px;background:#1a1f35;color:#818cf8;border:1px solid #4f46e533;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:5px;" onmouseover="this.style.background='#1e2540'" onmouseout="this.style.background='#1a1f35'">↓ Refresh (Cloud)</button>
         <div style="font-size:9.5px;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px;">${IC.save} BACKUP</div>
         <button onclick="exportData()" style="width:100%;padding:6px 10px;background:#1a2a40;border:1px solid #2563eb33;color:#60a5fa;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;margin-bottom:3px;display:flex;align-items:center;gap:6px;min-height:30px;" onmouseover="this.style.background='#1e3252'" onmouseout="this.style.background='#1a2a40'" aria-label="Download Backup">${IC.download} Download Backup</button>
         <button onclick="importData()" style="width:100%;padding:6px 10px;background:#152218;border:1px solid #16a34a33;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:3px;" onmouseover="this.style.background='#1a2c1e'" onmouseout="this.style.background='#152218'" aria-label="Restore Backup">${IC.upload} Restore Backup</button>
         <button onclick="openDelModal()" style="width:100%;padding:6px 10px;background:#2a0a0a;border:1px solid #ef444433;color:#f87171;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;margin-bottom:3px;" onmouseover="this.style.background='#3a0d0d'" onmouseout="this.style.background='#2a0a0a'" aria-label="Delete old data">${IC.trash} Purano Data Delete</button>
         <button onclick="openChangePass()" style="width:100%;padding:6px 10px;background:#1a1a2e;border:1px solid #f9731633;color:#f97316;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;text-align:left;display:flex;align-items:center;gap:6px;min-height:30px;" onmouseover="this.style.background='#2a1a1e'" onmouseout="this.style.background='#1a1a2e'">🔐 Password Change</button>
-    <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
+        <button onclick="changePhoto()" style="width:100%;margin-top:4px;padding:7px;background:linear-gradient(135deg,#1a3a2a,#0f2218);border:1px solid #22c55e44;color:#4ade80;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;display:flex;align-items:center;gap:6px;">🖼️ Photo Change</button>
+        `:''}
       </div>
       <div style="padding:6px 12px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);flex-shrink:0;">
         <div style="font-weight:800;color:var(--orange);font-size:10px;">Dharmessh Bhai · ${getCurFirm().name}</div>

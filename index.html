@@ -951,6 +951,8 @@ function load(){
   if(!Array.isArray(firmData.employees)) firmData.employees=[];
   if(!Array.isArray(firmData.attendance)) firmData.attendance=[];
   if(!firmData.nextEmpId) firmData.nextEmpId=1;
+  // Juna "F" (Half Day) status vada records ne "H" ma convert karo
+  firmData.attendance.forEach(a=>{ if(a.status==='F') a.status='H'; });
   return firmData;
 }
 let S=load();
@@ -2924,7 +2926,7 @@ function prodHTML(stock){
 let attDate=tod();
 let attView='daily'; // 'daily' or 'report'
 let attMonth=new Date().toISOString().slice(0,7);
-const ATT_STATUS={P:{label:'Present',color:'#4ade80',bg:'#14532d'},A:{label:'Absent',color:'#f87171',bg:'#7f1d1d'},F:{label:'Half Day',color:'#fbbf24',bg:'#713f12'}};
+const ATT_STATUS={P:{label:'Present',color:'#4ade80',bg:'#14532d'},A:{label:'Absent',color:'#f87171',bg:'#7f1d1d'},H:{label:'Half Day',color:'#fbbf24',bg:'#713f12'}};
 
 function getAttStatus(empId,date){
   const r=S.attendance.find(a=>a.empId===empId&&a.date===date);
@@ -3017,14 +3019,14 @@ function attReportView(){
       ${days.map(d=>`<th style="text-align:center;color:var(--muted2);font-size:10px;min-width:30px;">${d}</th>`).join('')}
       <th style="text-align:center;color:#4ade80;min-width:34px;">P</th>
       <th style="text-align:center;color:#f87171;min-width:34px;">A</th>
-      <th style="text-align:center;color:#fbbf24;min-width:34px;">F</th>
+      <th style="text-align:center;color:#fbbf24;min-width:34px;">H</th>
     </tr></thead>
     <tbody>${S.employees.map((e,i)=>{
       let pCount=0,aCount=0,fCount=0;
       const cells=days.map(d=>{
         const dateStr=`${y}-${m}-${String(d).padStart(2,'0')}`;
         const st=getAttStatus(e.id,dateStr);
-        if(st==='P')pCount++;else if(st==='A')aCount++;else if(st==='F')fCount++;
+        if(st==='P')pCount++;else if(st==='A')aCount++;else if(st==='H')fCount++;
         const info=st?ATT_STATUS[st]:null;
         return `<td style="text-align:center;padding:4px 2px;cursor:pointer;" onclick="attDate='${dateStr}';attView='daily';render()" title="${fd(dateStr)}">
           <span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:5px;font-weight:800;font-size:11px;background:${info?info.bg:'transparent'};color:${info?info.color:'var(--muted2)'};">${st||'·'}</span>
@@ -3462,15 +3464,15 @@ function printAttendance(){
         ${days.map(d=>`<th style="padding:3px 2px;text-align:center;">${d}</th>`).join('')}
         <th style="padding:5px 4px;text-align:center;color:#15803d;">P</th>
         <th style="padding:5px 4px;text-align:center;color:#b91c1c;">A</th>
-        <th style="padding:5px 4px;text-align:center;color:#b45309;">F</th>
+        <th style="padding:5px 4px;text-align:center;color:#b45309;">H</th>
       </tr></thead>
       <tbody>${S.employees.map((e,i)=>{
         let pCount=0,aCount=0,fCount=0;
         const cells=days.map(d=>{
           const dateStr=`${y}-${m}-${String(d).padStart(2,'0')}`;
           const st=getAttStatus(e.id,dateStr);
-          if(st==='P')pCount++;else if(st==='A')aCount++;else if(st==='F')fCount++;
-          const clr=st==='P'?'#15803d':st==='A'?'#b91c1c':st==='F'?'#b45309':'#999';
+          if(st==='P')pCount++;else if(st==='A')aCount++;else if(st==='H')fCount++;
+          const clr=st==='P'?'#15803d':st==='A'?'#b91c1c':st==='H'?'#b45309':'#999';
           return `<td style="padding:3px 2px;text-align:center;font-weight:700;color:${clr};">${st||'-'}</td>`;
         }).join('');
         return `<tr style="background:${i%2===0?'rgba(255,255,255,.45)':'rgba(245,243,255,.45)'};border-bottom:1px solid #e5e7eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">

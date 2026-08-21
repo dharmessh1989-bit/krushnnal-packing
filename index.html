@@ -950,9 +950,9 @@ function load(){
   // Juna saved data ma employees/attendance na hoy to (backward compat) khali array set karo
   if(!Array.isArray(firmData.employees)) firmData.employees=[];
   if(!Array.isArray(firmData.attendance)) firmData.attendance=[];
+  // Juna 'F' (half day) status hoy to 'H' ma migrate karo
+  firmData.attendance.forEach(a=>{if(a.status==='F')a.status='H';});
   if(!firmData.nextEmpId) firmData.nextEmpId=1;
-  // Juna "F" (Half Day) status vada records ne "H" ma convert karo
-  firmData.attendance.forEach(a=>{ if(a.status==='F') a.status='H'; });
   return firmData;
 }
 let S=load();
@@ -1615,14 +1615,15 @@ function _doRender(){
         {id:'out',l:'Gayo',i:'📤'},
         {id:'stock',l:'Stock',i:'📦'},
         {id:'report',l:'Report',i:'📊'},
-      ].map(n=>`<button onclick="tab='${n.id}';render()" style="background:${tab===n.id?'rgba(249,115,22,0.12)':'none'};border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;position:relative;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
-        ${tab===n.id?`<span style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:3px;background:var(--orange);border-radius:0 0 4px 4px;"></span>`:''}
-        <span style="font-size:21px;line-height:1;">${n.i}</span>
-        <span style="font-size:9px;font-weight:800;letter-spacing:.3px;">${n.l}</span>
+        {id:'attendance',l:'Hajri',i:'👥'},
+      ].map(n=>`<button onclick="tab='${n.id}';render()" style="background:${tab===n.id?'rgba(249,115,22,0.12)':'none'};border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 3px;border-radius:9px;min-width:44px;position:relative;${tab===n.id?'color:var(--orange);':'color:var(--muted);'}">
+        ${tab===n.id?`<span style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:3px;background:var(--orange);border-radius:0 0 4px 4px;"></span>`:''}
+        <span style="font-size:19px;line-height:1;">${n.i}</span>
+        <span style="font-size:8.5px;font-weight:800;letter-spacing:.2px;">${n.l}</span>
       </button>`).join('')}
-      <button onclick="openMobSidebar()" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;min-width:52px;color:var(--muted);">
-        <span style="font-size:21px;line-height:1;">☰</span>
-        <span style="font-size:9px;font-weight:800;letter-spacing:.3px;">Menu</span>
+      <button onclick="openMobSidebar()" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 3px;border-radius:9px;min-width:44px;color:var(--muted);">
+        <span style="font-size:19px;line-height:1;">☰</span>
+        <span style="font-size:8.5px;font-weight:800;letter-spacing:.2px;">Menu</span>
       </button>
     </div>
   </div>
@@ -3013,31 +3014,34 @@ function attReportView(){
     <input type="month" class="inp" style="width:auto;font-size:13px;padding:7px 10px;" value="${attMonth}" onchange="attMonth=this.value;render()">
     <button onclick="printAttendance()" style="background:#1a1f35;border:1px solid #4f46e544;color:#818cf8;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12.5px;font-weight:700;">🖨️ Print</button>
   </div>
-  <div class="card" style="overflow-x:auto;"><table style="min-width:${400+dim*34}px;">
+  <div class="card" style="overflow-x:auto;"><table style="min-width:${450+dim*34}px;">
     <thead><tr style="background:var(--surface);border-bottom:2px solid var(--border2);">
       <th style="text-align:left;color:var(--muted);position:sticky;left:0;background:var(--surface);z-index:2;min-width:110px;">Naam</th>
       ${days.map(d=>`<th style="text-align:center;color:var(--muted2);font-size:10px;min-width:30px;">${d}</th>`).join('')}
       <th style="text-align:center;color:#4ade80;min-width:34px;">P</th>
       <th style="text-align:center;color:#f87171;min-width:34px;">A</th>
-      <th style="text-align:center;color:#fbbf24;min-width:34px;">H</th>
+      <th style="text-align:center;color:#fbbf24;min-width:34px;">F</th>
+      <th style="text-align:center;color:var(--blue);min-width:50px;">Total Days</th>
     </tr></thead>
     <tbody>${S.employees.map((e,i)=>{
-      let pCount=0,aCount=0,fCount=0;
+      let pCount=0,aCount=0,hCount=0;
       const cells=days.map(d=>{
         const dateStr=`${y}-${m}-${String(d).padStart(2,'0')}`;
         const st=getAttStatus(e.id,dateStr);
-        if(st==='P')pCount++;else if(st==='A')aCount++;else if(st==='H')fCount++;
+        if(st==='P')pCount++;else if(st==='A')aCount++;else if(st==='H')hCount++;
         const info=st?ATT_STATUS[st]:null;
         return `<td style="text-align:center;padding:4px 2px;cursor:pointer;" onclick="attDate='${dateStr}';attView='daily';render()" title="${fd(dateStr)}">
           <span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:5px;font-weight:800;font-size:11px;background:${info?info.bg:'transparent'};color:${info?info.color:'var(--muted2)'};">${st||'·'}</span>
         </td>`;
       }).join('');
+      const totalDays=pCount+hCount*0.5;
       return `<tr class="rr" style="background:${i%2===0?'var(--card)':'var(--surface)'};">
         <td style="font-weight:700;font-size:13px;position:sticky;left:0;background:${i%2===0?'var(--card)':'var(--surface)'};z-index:1;">${e.name}</td>
         ${cells}
         <td style="text-align:center;font-weight:800;color:#4ade80;">${pCount}</td>
         <td style="text-align:center;font-weight:800;color:#f87171;">${aCount}</td>
-        <td style="text-align:center;font-weight:800;color:#fbbf24;">${fCount}</td>
+        <td style="text-align:center;font-weight:800;color:#fbbf24;">${hCount}</td>
+        <td style="text-align:center;font-weight:900;color:var(--blue);font-size:14px;">${totalDays}</td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>
@@ -3464,23 +3468,26 @@ function printAttendance(){
         ${days.map(d=>`<th style="padding:3px 2px;text-align:center;">${d}</th>`).join('')}
         <th style="padding:5px 4px;text-align:center;color:#15803d;">P</th>
         <th style="padding:5px 4px;text-align:center;color:#b91c1c;">A</th>
-        <th style="padding:5px 4px;text-align:center;color:#b45309;">H</th>
+        <th style="padding:5px 4px;text-align:center;color:#b45309;">F</th>
+        <th style="padding:5px 4px;text-align:center;color:#1d4ed8;">Total Days</th>
       </tr></thead>
       <tbody>${S.employees.map((e,i)=>{
-        let pCount=0,aCount=0,fCount=0;
+        let pCount=0,aCount=0,hCount=0;
         const cells=days.map(d=>{
           const dateStr=`${y}-${m}-${String(d).padStart(2,'0')}`;
           const st=getAttStatus(e.id,dateStr);
-          if(st==='P')pCount++;else if(st==='A')aCount++;else if(st==='H')fCount++;
+          if(st==='P')pCount++;else if(st==='A')aCount++;else if(st==='H')hCount++;
           const clr=st==='P'?'#15803d':st==='A'?'#b91c1c':st==='H'?'#b45309':'#999';
           return `<td style="padding:3px 2px;text-align:center;font-weight:700;color:${clr};">${st||'-'}</td>`;
         }).join('');
+        const totalDays=pCount+hCount*0.5;
         return `<tr style="background:${i%2===0?'rgba(255,255,255,.45)':'rgba(245,243,255,.45)'};border-bottom:1px solid #e5e7eb;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
           <td style="padding:4px 6px;font-weight:700;">${e.name}</td>
           ${cells}
           <td style="padding:4px 4px;text-align:center;font-weight:900;color:#15803d;">${pCount}</td>
           <td style="padding:4px 4px;text-align:center;font-weight:900;color:#b91c1c;">${aCount}</td>
-          <td style="padding:4px 4px;text-align:center;font-weight:900;color:#b45309;">${fCount}</td>
+          <td style="padding:4px 4px;text-align:center;font-weight:900;color:#b45309;">${hCount}</td>
+          <td style="padding:4px 4px;text-align:center;font-weight:900;color:#1d4ed8;font-size:12px;">${totalDays}</td>
         </tr>`;
       }).join('')}</tbody>
     </table>

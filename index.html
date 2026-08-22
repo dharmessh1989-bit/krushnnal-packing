@@ -1820,10 +1820,10 @@ function dashHTML(stock){
   const tiP=fyIn.reduce((s,r)=>s+r.pes,0);
   // Pieces: pes+damage+short = total out pieces
   const toP=fyOut.reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0),0);
-  // Stock balance: FY pramane j (1 April thi shroo)
-  const fyStock=stkRange(fy.start,fy.end);
-  const totalBalPcs=fyStock.reduce((s,r)=>s+r.balPes,0);
-  const totalBalAmt=fyStock.reduce((s,r)=>s+r.balAmt,0);
+  // Stock balance: HAMESHA All-Time (FY selector thi asar nathi thato — current real stock j dekhadvu)
+  const allTimeStock=stk();
+  const totalBalPcs=allTimeStock.reduce((s,r)=>s+r.balPes,0);
+  const totalBalAmt=allTimeStock.reduce((s,r)=>s+r.balAmt,0);
   const isCurrentFY=dashFY===getCurrentFYStart();
   // Use dashMonth for monthly stats
   const mk=dashMonth;

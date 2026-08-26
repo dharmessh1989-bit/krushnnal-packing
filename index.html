@@ -725,7 +725,11 @@ async function pullFirmsList(){
         // Cloud ane local ni firms merge karo (id thi duplicate na thay)
         const merged=[...cloud];
         local.forEach(lf=>{if(!merged.find(f=>f.id===lf.id)) merged.push(lf);});
-        const changed=JSON.stringify(merged)!==JSON.stringify(local);
+        // Compare karta pehla ID pramane SORT karo — nahi to khali array-order farak hoy to pan
+        // "changed" true thai jatu hatu, jenathi darak 60 second e software fari banavatu hatu (jump/slow bug)
+        const sortedMerged=[...merged].sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+        const sortedLocal=[...local].sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+        const changed=JSON.stringify(sortedMerged)!==JSON.stringify(sortedLocal);
         if(changed){
           try{localStorage.setItem(FIRMS_KEY,JSON.stringify(merged));}catch(e){}
           const _fTag=document.activeElement?document.activeElement.tagName:'';

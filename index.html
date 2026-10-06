@@ -2777,7 +2777,7 @@ function searchHTML(stock){
   ${srchAllProd&&srchMonth?(()=>{
     const allInPool=S.inData.filter(r=>r.date.startsWith(srchMonth));
     const allOutPool=S.outData.filter(r=>r.date.startsWith(srchMonth));
-    const allProds=[...new Set([...allInPool.map(r=>r.product),...allOutPool.map(r=>r.product)])].sort();
+    const allProds=[...new Set([...allInPool.map(r=>r.product),...allOutPool.map(r=>r.product)])].sort(prodNumSort);
     if(!allProds.length) return `<div style="text-align:center;padding:30px;color:var(--muted);font-size:14px;">📅 ${fMonthFull(srchMonth)} maa koi data nathi</div>`;
     const totIn=allInPool.reduce((s,r)=>s+r.pes,0);
     const totOut=allOutPool.reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0),0);
@@ -3658,6 +3658,16 @@ table{width:100%;border-collapse:collapse;}
   document.getElementById('pa').style.display='none';
 }
 
+// ═══ PRODUCT NUMBER-WISE SORT (100, 101, 102 ...) ═══
+function prodNumSort(a,b){
+  // bracket (2.5) ma je hoy te ignore; baaki naam no CHHELLO number = product number
+  const getN=t=>{const m=String(t).replace(/\([^)]*\)/g,' ').match(/\d+(?:\.\d+)?/g);return m?parseFloat(m[m.length-1]):null;};
+  const na=getN(a), nb=getN(b);
+  if(na!==null&&nb!==null){const d=na-nb;if(d)return d;}
+  else if(na!==null)return -1;   // number vaala pehla
+  else if(nb!==null)return 1;    // number vagar na chhella
+  return String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'});
+}
 // ═══ SEARCH PRINT FUNCTION ═══
 function printSearch(){
   const pd=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
@@ -3668,7 +3678,7 @@ function printSearch(){
   if(srchAllProd&&srchMonth){
     const allInPool=S.inData.filter(r=>r.date.startsWith(srchMonth));
     const allOutPool=S.outData.filter(r=>r.date.startsWith(srchMonth));
-    const allProds=[...new Set([...allInPool.map(r=>r.product),...allOutPool.map(r=>r.product)])].sort();
+    const allProds=[...new Set([...allInPool.map(r=>r.product),...allOutPool.map(r=>r.product)])].sort(prodNumSort);
     const totIn=allInPool.reduce((s,r)=>s+r.pes,0);
     const totOut=allOutPool.reduce((s,r)=>s+r.pes+(r.damage||0)+(r.short||0)+(r.fresh||0),0);
     const totInAmt=allInPool.reduce((s,r)=>s+r.pes*r.rate,0);

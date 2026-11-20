@@ -21,6 +21,10 @@
   --transition:all .2s ease;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
+/* PERF FIX: modal khulu hoy tyare badhi infinite animation + blur band — typing fast thase */
+.mo-bg{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+body:has(.mo-bg) *,body:has(#kp-modal-layer .modal-box) *{animation:none!important;}
+body:has(.mo-bg) .kb-active{background:rgba(249,115,22,0.18)!important;}
 body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',Tahoma,sans-serif;overflow:hidden;height:100vh;font-size:15px;font-weight:400;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 ::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:#2a3550;border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:#3b4f70;}
 *{scrollbar-width:thin;scrollbar-color:#2a3550 var(--surface);}
@@ -4003,7 +4007,7 @@ function buildModal(){
         <div style="position:relative;">
           <input type="text" class="inp" id="prod-num-inp" placeholder="Number type karo (dakhla: 371)" 
             style="font-size:15px;font-weight:700;letter-spacing:1px;"
-            value="${(()=>{const parts=(d.product||'').trim().split(' ');return parts[parts.length-1]||'';})()}"
+            value="${(()=>{if(!d.product)return (typeof _prodNumQ!=='undefined'?_prodNumQ:'').replace(/"/g,'&quot;');const parts=(d.product||'').trim().split(' ');return parts[parts.length-1]||'';})()}"
             oninput="prodNumSearch(this.value)"
             onkeydown="handleProdKey(event)"
             autocomplete="off">
@@ -4110,6 +4114,7 @@ function openAdd(type){
     modal={type:'product',mode:'add',data:{name:'',rate:''}};
     render();setTimeout(()=>document.getElementById('pname')?.focus(),50);return;
   }
+  _prodNumQ='';
   modal={type,mode:'add',data:{date:tod(),product:'',pes:'',rate:''}};
   render();setTimeout(()=>document.getElementById('prod-num-inp')?.focus(),60);
 }
@@ -4532,8 +4537,11 @@ function confirmDelMonth(){
 // ── Product dropdown with Arrow key navigation ──
 let ddIdx=-1;
 
+var _prodNumQ='',_prodNumT=null;
 function prodNumSearch(val){
   if(!modal)return;
+  _prodNumQ=val;
+  clearTimeout(_prodNumT);
   ddIdx=-1;
   const q=val.trim().toLowerCase();
   const dd=document.getElementById('prod-dropdown');
@@ -4581,7 +4589,12 @@ function prodNumSearch(val){
   if(filtered.length===1){
     const exactLast=filtered[0].name.trim().split(' ').pop().toLowerCase();
     if(exactLast===q){
-      selectProd(filtered[0].name);
+      // Auto-select thodu ruki ne — user haju type kare to jump na thay
+      const _nm=filtered[0].name;
+      _prodNumT=setTimeout(()=>{
+        const _i=document.getElementById('prod-num-inp');
+        if(_i&&_i.value.trim().toLowerCase()===q&&!modal.data.product)selectProd(_nm);
+      },450);
     }
   }
   // If multiple match same number (same last word), DO NOT auto-select — show dropdown for user to pick
@@ -4639,6 +4652,7 @@ function handleProdKey(e){
 
 function selectProd(name){
   if(!modal)return;
+  _prodNumQ='';clearTimeout(_prodNumT);
   modal.data.product=name;
   const inp=document.getElementById('prod-num-inp');
   if(inp){
